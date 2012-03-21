@@ -626,11 +626,12 @@ function clean_file($file, $url, $type) {
     $file = preg_replace("/&nbsp;/", " ", $file);
 
     $fulltext = $file;
-    $file .= " ".$title;
+    if (isset($title))
+        $file .= " ".$title;
     if ($index_host == 1) {
         $file = $file." ".$host." ".$path;
     }
-    if ($index_meta_keywords == 1) {
+    if ($index_meta_keywords == 1 && isset($headdata['keywords'])) {
         $file = $file." ".$headdata['keywords'];
     }
 
@@ -648,14 +649,14 @@ function clean_file($file, $url, $type) {
     $file = preg_replace("/\s+/", " ", $file);
     $data['fulltext'] = quotestring($fulltext);
     $data['content'] = quotestring($file);
-    $data['title'] = quotestring($title);
-    $data['description'] = $headdata['description'];
-    $data['keywords'] = $headdata['keywords'];
+    $data['title'] = isset($title) ? quotestring($title) : "";
+    $data['description'] = isset($headdata['description']) ? $headdata['description'] : "";
+    $data['keywords'] = isset($headdata['keywords']) ? $headdata['keywords'] : "";
     $data['host'] = $host;
     $data['path'] = $path;
-    $data['nofollow'] = $headdata['nofollow'];
-    $data['noindex'] = $headdata['noindex'];
-    $data['base'] = $headdata['base'];
+    $data['nofollow'] = isset($headdata['nofollow']) ? $headdata['nofollow'] : "";
+    $data['noindex'] = isset($headdata['noindex']) ? $headdata['noindex'] : "";
+    $data['base'] = isset($headdata['base']) ? $headdata['base'] : "";
 
     return $data;
 

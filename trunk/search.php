@@ -15,14 +15,10 @@ include ("$include_dir/commonfuncs.php");
 //extract(getHttpVars());
 
 require_once("$settings_dir/database.php");
-require_once("$language_dir/en-language.php");
 require_once("$include_dir/searchfuncs.php");
 require_once("$include_dir/categoryfuncs.php");
 
 include "$settings_dir/conf.php";
-
-include "$template_dir/$template/header.html";
-include "$language_dir/$language-language.php";
 
 // http://www.sphider.eu/forum/read.php?2,9135 (modified for PDO)
 if (isset($_GET['query']))
@@ -43,6 +39,11 @@ if (isset($_GET['start']))
 	$start = quotestring($_GET['start']);
 if (isset($_GET['adv']))
 	$adv = quotestring($_GET['adv']);
+if (isset($_GET['lang']))
+	$language = $_GET['lang'];
+
+require_once("$language_dir/$language-language.php");
+require_once "$template_dir/$template/header_$language.html";
 
 
 if (!isset($type) || ($type != "or" && $type != "and" && $type != "phrase")) {
