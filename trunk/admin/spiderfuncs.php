@@ -177,11 +177,6 @@ function url_status($url) {
     }
     fclose($fp);
 
-    // special case: Autopackage files are returned as text, wavepack files too
-    if (strstr($url,".package") || strstr($url, ".wv")) {
-        $status['state'] = "Not text or html";
-    }
-
     return $status;
 }
 
@@ -396,9 +391,9 @@ function url_purify($url, $parent_url, $can_leave_domain) {
     }
 
     reset($ext);
-    while (list ($id, $excl) = each($ext))
-    if (preg_match("/\.$excl$/i", $url))
-    return '';
+    while (list($id, $excl) = each($ext))
+        if (preg_match("/\.$excl$/i", $url))
+            return '';
 
     if (substr($url, -1) == '\\') {
         return '';

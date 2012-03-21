@@ -1,23 +1,23 @@
-<?php 
+<?php
 /***********************
  Sphider configuration file
 ***********************/
 
 
-/*********************** 
-General settings 
+/***********************
+General settings
 ***********************/
 
-// Sphider version 
+// Sphider version
 $version_nr			= '1.3.5';
 
-//Language of the search page 
+//Language of the search page
 $language			= 'en';
 
 // Template name/directory in templates dir
 $template	= 'standard';
 
-//Administrators email address (logs can be sent there)	
+//Administrators email address (logs can be sent there)
 $admin_email		= 'admin@localhost';
 
 // Print spidering results to standard out
@@ -27,8 +27,8 @@ $print_results		= 1;
 $tmp_dir	= 'tmp';
 
 
-/*********************** 
-Logging settings 
+/***********************
+Logging settings
 ***********************/
 
 // Should log files be kept
@@ -40,15 +40,15 @@ $log_dir	= 'log';
 // Log format
 $log_format			= 'html';
 
-//  Send log file to email 
+//  Send log file to email
 $email_log			= 0;
 
 
-/*********************** 
-Spider settings 
+/***********************
+Spider settings
 ***********************/
 
-// Min words per page required for indexing 
+// Min words per page required for indexing
 $min_words_per_page = 10;
 
 // Words shorter than this will not be indexed
@@ -64,7 +64,7 @@ $index_numbers		= 1;
 $index_host		 = 0;
 
 
-// Wether to index keywords in a meta tag 
+// Wether to index keywords in a meta tag
 $index_meta_keywords = 1;
 
 // Index pdf files
@@ -91,21 +91,21 @@ $xls2csv_path	= 'c:\temp\xls2csv';
 //executable path to ppt converter
 $catppt_path	= 'c:\temp\catppt';
 
-// User agent string 
+// User agent string
 $user_agent			 = 'Sphider';
 
-// Minimal delay between page downloads 
+// Minimal delay between page downloads
 $min_delay			= 0;
 
-// Use word stemming (e.g. find sites containing runs and running when searching for run) 
+// Use word stemming (e.g. find sites containing runs and running when searching for run)
 $stem_words			= 0;
 
-// Strip session ids (PHPSESSID, JSESSIONID, ASPSESSIONID, sid) 
+// Strip session ids (PHPSESSID, JSESSIONID, ASPSESSIONID, sid)
 $strip_sessids			= 1;
 
 
-/*********************** 
-Search settings 
+/***********************
+Search settings
 ***********************/
 
 // default for number of results per page
@@ -117,7 +117,7 @@ $cat_columns		= 2;
 // Can speed up searches on large database (should be 0)
 $bound_search_result = 0;
 
-// The length of the description string queried when displaying search results. // If set to 0 (default), makes a query for the whole page text, // otherwise queries this many bytes. Can significantly speed up searching on very slow machines 
+// The length of the description string queried when displaying search results. // If set to 0 (default), makes a query for the whole page text, // otherwise queries this many bytes. Can significantly speed up searching on very slow machines
 $length_of_link_desc	= 0;
 
 // Number of links shown to next pages
@@ -130,7 +130,7 @@ $show_meta_description = 1;
 $advanced_search	= 0;
 
 // Query scores are not shown if set to 0
-$show_query_scores	 = 1;	
+$show_query_scores	 = 1;
 
 
 
@@ -146,23 +146,23 @@ $merge_site_results		= 0;
 // Enable spelling suggestions (Did you mean...)
 $did_you_mean_enabled	= 1;
 
-// Enable Sphider Suggest 
+// Enable Sphider Suggest
 $suggest_enabled		= 1;
 
-// Search for suggestions in query log 
+// Search for suggestions in query log
 $suggest_history		= 1;
 
-// Search for suggestions in keywords 
+// Search for suggestions in keywords
 $suggest_keywords		= 0;
 
-// Search for suggestions in phrases 
+// Search for suggestions in phrases
 $suggest_phrases		= 0;
 
-// Limit number of suggestions 
+// Limit number of suggestions
 $suggest_rows		= 10;
 
 
-/*********************** 
+/***********************
 Weights
 ***********************/
 

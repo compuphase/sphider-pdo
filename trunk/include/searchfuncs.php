@@ -35,10 +35,11 @@ error_reporting (E_ALL | E_STRICT);
 	}
 
 	function cmp($a, $b) {
-		if ($a['weight'] == $b['weight'])
+		$wa = isset($a['weight']) ? $a['weight'] : 0;
+		$wb = isset($b['weight']) ? $b['weight'] : 0;
+		if ($wa == $wb)
 			return 0;
-
-		return ($a['weight'] > $b['weight']) ? -1 : 1;
+		return ($wa > $wb) ? -1 : 1;
 	}
 
 	function addmarks($a) {
@@ -147,7 +148,8 @@ error_reporting (E_ALL | E_STRICT);
 	}
 
 	function search($searchstr, $category, $start, $per_page, $type, $domain) {
-		global $length_of_link_desc,$table_prefix, $show_meta_description, $merge_site_results, $stem_words, $did_you_mean_enabled ;
+		global $length_of_link_desc,$table_prefix, $show_meta_description, $merge_site_results, $stem_words;
+		global $did_you_mean_enabled,$did_you_mean_always,$soundex_available;
 		global $db;
 		$possible_to_find = 1;
 		$result = $db->query("select domain_id from ".$table_prefix."domains where domain = '$domain'");
@@ -161,10 +163,10 @@ error_reporting (E_ALL | E_STRICT);
 		if (count($searchstr['+']) == 0) {
 			return null;
 		}
-        if (isset($searchstr['-']))
-            $wordarray = $searchstr['-'];
-        else
-            $wordarray = array();
+		if (isset($searchstr['-']))
+			$wordarray = $searchstr['-'];
+		else
+			$wordarray = array();
 		$notlist = array();
 		$not_words = 0;
 		while ($not_words < count($wordarray)) {
@@ -175,7 +177,7 @@ error_reporting (E_ALL | E_STRICT);
 			}
 			$wordmd5 = substr(md5($searchword), 0, 1);
 
-            $query1 = "SELECT link_id from ".$table_prefix."link_keyword$wordmd5, ".$table_prefix."keywords where ".$table_prefix."link_keyword$wordmd5.keyword_id= ".$table_prefix."keywords.keyword_id and keyword='$searchword'";
+			$query1 = "SELECT link_id from ".$table_prefix."link_keyword$wordmd5, ".$table_prefix."keywords where ".$table_prefix."link_keyword$wordmd5.keyword_id= ".$table_prefix."keywords.keyword_id and keyword='$searchword'";
 
 			$result = $db->query($query1);
 
@@ -187,10 +189,10 @@ error_reporting (E_ALL | E_STRICT);
 
 
 		//find all sites containing the search phrase
-        if (isset($searchstr['+s']))
-            $wordarray = $searchstr['+s'];
-        else
-            $wordarray = array();
+		if (isset($searchstr['+s']))
+			$wordarray = $searchstr['+s'];
+		else
+			$wordarray = array();
 		$phrase_words = 0;
 		while ($phrase_words < count($wordarray)) {
 
@@ -198,12 +200,12 @@ error_reporting (E_ALL | E_STRICT);
 			$query1 = "SELECT link_id from ".$table_prefix."links where fulltxt like '% $searchword%'";
 			$result = $db->query($query1);
 			echo sql_errorstring(__FILE__,__LINE__);
-            $row = $result->fetch();
+			$row = $result->fetch();
 			if (! $row) {
 				$possible_to_find = 0;
 				break;
 			}
-            $phraselist[$phrase_words]['id'][$row[0]] = 1;
+			$phraselist[$phrase_words]['id'][$row[0]] = 1;
 			while ($row = $result->fetch()) {
 				$phraselist[$phrase_words]['id'][$row[0]] = 1;
 			}
@@ -214,14 +216,14 @@ error_reporting (E_ALL | E_STRICT);
 		if (($category> 0) && $possible_to_find==1) {
 			$allcats = get_cats($category);
 			$catlist = implode(",", $allcats);
-			$query1 = "select link_id from ".$table_prefix."links, ".$table_prefix."sites, ".$table_prefix."categories, ".$table_prefix."site_category where ".$table_prefix."links.site_id = ".$table_prefix."sites.site_id and ".$table_prefix."sites.site_id = ".$table_prefix."site_category.site_id and ".$table_prefix."site_category.category_id in ($catlist)";
+			$query1 = "select link_id from ".$table_prefix."links, ".$table_prefix."sites, ".$table_prefix."categories, ".$table_prefix."site_category where ".$table_prefix."links.site_id = ".$table_prefix."sites.site_id and ".$table_prefix."sites.site_id =	".$table_prefix."site_category.site_id	and	".$table_prefix."site_category.category_id	in	($catlist)";
 			$result = $db->query($query1);
 			echo sql_errorstring(__FILE__,__LINE__);
-            $row = $result->fetch();
+			$row = $result->fetch();
 			if (! $row) {
 				$possible_to_find = 0;
 			}
-            $category_list[$row[0]] = 1;
+			$category_list[$row[0]] = 1;
 			while ($row = $result->fetch()) {
 				$category_list[$row[0]] = 1;
 			}
@@ -238,10 +240,10 @@ error_reporting (E_ALL | E_STRICT);
 				$searchword = quotestring($wordarray[$words]);
 			}
 			$wordmd5 = substr(md5($searchword), 0, 1);
-			$query1 = "SELECT distinct link_id, weight, domain from ".$table_prefix."link_keyword$wordmd5, ".$table_prefix."keywords where ".$table_prefix."link_keyword$wordmd5.keyword_id= ".$table_prefix."keywords.keyword_id and keyword='$searchword' $domain_qry order by weight desc";
+			$query1 = "SELECT distinct link_id, weight, domain from ".$table_prefix."link_keyword$wordmd5, ".$table_prefix."keywords where ".$table_prefix."link_keyword$wordmd5.keyword_id= ".$table_prefix."keywords.keyword_id and keyword='$searchword' $domain_qry	order	by	weight	desc";
 			$result = $db->query($query1);
-            echo sql_errorstring(__FILE__,__LINE__);
-            $row = $result->fetch();
+			echo sql_errorstring(__FILE__,__LINE__);
+			$row = $result->fetch();
 			if (! $row) {
 				if ($type != "or") {
 					$possible_to_find = 0;
@@ -254,11 +256,11 @@ error_reporting (E_ALL | E_STRICT);
 				$indx = $words;
 			}
 
-            do {
-                $linklist[$indx]['id'][] = $row[0];
-                $domains[$row[0]] = $row[2];
-                $linklist[$indx]['weight'][$row[0]] = $row[1];
-            } while ($row = $result->fetch());
+			do {
+				$linklist[$indx]['id'][] = $row[0];
+				$domains[$row[0]] = $row[2];
+				$linklist[$indx]['weight'][$row[0]] = $row[1];
+			} while ($row = $result->fetch());
 			$words++;
 		}
 
@@ -328,29 +330,46 @@ error_reporting (E_ALL | E_STRICT);
 		$end = getmicrotime()- $starttime;
 
 
-		if ((count($result_array_full) == 0 || $possible_to_find == 0) && $did_you_mean_enabled == 1) {
+		if ((count($result_array_full) == 0 || $possible_to_find == 0 || $did_you_mean_always) && $did_you_mean_enabled == 1) {
 			reset ($searchstr['+']);
 			foreach ($searchstr['+'] as $word) {
 				$word = quotestring($word);
-
-				$result = $db->query("select keyword from ".$table_prefix."keywords where keyword like '$word%'");
-				$max_distance = 100;
+				if ($soundex_available)
+					$result = $db->query("select keyword from ".$table_prefix."keywords where soundex(keyword)=soundex('$word')");
+				else
+					$result = $db->query("select keyword from ".$table_prefix."keywords");
+				// http://www.mdj.us/web-development/php-programming/creating-better-search-suggestions-with-sphider/
+				$max_distance = 4;
+				$max_similar = 0;
 				$near_word ="";
-				while ($row=$result->fetch()) {
-					$distance = levenshtein($row[0], $word);
-					if ($distance < $max_distance && $distance <4) {
-						$max_distance = $distance;
-						$near_word = $row[0];
+				while ($result && $row=$result->fetch()) {
+					if (strcasecmp($row[0], $word) != 0) {
+						$distance = levenshtein($row[0], $word);
+						if ($distance < $max_distance) {
+							$max_distance = $distance;
+							$near_word = $row[0];
+						} else if ($distance == $max_distance) {
+							if (metaphone($row[0]) == metaphone($word)) {
+								$similar = similar_text($row[0], $word);
+								if ($similar >= $max_similar) {
+									$max_distance = $distance;
+									$max_similar = $similar;
+									$near_word = $row[0];
+								}
+							}
+						}
 					}
 				}
-
 				if ($near_word != "" && $word != $near_word) {
 					$near_words[$word] = $near_word;
 				}
 
 			}
+			if (!isset($near_words))
+				$near_words = "";
 			$res['did_you_mean'] = $near_words;
-			return $res;
+			if (count($result_array_full) == 0 || $possible_to_find == 0)
+				return $res;
 		}
 		if (count($result_array_full) == 0) {
 			return null;
@@ -432,6 +451,8 @@ error_reporting (E_ALL | E_STRICT);
 			usort($res, "cmp");
 		}
 		echo sql_errorstring(__FILE__,__LINE__);
+		/* sorting destroys the other columns in the array, restore */
+		$res['did_you_mean'] = $near_words;
 		$res['maxweight'] = $maxweight;
 		$res['results'] = $results;
 		return $res;
@@ -455,15 +476,15 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 
 	$starttime = getmicrotime();
 	// catch " if only one time entered
-        if (substr_count($query,'"')==1){
-           $query=str_replace('"','',$query);
-        }
+	if (substr_count($query,'"')==1){
+	   $query=str_replace('"','',$query);
+	}
 	$words = makeboollist($query);
-    if (isset($words['ignore']))
-      $ignorewords = $words['ignore'];
-    else
-      $ignorewords = "";
-    $full_result['ignore_words'] = $ignorewords;
+	if (isset($words['ignore']))
+	  $ignorewords = $words['ignore'];
+	else
+	  $ignorewords = "";
+	$full_result['ignore_words'] = $ignorewords;
 
 	if ($start==0)
 		$start=1;
@@ -474,14 +495,17 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 	$full_result['ent_query'] = $entitiesQuery;
 
 	$endtime = getmicrotime() - $starttime;
-	$rows = $result['results'];
+	if (isset($result['results']))
+		$rows = $result['results'];
+	else
+		$rows = "";
 	$time = round($endtime*100)/100;
 
 
 	$full_result['time'] = $time;
 
 	$did_you_mean = "";
-    $did_you_mean_b = "";
+	$did_you_mean_b = "";
 
 	if (isset($result['did_you_mean'])) {
 		$did_you_mean_b=$entitiesQuery;
@@ -523,8 +547,12 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 		$maxweight = $result['maxweight'];
 		$i = 0;
 		while ($i < $num_of_results && $i < $results_per_page) {
-			$title = $result[$i]['title'];
+			if (!isset($result[$i]['url'])) {
+				$i++;
+				continue;
+			}
 			$url = $result[$i]['url'];
+			$title = isset($result[$i]['title']) ? $result[$i]['title'] : "";
 			$fulltxt = $result[$i]['fulltxt'];
 			$page_size = $result[$i]['size'];
 			$domain = $result[$i]['domain'];
@@ -554,8 +582,8 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 				$end = 0;
 				while(list($id, $place) = each($places)) {
 					while (isset($places[$id + $x]) && $places[$id + $x] - $place < $desc_length
-                           && $x+$id < count($places)
-                           && $place < strlen($fulltxt) - $desc_length) {
+						   && $x+$id < count($places)
+						   && $place < strlen($fulltxt) - $desc_length) {
 						$x++;
 						$begin = $id;
 						$end = $id + $x;
