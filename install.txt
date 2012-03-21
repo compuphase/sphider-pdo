@@ -1,0 +1,130 @@
+============================================
+Sphider - a lightweight search engine in PHP
+Version 1.3.x
+
+Installation and usage instructions
+Ando Saabas 2005-2007
+============================================
+
+------------
+Documentation
+------------
+
+   1. Installation
+   2. Indexing options
+   3. Customizing
+   4. Indexing from command-line
+   5. Keeping pages from being indexed
+      * Robots.txt
+      * Must include / must not include string list
+      * Ignoring links
+      * Ignoring parts of a page
+
+
+1. Installation
+
+1. Unpack the files, and copy them to the server, for example to /home/youruser/public_html/sphider (later referred to as 
+[path_of_sphider])
+
+2. In the server, create a database to hold Sphider data (in MySQL, SQLite or another supported format).
+
+   For MySQL:
+   a) at command prompt type (to log into MySQL):
+      mysql -u <your username> -p
+      Enter your password when prompted.
+
+   b) in MySQL, type:
+      CREATE DATABASE sphider_db;
+
+      Of course you can use some other name for database instead of sphider_db.
+
+   c) Use exit to exit MySQL.
+      For more information on how to create a database and give/get the necessary permissions, check MySQL.com
+
+3.  In settings directory, edit database.php file and change $database and possibly $table_prefix. See the PDO documentation for the syntax. 
+You may also need to change the function quotestring() in database.php, because databases have different conventions for escaping special characters in query strings.
+
+4. Open install.php script (admin directory) in your browser, which will create the tables necessary for Sphider to operate.
+
+5. In admin directory, edit auth.php to change the administrator user name and password (default values are 'admin' and 'admin').
+
+6. Open admin/admin.php in browser and start indexing.
+
+7. search.php is the default search page.
+
+
+2. Indexing options
+Full: Indexing continues until there are no further (permitted) links to follow.
+To depth: Indexes to a given depth, where depth means how many "clicks" away the page can be from the starting page. Depth 0 means that 
+only the starting page is indexed, depth 1 indexes the starting page and all the pages linked from it etc.
+Reindex: By checking this checkbox, indexing is forced even if the page already has been indexed.
+Spider can leave domain : By default, Sphider never leaves a given domain, so that links from domain.com pointing to domain2.com are not 
+followed. By checking this option Sphider can leave the domain, however in this case its highly advisable to define proper must include / 
+must not include string lists to prevent the spider from going too far.
+Must include / must not include: See here for an explanation.
+
+
+3. Customizing
+
+If you want to change the default behaviour of Sphider, you can do this either through the admin interface, or by directly editing conf.php in settings directory.
+
+To change the look of the search page to fit your site, modify or add a template in the templates directory. It should be enough to modify the search.css file and header and footer templates (header.html and footer.html). Heavier modifications can be made through editing the rest of template files.
+
+The list of file types that are not checked for indexing are given in admin/ext.txt. The list of common words that are not indexed are given in include/common.txt.
+
+
+4. Using the indexer from commandline
+
+It is possible to spider webpages from the command line, using the syntax:
+
+php spider.php <options>
+
+   where <options> are
+
+-all 		Reindex everything in the database
+-u <url> 		Set the url to index
+-f 		Set indexing depth to full (unlimited depth)
+-d <num> 		Set indexing depth to <num>
+-l 		Allow spider to leave the initial domain
+-r 		Set spider to reindex a site
+-m <string>		Set the string(s) that an url must include (use \n as a delimiter between multiple strings)
+-n <string>		Set the string(s) that an url must not include (use \n as a delimiter between multiple strings)
+
+
+For example, for spidering and indexing http://www.domain.com/test.html to depth 2, use
+php spider.php -u http://www.domain.com/test.html -d 2
+
+If you want to reindex the same url, use
+php spider.php -u http://www.domain.com/test.html -r 
+
+
+5. Keeping pages from being indexed
+* Robots.txt
+The most common way to prevent pages from being indexed is using the robots.txt standard, by either putting a robots.txt file into the 
+root directory of the server, or adding the necessary meta tags into the page headers (for more information on how to do this, see here).
+
+* Must include / must not include string list
+A powerful option Sphider supports is defining
+a must include / must not include string list for a site
+(click on Advanced options in Index screen for this). Any url containing
+a string in the 'must not include' list is ignored. Any url that does
+not contain any string in the 'must include' list is likewise ignored.
+All strings in the string list
+should be separated by a newline (enter). For example,
+to prevent a forum in your site from being indexed, you might add
+www.yoursite.com/forum to the "must not include" list. This means that
+all urls containing the string will be ignored and wont be indexed. Using
+Perl style regular expressions instead of literal strings is also
+supported. Every string starting with a '*' in front is considered as
+a regular expression, so that '*/[a]+/' denotes a string with one or more
+a's in it.
+
+
+* Ignoring links
+Sphider respect rel="nofollow" attribute in <a href..> tags, so for example the link foo.html in <a href="foo.html" rel="nofollow> is 
+ignored.
+
+* Ignoring parts of a page
+Sphider includes an option to exclude parts of pages from being indexed. This can for example be used to prevent search result flooding 
+when certain keywords appear on certain part in most pages (like a header, footer or a menu). Any part of a page between 
+<!--sphider_noindex--> and <!--/sphider_noindex--> tags is not indexed, however links in it are followed.

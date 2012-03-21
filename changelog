@@ -1,0 +1,224 @@
+============================================
+Sphider - a lightweight search engine in PHP
+CHANGELOG
+By Ando Saabas          ando(a t)cs.ioc.ee
+============================================
+
+Sphider-PDO 1.3.5, release date 21-03-2012
+    Conversion to PHP Data Objects (PDO) (Thiadmer Riemersma)
+	
+Sphider 1.3.5, release date 13-12-2009
+    Fixed ereg warnings - PHP 6 compatible now (Ando Saabas)
+    Update Bulgarian language file (Martin Halachev)
+    
+Sphider 1.3.4, release date 29-04-2008
+    An XSS vulnerability bug fixed (Ando Saabas)
+
+Sphider 1.3.4b, release date 11-12-2007
+    Bug in file download function fixed (Viorel Irimia)
+    Bug with possible bold tag bleeding in result titles fixed (Ando Saabas)
+    Index all does not load keyword table multiple times any  more (Ando Saabas)
+    Bug with certain searches returning too many results fixed (Ando Saabas)
+
+Sphider 1.3.3, release date 15-09-2007
+    Sphider now also works on ports other than default 80 (Ando Saabas)
+    By default socket connectability checking removed (Ando Saabas)
+    "Url must contain option" now an OR option instead of AND( Ando Saabas)
+    "Duplicate entry" bug fixed (Ando Saabas)
+    Limit max title size in search results (Tec)
+    A bug in "not" words query fixed (Ando Saabas)
+
+Sphider 1.3.2, release date 28-07-2007
+    Indexing speed improvements (Ando Saabas)
+    Bug with > sign in title fixed (Ando Saabas)
+    Accent conversion bug fixed (Ando Saabas)
+    Bug with accented characters in suggest fixed (Tec)
+    Other minor bug fixes (Ando Saabas)
+    Czech language file added (Marek Èapla)
+
+Sphider 1.3.1f, release date 17-03-2007
+    "Did you mean" string no longer hardcoded in templates (Ando Saabas)
+    Formatting bug due to extra </div> in template fixed (Ando Saabas, Frank Carius)
+    Sphider can now find links which are given via the base tag (Jason Judge)
+    Serbian language file added (Aleks)
+    Slovenian language file added (Damir Kervina)
+    Some minor bug fixes (Ando Saabas) 
+
+Sphider 1.3.1e, release date 22-11-2006
+    Problem with reaching urls where trailing slash after domain has been omitted fixed (Ando Saabas)
+
+Sphider 1.3.1d, release date 10-11-2006
+    Spaces in urls are now treated properly (Ando Saabas)
+    Script now also works with short tags turned off (Ando Saabas)
+    Turksih language file added (Ibrahim Kaplan)
+
+
+Sphider 1.3.1c, release date 30-08-2006
+    Bug with unique word counting fixed (Adam Schneider)
+    Latvian language file added (Kaspars)
+
+
+Sphider 1.3.1b, release date 07-06-2006
+    
+    Security related bugfixes (Ando Saabas)
+
+
+Sphider 1.3.1, release date 21-05-2006
+
+    Stemming support added for English. Uses the stemming algorithm by Martin Porter, implemented in PHP by Richard Heyes (Ando Saabas)
+    As-you-type search suggestions added (a la Google Suggest). Uses the Suggest Framework (http://sourceforge.net/projects/suggest) (Tanel Tõnnisson)
+    "Did you mean" spelling suggestions added (Ando Saabas)
+    Several major speed optimizatios for both indexing and searching (Ando Saabas)
+    Optional domain grouping implemented, such that no more than 2 results from each domain are displayed (a la Google) (Ando Saabas)
+    Session ID-s can now be stripped from urls (Ando Saabas)
+    Database tab in admin section for backing up and optimizing the database (Manu Arponen, Ando Saabas)
+    Security bugfixes (Ando Saabas)
+    Farsi language file added (Sepehr Esmaeili)
+
+
+Sphider 1.3, release date 21-02-2006
+
+    Changes:
+    Some minor bugfixes (Ando Saabas)
+    Russian language file added (Thanks to Mihail Korobov)
+
+Sphider 1.3 RC2, release date 10-12-2005
+   
+   Changes:
+   Indexing words with more than 30 characters does not produce a "duplicate entry" warning any more (Ando Saabas)
+   Multiple searches with an apostrophe in keywords now possible (Ando Saabas)
+   Bug with highlighting words with a '+' in front of them fixed (Ando Saabas)
+   Slovak language file added (Fedor Tirsel)
+   Traditional Chinese language file added (Benny)
+
+Sphider 1.3 RC1, release date 03-12-2005
+   
+   Changes:
+   Update of look and feel of admin section (Ando Saabas, Rich Pedley)
+   Configuration of Sphider settings now possible through admin section (Albert Bohlmeijer, Ando Saabas)
+   Indexing results logging into files now possible (Ando Saabas)
+   Spidering notice can be sent to admin e-mail (Ando Saabas)
+   Outputting spidering results to standard out can be turned off (Ando Saabas)
+   Showing categories can be turned off in conf file (Ando Saabas, Albert Bohlmeijer)
+   Possibility to set a minimum delay between file downloads (eg to keep from spamming the server with too frequent requests) (Ando Saabas)
+   Simple template system introduced, searching and result presentation completely separeted (Tanel Tõnnisson, Ando Saabas)
+   Language file format changed to a more sensible one (Ando Saabas)
+   Some missing stripslashes added in admin section (Maxxer)
+   Bug when digging an url from meta refresh tag fixed (Maxxer)
+   Apache fancy indexing paramaters are now ignored (Manu Arponen, Ando Saabas)
+   Wrappers added for indexing powerpoint and excel files (Manu Arponen)
+   Bug with trailing backslashes at url ends fixed.
+
+Sphider 1.2.7c, release date 03-11-2005
+
+    Changes:
+    A bug with OR searches fixed.
+    Simple Chinese language file added (thanks to Ben).
+    French language file added (thanks to Dan Delsol).
+    Arabian language file added (thanks to Marzook Alshammary). 
+
+Sphider 1.2.7b, release date 21-10-2005
+   
+    Changes:
+    Swedish language file added (thanks to Mikael Brodin).
+    Polish language file added (thanks to Michal Charko).
+    Bulgarian language file added (thanks to Martin Halachev).
+
+Sphider 1.2.7, release date 29-09-2005
+
+    Changes:
+    Support for indexing pdf and doc files via external binaries added. 
+    Stopwords are not highlighted in page summary any more.
+
+Sphider 1.2.6a RC1, release date 27-06-2005
+   "Reindex all" now works properly even when indexing parameters haven't been set.
+   Argument variables argv and argc now accessed through $_SERVER superglobal.
+   Empty disallow field in robots.txt treated properly.
+   &amp; tags in urls now converted to &.
+   Italian language file added (thanks to Stefano Paganini).
+
+
+
+Sphider 1.2.6 RC1, release date 20-06-2005
+   "Reindex all" option both from command line and admin interface.
+   Indexing options saved with the rest of the site data (used when reindexing).
+   When phrase searching, only the full search phrases in search results are coloured.
+   Possibility to define url must include/must not include string/regular-expression list for a site.
+   Reindexing now checks if a page status has been changed and deletes it from the index if necessary.
+   Some code cleanup.
+
+Sphider 1.2.5a RC1, release date 25-05-2005
+   Indexing and searching numbers is now possible (set in conf.php).
+
+Sphider 1.2.5 RC1, release date 13-05-2005
+
+    Changes:
+    Support for rel="nofollow" attribute in <a href..> links.
+    Url scheme is now saved in the database, so indexing https pages is possible.
+    Meta descriptions can now be used as page description in results page (set in conf.php).
+    Meta keywords can now be indexed and weight assigned to them.
+    Advanced search form added (can be set in conf.php).
+    OR search added (available via advanced search form).
+    Output by the script is always flushed (immediate feedback in browser).
+    Category list can now have an arbitrary number of columns (set in conf.php).
+    Results and categories page more customizble via css.
+    Main search page renamed from index.php to search.php.
+    German language file added (thanks to Sascha Kuhn).
+    Portuguese language file added (thanks to Static Bit).
+    Some minor bugfixes.
+
+Sphider 1.2.3 RC1, release date 27-03-2005
+
+    Changes:
+    Possibility to add an arbitrary prefix to Sphider tables in Mysql (thanks to Albert Bohlmeijer).
+    Bug where opened socket was not closed fixed (thanks to Albert Bohlmeijer).
+    Dutch language file added (Jeroen de Bruijn).
+    Reindexing improved.
+    Indexing words in domain name and path now added as an option (turned off by default).
+    Word weight calculation algorithm changed.
+    A bug with calculating page size when page is over 1Mb fixed.
+    Fixed a bug which could prevent words with non-western characters from being indexed.
+    Indexing speed improved. 
+
+
+Sphider 1.2.2, release date 20-03-2005
+
+    Changes:
+    MD5 sum of each page is checked upon adding them to the database to avoid duplicate entries (eg due to aliases such as http://www.domain.com/ vs. http://www.domain.com/index.html).
+    Authentication changed to session-based.
+    Phrase searching now works with magic_quotes_gpc = On.
+    Fixed a small bug in HEAD query.
+    Fixed some charset issues.
+
+
+Sphider 1.2.1, release date 09-03-2005
+
+    Changes:
+    Browsing through multiple search result pages does not increase search count anymore.
+    Spidering now works with allow_url_fopen = Off.
+    Correct reporting of response timeout from server.
+    Handles http code 302 properly.
+    Reporting of http codes in spidering log.
+    Fixed a minor bug with displaying empty brackets when $show_query_scores was turned off (thanks to Shdwdrgn).
+
+
+Sphider 1.2 RC 1, release date 24-02-2005
+
+    Changes:
+    Many improvements and new features in Administrator tools
+    Option to exclude parts of pages from being indexed (for example menus appearing in each page) via <!--sphider_noindex--> and <!--/sphider_noindex--> tags.
+    Spanish language file (thanks to Claudio Tavares Mastrangelo)
+    Many small fixes and improvements.
+
+
+Sphider 1.1.0, release date 28-01-2005
+
+    Changes:
+    Install script added.
+    Bug in calculating the order of pages when searching for multiple words fixed.
+    HTTP query header improved.
+    Deleting categories and sites removes all unnecessary data.
+    Database sometimes not being updated when re-indexing bug fixed.
+    Empty array sorting with certain queries bug fixed.
+    Some HTML and CSS changes and improvements.
+    Internationalization of the search script (language files).
