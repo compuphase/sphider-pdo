@@ -329,7 +329,6 @@ error_reporting (E_ALL | E_STRICT);
 		}
 		$end = getmicrotime()- $starttime;
 
-
 		if ((count($result_array_full) == 0 || $possible_to_find == 0 || $did_you_mean_always) && $did_you_mean_enabled == 1) {
 			reset ($searchstr['+']);
 			foreach ($searchstr['+'] as $word) {
@@ -341,7 +340,7 @@ error_reporting (E_ALL | E_STRICT);
 				// http://www.mdj.us/web-development/php-programming/creating-better-search-suggestions-with-sphider/
 				$max_distance = 4;
 				$max_similar = 0;
-				$near_word ="";
+				$near_word = "";
 				while ($result && $row=$result->fetch()) {
 					if (strcasecmp($row[0], $word) != 0) {
 						$distance = levenshtein($row[0], $word);
@@ -360,7 +359,7 @@ error_reporting (E_ALL | E_STRICT);
 						}
 					}
 				}
-				if ($near_word != "" && $word != $near_word) {
+				if ($near_word != "") {
 					$near_words[$word] = $near_word;
 				}
 
@@ -452,7 +451,8 @@ error_reporting (E_ALL | E_STRICT);
 		}
 		echo sql_errorstring(__FILE__,__LINE__);
 		/* sorting destroys the other columns in the array, restore */
-		$res['did_you_mean'] = $near_words;
+		if (isset($near_words))
+			$res['did_you_mean'] = $near_words;
 		$res['maxweight'] = $maxweight;
 		$res['results'] = $results;
 		return $res;
@@ -590,6 +590,8 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 					}
 				}
 
+				if (!isset($places[$begin]))
+					$places[$begin] = 0;
 				$begin_pos = max(0, $places[$begin] - 30);
 				$fulltxt = substr($fulltxt, $begin_pos, $desc_length);
 

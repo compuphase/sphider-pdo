@@ -146,6 +146,12 @@ $merge_site_results		= 0;
 // Enable spelling suggestions (Did you mean...)
 $did_you_mean_enabled	= 1;
 
+// Always search for alternative spellings, not just when there are no results
+$did_you_mean_always    = 1;
+
+// Whether the database has a SOUNDEX function available, this speeds up the fuzzy search ("Did you mean")
+$soundex_available      = 0;
+
 // Enable Sphider Suggest
 $suggest_enabled		= 1;
 
