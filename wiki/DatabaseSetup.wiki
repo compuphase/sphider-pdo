@@ -1,0 +1,23 @@
+#summary Examples for setting up the database.
+
+= Database configuration strings =
+
+PDO requires a driver for the database. You can query whether a suitable PDO driver is installed with phpinfo.
+
+== MySql ==
+
+{{{
+$database = "sphider";
+$table_prefix = "";
+$db = new PDO('mysql:host=hostname; dbname=$database', 'username', 'password');
+}}}
+
+The hostname, username and password need to be filled in in this query.
+
+== SQLite ==
+
+{{{
+$database = dirname(__FILE__)."/../sphider.db";
+$table_prefix = "";
+$db = new PDO('sqlite:'.$database);
+}}}
