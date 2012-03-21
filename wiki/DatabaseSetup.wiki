@@ -4,7 +4,7 @@
 
 PDO requires a driver for the database. You can query whether a suitable PDO driver is installed with phpinfo.
 
-== MySql ==
+== !MySql ==
 
 {{{
 $database = "sphider";
@@ -14,7 +14,7 @@ $db = new PDO('mysql:host=hostname; dbname=$database', 'username', 'password');
 
 The hostname, username and password need to be filled in in this query.
 
-== SQLite ==
+== !SQLite ==
 
 {{{
 $database = dirname(__FILE__)."/../sphider.db";
