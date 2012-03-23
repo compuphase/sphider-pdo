@@ -177,6 +177,22 @@
 		"C=D;O=D" => 1);
 
 
+	function latin1_to_html($string) {
+		global $entities;
+		reset($entities);
+		while ($char = each($entities))
+			$string = preg_replace("/".$char[1]."/", $char[0], $string);
+		return $string;
+	}
+
+	function html_to_latin1($string) {
+		global $entities;
+		reset($entities);
+		while ($char = each($entities))
+			$string = preg_replace("/".$char[0]."/", $char[1], $string);
+		return $string;
+	}
+
 	function remove_accents($string) {
 		return (strtr($string, "ÀÁÂÃÄÅÆàáâãäåæÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëğÇçĞÌÍÎÏìíîïÙÚÛÜùúûüÑñŞßÿı",
 					  "aaaaaaaaaaaaaaoooooooooooooeeeeeeeeecceiiiiiiiiuuuuuuuunntsyy"));
