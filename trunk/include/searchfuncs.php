@@ -197,7 +197,7 @@ error_reporting (E_ALL | E_STRICT);
 		while ($phrase_words < count($wordarray)) {
 
 			$searchword = quotestring($wordarray[$phrase_words]);
-			$query1 = "SELECT link_id from ".$table_prefix."links where fulltxt like '% $searchword%'";
+			$query1 = "SELECT link_id from ".$table_prefix."links where fulltxt like '%$searchword%'";
 			$result = $db->query($query1);
 			echo sql_errorstring(__FILE__,__LINE__);
 			$row = $result->fetch();
@@ -612,16 +612,14 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 				$title = substr($title, 0,76)."...";
 			}
 			foreach($words['hilight'] as $change) {
-				while (preg_match("/[^\>](".$change.")[^\<]/i", " ".$title." ", $regs)) {
-					$title = preg_replace("/".$regs[1]."/i", "<b>".$regs[1]."</b>", $title);
+				$count = 0;
+				while (preg_match("/[ .,;\(\)\'\"](".$change.")[ .,;\(\)\'\"]/i", " ".$title." ", $regs) && ++$count < 20) {
+					$title = preg_replace("/([ .,;\(\)\'\"])".$regs[1]."([ .,;\(\)\'\"])/i", "$1<b>".$regs[1]."</b>$2", $title);
 				}
 
-				while (preg_match("/[^\>](".$change.")[^\<]/i", " ".$fulltxt." ", $regs)) {
-					$fulltxt = preg_replace("/".$regs[1]."/i", "<b>".$regs[1]."</b>", $fulltxt);
-				}
-				$url2 = $url;
-				while (preg_match("/[^\>](".$change.")[^\<]/i", $url2, $regs)) {
-					$url2 = preg_replace("/".$regs[1]."/i", "<b>".$regs[1]."</b>", $url2);
+				$count = 0;
+				while (preg_match("/[ .,;\(\)\'\"](".$change.")[ .,\(\)\'\"]/i", " ".$fulltxt." ", $regs) && ++$count < 20) {
+					$fulltxt = preg_replace("/([ .,;\(\)\'\"])".$regs[1]."([ .,;\(\)\'\"])/i", "$1<b>".$regs[1]."</b>$2", $fulltxt);
 				}
 			}
 
@@ -633,7 +631,6 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 			$full_result['qry_results'][$i]['url'] =  $url;
 			$full_result['qry_results'][$i]['title'] =  $title;
 			$full_result['qry_results'][$i]['fulltxt'] =  $fulltxt;
-			$full_result['qry_results'][$i]['url2'] =  $url2;
 			$full_result['qry_results'][$i]['page_size'] =  $page_size;
 			$full_result['qry_results'][$i]['domain_name'] =  $domain;
 			$i++;

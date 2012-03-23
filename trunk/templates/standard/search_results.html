@@ -79,7 +79,7 @@ if (!isset($adv_qry))
 		<b><?php print $num?>.</b> <?php print $weight?>
 		<a href="<?php print $url?>" class="title">	<?php print ($title?$title:$sph_messages['Untitled'])?></a><br/>
 		<div class="description"><?php print $fulltxt?></div>
-		<div class="url"><?php print $url2?> - <?php print $page_size?></div>
+		<div class="url"><?php print $url?> - <?php print $page_size?></div>
 		<?php  if (isset($domain_name) && $domain_name==$last_domain && $merge_site_results == 1 && $domain == "") {?>
 			[ <a href="<?php print 'search.php?query='.quote_replace(addmarks($query)).'&search=1&results='.$results_per_page.'&domain='.$domain_name?>">More results from <?php print $domain_name?></a> ]
 			</div class="idented">
