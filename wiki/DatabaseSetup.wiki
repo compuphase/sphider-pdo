@@ -4,6 +4,10 @@
 
 PDO requires a driver for the database. You can query whether a suitable PDO driver is installed with phpinfo.
 
+The PDO definition must be in a file called "database.php" which is in the "settings" directory. That file should also contain a function called _quotestring_ that escapes or "quotes" special characters in a string.
+
+Below are a few examples.
+
 == !MySql ==
 
 {{{
@@ -14,10 +18,29 @@ $db = new PDO('mysql:host=hostname; dbname=$database', 'username', 'password');
 
 The hostname, username and password need to be filled in in this query.
 
+The function to _escape_ special characters can simply be _mysql_real_escape_string_.
+
+{{{
+function quotestring($str) {
+    return mysql_real_escape_string($str);
+}
+}}}
+
 == SQLite ==
 
 {{{
 $database = dirname(__FILE__)."/../sphider.db";
 $table_prefix = "";
 $db = new PDO('sqlite:'.$database);
+}}}
+
+For SQLite, I recommend a _quotestring_ function similar to:
+
+{{{
+function quotestring($str) {
+    $search  = array('"'     , "'"    , '<'   , '>'    );
+    $replace = array('&quot;', '&#39;', '&lt;', '&gt;' );
+    $str = str_replace($search, $replace, $str);
+    return $str;
+}
 }}}
