@@ -50,13 +50,12 @@ error_reporting (E_ALL | E_STRICT);
 	}
 
 	function makeboollist($a) {
-		global $entities, $stem_words;
-		while ($char = each($entities)) {
-			$a = preg_replace("/".$char[0]."/i", $char[1], $a);
-		}
+		global $stem_words;
+		$a = utf8_decode($a);     /* if words are passed as UTF8, translate to Latin-1 */
+		$a = html_to_latin1($a);  /* if any words are passed as HTML entities, translate to Latin-1 */
 		$a = trim($a);
 
-		$a = preg_replace("/&quot;/i", "\"", $a);
+		$a = preg_replace("/&quot;/", "\"", $a);
 		$returnWords = array();
 		//get all phrases
 		$regs = Array();
@@ -70,7 +69,6 @@ error_reporting (E_ALL | E_STRICT);
 			$a = str_replace($regs[0], "", $a);
 		}
 		$a = strtolower(preg_replace("/[ ]+/", " ", $a));
-//		$a = remove_accents($a);
 		$a = trim($a);
 		$words = explode(' ', $a);
 		if ($a=="") {
@@ -216,7 +214,7 @@ error_reporting (E_ALL | E_STRICT);
 		if (($category> 0) && $possible_to_find==1) {
 			$allcats = get_cats($category);
 			$catlist = implode(",", $allcats);
-			$query1 = "select link_id from ".$table_prefix."links, ".$table_prefix."sites, ".$table_prefix."categories, ".$table_prefix."site_category where ".$table_prefix."links.site_id = ".$table_prefix."sites.site_id and ".$table_prefix."sites.site_id =	".$table_prefix."site_category.site_id	and	".$table_prefix."site_category.category_id	in	($catlist)";
+			$query1 = "select link_id from ".$table_prefix."links, ".$table_prefix."sites, ".$table_prefix."categories, ".$table_prefix."site_category where ".$table_prefix."links.site_id = ".$table_prefix."sites.site_id and ".$table_prefix."sites.site_id =			".$table_prefix."site_category.site_id	and	".$table_prefix."site_category.category_id	in	($catlist)";
 			$result = $db->query($query1);
 			echo sql_errorstring(__FILE__,__LINE__);
 			$row = $result->fetch();
@@ -359,10 +357,8 @@ error_reporting (E_ALL | E_STRICT);
 						}
 					}
 				}
-				if ($near_word != "") {
-					$near_words[$word] = $near_word;
-				}
-
+				if ($near_word != "")
+					$near_words[$word] = latin1_to_html($near_word);
 			}
 			if (!isset($near_words))
 				$near_words = "";
@@ -507,9 +503,9 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 	$did_you_mean = "";
 	$did_you_mean_b = "";
 
-	if (isset($result['did_you_mean'])) {
-		$did_you_mean_b=$entitiesQuery;
-		$did_you_mean=$entitiesQuery;
+	if (isset($result['did_you_mean']) && is_array($result['did_you_mean'])) {
+		$did_you_mean_b=html_to_latin1(utf8_decode($entitiesQuery));
+		$did_you_mean=html_to_latin1(utf8_decode($entitiesQuery));
 		while (list($key, $val) = each($result['did_you_mean'])) {
 			if ($key != $val) {
 				$did_you_mean_b = str_replace($key, "<b>$val</b>", $did_you_mean_b);
@@ -542,7 +538,6 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 	$full_result['from'] = $from;
 	$full_result['to'] = $to;
 	$full_result['total_results'] = $rows;
-
 	if ($rows>0) {
 		$maxweight = $result['maxweight'];
 		$i = 0;
@@ -564,6 +559,7 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 			if ($txtlen > $desc_length) {
 				$places = array();
 				foreach($words['hilight'] as $word) {
+					$word = latin1_to_html($word);
 					$tmp = strtolower($fulltxt);
 					$found_in = strpos($tmp, $word);
 					$sum = -strlen($word);
@@ -612,6 +608,7 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 				$title = substr($title, 0,76)."...";
 			}
 			foreach($words['hilight'] as $change) {
+				$change = latin1_to_html($change);
 				$count = 0;
 				while (preg_match("/[ .,;\(\)\'\"](".$change.")[ .,;\(\)\'\"]/i", " ".$title." ", $regs) && ++$count < 20) {
 					$title = preg_replace("/([ .,;\(\)\'\"])".$regs[1]."([ .,;\(\)\'\"])/i", "$1<b>".$regs[1]."</b>$2", $title);
