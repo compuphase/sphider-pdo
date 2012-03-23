@@ -76,7 +76,7 @@ if (!isset($adv_qry))
 		<b><?=$num?>.</b> <?=$weight?>
 		<a href="<?=$url?>" class="title">	<?=($title?$title:$sph_messages['Untitled'])?></a><br/>
 		<div class="description"><?=$fulltxt?></div>
-		<div class="url"><?=$url2?> - <?=$page_size?></div>
+		<div class="url"><?=$url?> - <?=$page_size?></div>
 		<? if ($domain_name==$last_domain && $merge_site_results == 1 && $domain == "") {?>
 			[ <a href="<?='search.php?query='.quote_replace(addmarks($query)).'&search=1&results='.$results_per_page.'&domain='.$domain_name?>">More results from <?=$domain_name?></a> ]
 			</div class="idented">
