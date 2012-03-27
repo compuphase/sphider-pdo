@@ -26,7 +26,7 @@ function quotestring($str) {
 }
 }}}
 
-== SQLite ==
+== SQLite 3 ==
 
 {{{
 $database = dirname(__FILE__)."/../sphider.db";
@@ -44,3 +44,13 @@ function quotestring($str) {
     return $str;
 }
 }}}
+
+== SQLite 2 ==
+
+{{{
+$database = dirname(__FILE__)."/../sphider.db";
+$table_prefix = "";
+$db = new PDO('sqlite2:'.$database);
+}}}
+
+You can used the same _quotestring_ function as for SQLite 3.
