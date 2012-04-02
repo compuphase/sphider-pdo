@@ -43,6 +43,8 @@ function quotestring($str) {
 }
 }}}
 
+The SQLite database does not support the "soundex" function. In the configuration, you should therefore set the variable `$soundex_available` to zero (in the file `conf.php`).
+
 == SQLite 2 ==
 
 {{{
