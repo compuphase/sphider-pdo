@@ -74,7 +74,6 @@ if (!isset($category) || !is_numeric($category)) {
 
 
 if ($catid && is_numeric($catid)) {
-
 	$tpl_['category'] = sql_fetch_all('SELECT category FROM '.$table_prefix.'categories WHERE category_id='.(int)$_REQUEST['catid']);
 }
 
@@ -117,7 +116,6 @@ function saveToLog ($query, $elapsed, $results) {
     }
     $query =  "insert into ".$table_prefix."query_log (query, time, elapsed, results) values ('$query', DATETIME('NOW'), '$elapsed', '$results')";
 	$db->exec($query);
-
 	echo sql_errorstring(__FILE__,__LINE__);
 }
 

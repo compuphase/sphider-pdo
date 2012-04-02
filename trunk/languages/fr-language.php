@@ -1,28 +1,28 @@
-<?php 
+<?php
 $sph_messages =  Array (
 	"Categories" => "Categories",
 	"CATEGORIES" => "CATEGORIES",
 	"Untitled" => "Document sans titre",
 	"Powered by" => "Powered by",
-	"Previous" => "Précédent",
+	"Previous" => "Pr&eacute;c&eacute;dent",
 	"Next" => "Suivant",
-	"Result page" => "Page de résultat",
-	"Only in category" => "Seulement dans la catégorie",
+	"Result page" => "Page de r&eacute;sultat",
+	"Only in category" => "Seulement dans la cat&eacute;gorie",
 	"Search" => "Chercher",
 	"All sites" => "Tous les sites",
 	"Web pages" => "Pages Web",
-	"noMatch" => "La recherche \"%query\" ne correspond à aucun document",
-	"ignoredWords" => "Mots vides ignorés (trop court ou commun): %ignored_words",
-	"resultsFor" => "Résultats pour:",
-	"Results" => "Présentation des résultats %from - %to ode %all %matchword (%secs secondes)", //
-	"match" => "resultat",     //
-	"matches" => "resultats", //
-	"andSearch" => "Recherhe ET",         
-	"orSearch" => "Recherche OU",    
+	"noMatch" => "La recherche \"%query\" ne correspond &agrave; aucun document",
+	"ignoredWords" => "Mots vides ignor&eacute;s (trop court ou commun): %ignored_words",
+	"resultsFor" => "R&eacute;sultats pour:",
+	"Results" => "Pr&eacute;sentation des r&eacute;sultats %from - %to ode %all %matchword (%secs secondes)", //
+	"match" => "r&eacute;sultat",
+	"matches" => "r&eacute;sultats",
+	"andSearch" => "Recherhe ET",
+	"orSearch" => "Recherche OU",
 	"phraseSearch" => "Recherche d'expression",
 	"show" => "Montrer ",
-	"resultsPerPage" => "résultats par page",
-	"DidYouMean" => "Did you mean"
+	"resultsPerPage" => "r&eacute;sultats par page",
+	"DidYouMean" => "Vouliez-vous dire"
 
 );
 ?>

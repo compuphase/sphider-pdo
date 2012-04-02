@@ -4,13 +4,15 @@ CHANGELOG
 By Ando Saabas          ando(a t)cs.ioc.ee
 ============================================
 
-Sphider-PDO 1.3.5, release date 21-03-2012
+Sphider-PDO 1.3.5, release date 2-04-2012
     Conversion to PHP Data Objects (PDO) (Thiadmer Riemersma)
-	
+    Improved support for accepted characters (Thiadmer Riemersma)
+    Improved portability (Thiadmer Riemersma)
+
 Sphider 1.3.5, release date 13-12-2009
     Fixed ereg warnings - PHP 6 compatible now (Ando Saabas)
     Update Bulgarian language file (Martin Halachev)
-    
+
 Sphider 1.3.4, release date 29-04-2008
     An XSS vulnerability bug fixed (Ando Saabas)
 
@@ -42,7 +44,7 @@ Sphider 1.3.1f, release date 17-03-2007
     Sphider can now find links which are given via the base tag (Jason Judge)
     Serbian language file added (Aleks)
     Slovenian language file added (Damir Kervina)
-    Some minor bug fixes (Ando Saabas) 
+    Some minor bug fixes (Ando Saabas)
 
 Sphider 1.3.1e, release date 22-11-2006
     Problem with reaching urls where trailing slash after domain has been omitted fixed (Ando Saabas)
@@ -59,7 +61,7 @@ Sphider 1.3.1c, release date 30-08-2006
 
 
 Sphider 1.3.1b, release date 07-06-2006
-    
+
     Security related bugfixes (Ando Saabas)
 
 
@@ -83,7 +85,7 @@ Sphider 1.3, release date 21-02-2006
     Russian language file added (Thanks to Mihail Korobov)
 
 Sphider 1.3 RC2, release date 10-12-2005
-   
+
    Changes:
    Indexing words with more than 30 characters does not produce a "duplicate entry" warning any more (Ando Saabas)
    Multiple searches with an apostrophe in keywords now possible (Ando Saabas)
@@ -92,7 +94,7 @@ Sphider 1.3 RC2, release date 10-12-2005
    Traditional Chinese language file added (Benny)
 
 Sphider 1.3 RC1, release date 03-12-2005
-   
+
    Changes:
    Update of look and feel of admin section (Ando Saabas, Rich Pedley)
    Configuration of Sphider settings now possible through admin section (Albert Bohlmeijer, Ando Saabas)
@@ -115,10 +117,10 @@ Sphider 1.2.7c, release date 03-11-2005
     A bug with OR searches fixed.
     Simple Chinese language file added (thanks to Ben).
     French language file added (thanks to Dan Delsol).
-    Arabian language file added (thanks to Marzook Alshammary). 
+    Arabian language file added (thanks to Marzook Alshammary).
 
 Sphider 1.2.7b, release date 21-10-2005
-   
+
     Changes:
     Swedish language file added (thanks to Mikael Brodin).
     Polish language file added (thanks to Michal Charko).
@@ -127,7 +129,7 @@ Sphider 1.2.7b, release date 21-10-2005
 Sphider 1.2.7, release date 29-09-2005
 
     Changes:
-    Support for indexing pdf and doc files via external binaries added. 
+    Support for indexing pdf and doc files via external binaries added.
     Stopwords are not highlighted in page summary any more.
 
 Sphider 1.2.6a RC1, release date 27-06-2005
@@ -178,7 +180,7 @@ Sphider 1.2.3 RC1, release date 27-03-2005
     Word weight calculation algorithm changed.
     A bug with calculating page size when page is over 1Mb fixed.
     Fixed a bug which could prevent words with non-western characters from being indexed.
-    Indexing speed improved. 
+    Indexing speed improved.
 
 
 Sphider 1.2.2, release date 20-03-2005

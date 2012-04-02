@@ -107,7 +107,7 @@ error_reporting(E_ALL);
 		if ($reindex == 1 && $command_line == 1) {
 			$result=$db->query("select url, spider_depth, required, disallowed, can_leave_domain from ".$table_prefix."sites where url='$url'");
 			echo sql_errorstring(__FILE__,__LINE__);
-			if($row=$result->fetch()) {
+			if ($row=$result->fetch()) {
 				$url = $row[0];
 				$maxlevel = $row[1];
 				$in= $row[2];
@@ -122,7 +122,7 @@ error_reporting(E_ALL);
 					$soption = 'level';
 				}
 			}
-
+			$result->closeCursor();
 		}
 		if (!isset($in)) {
 			$in = "";
@@ -148,10 +148,9 @@ error_reporting(E_ALL);
 		global $entities, $min_delay;
 		global $command_line;
 		global $min_words_per_page;
-		global $supdomain;
+		global $supdomain, $index_vpaths;
 		global $table_prefix, $user_agent, $tmp_urls, $delay_time, $domain_arr;
 		global $db;
-		$needsReindex = 1;
 		$deletable = 0;
 
 		$url_status = url_status($url);
@@ -164,7 +163,8 @@ error_reporting(E_ALL);
 				$result = $db->query("select link from ".$table_prefix."temp where link='$url' AND id = '$sessid'");
 				echo sql_errorstring(__FILE__,__LINE__);
 				if ($result->fetch()) {
-					$db->query("insert into ".$table_prefix."temp (link, level, id) values ('$url', '$level', '$sessid')");
+					$result->closeCursor();
+					$db->exec("insert into ".$table_prefix."temp (link, level, id) values ('$url', '$level', '$sessid')");
 					echo sql_errorstring(__FILE__,__LINE__);
 				}
 			}
@@ -172,13 +172,14 @@ error_reporting(E_ALL);
 			$url_status['state'] == "redirected";
 		}
 
-		/*
-		if ($indexdate <> '' && $url_status['date'] <> '') {
-			if ($indexdate > $url_status['date']) {
-				$url_status['state'] = "Date checked. Page contents not changed";
-				$needsReindex = 0;
+		if (!$index_vpaths && $url_status['state'] == 'ok') {
+			$url_parts = parse_url($url);
+			$base = basename($url_parts['path']);
+			if (strstr($base, '.') == false) {
+				$url_status['state'] = "directory listing or default redirect";
 			}
-		}*/
+		}
+
 		ini_set("user_agent", $user_agent);
 		if ($url_status['state'] == 'ok') {
 			$OKtoIndex = 1;
@@ -222,30 +223,20 @@ error_reporting(E_ALL);
 
 			$newmd5sum = md5($file);
 
-            if ($reindex == 0) {
-                if ($md5sum == $newmd5sum) {
-                    printStandardReport('md5notChanged',$command_line);
-                    $OKtoIndex = 0;
-                } else if (isDuplicateMD5($newmd5sum)) {
-                    $OKtoIndex = 0;
-                    printStandardReport('duplicate',$command_line);
-                }
-            }
+			if ($reindex == 0) {
+				if ($md5sum == $newmd5sum) {
+					printStandardReport('md5notChanged',$command_line);
+					$OKtoIndex = 0;
+				} else if (isDuplicateMD5($newmd5sum)) {
+					$OKtoIndex = 0;
+					printStandardReport('duplicate',$command_line);
+				}
+			}
 
 			if (($md5sum != $newmd5sum || $reindex == 1) && $OKtoIndex == 1) {
 				$urlparts = parse_url($url);
 				$newdomain = $urlparts['host'];
 				$type = 0;
-
-		/*  	if ($newdomain <> $domain)
-					$domainChanged = 1;
-
-				if ($domaincb==1) {
-					$start = strlen($newdomain) - strlen($supdomain);
-					if (substr($newdomain, $start) == $supdomain) {
-						$domainChanged = 0;
-					}
-				}*/
 
 				// remove link to css file
 				//get all links from file
@@ -296,7 +287,7 @@ error_reporting(E_ALL);
 					if (isset($domain_arr[$domain_for_db])) {
 						$dom_id = $domain_arr[$domain_for_db];
 					} else {
-						$db->query("insert into ".$table_prefix."domains (domain) values ('$domain_for_db')");
+						$db->exec("insert into ".$table_prefix."domains (domain) values ('$domain_for_db')");
 						$dom_id = $db->lastInsertId();
 						$domain_arr[$domain_for_db] = $dom_id;
 					}
@@ -306,38 +297,40 @@ error_reporting(E_ALL);
 					//if there are words to index, add the link to the database, get its id, and add the word + their relation
 					if (is_array($wordarray) && count($wordarray) > $min_words_per_page) {
 						if ($md5sum == '') {
-							$db->exec("insert into ".$table_prefix."links (site_id, url, title, description, fulltxt, indexdate, size, md5sum, level) values ('$site_id', '$url', '$title', '$desc', '$fulltxt',DATETIME('NOW'), '$pageSize', '$newmd5sum',	$thislevel)");
+							$db->exec("insert into ".$table_prefix."links (site_id, url, title, description, fulltxt, indexdate, size, md5sum, level) values ('$site_id', '$url', '$title', '$desc', '$fulltxt',DATETIME('NOW'), '$pageSize', '$newmd5sum', $thislevel)");
 							$error = sql_errorstring(__FILE__,__LINE__);
-                            if ($error) {
-                              echo $error;
-                              printStandardReport('skipped', $command_line);
-                            } else {
-                              $result = $db->query("select link_id from ".$table_prefix."links where url='$url'");
-                              echo sql_errorstring(__FILE__,__LINE__);
-                              $row = $result->fetch();
-                              $link_id = $row[0];
+							if ($error) {
+							  echo $error;
+							  printStandardReport('skipped', $command_line);
+							} else {
+							  $result = $db->query("select link_id from ".$table_prefix."links where url='$url'");
+							  echo sql_errorstring(__FILE__,__LINE__);
+							  $row = $result->fetch();
+							  $link_id = $row[0];
+							  $result->closeCursor();
 
-                              save_keywords($wordarray, $link_id, $dom_id);
+							  save_keywords($wordarray, $link_id, $dom_id);
 
-                              printStandardReport('indexed', $command_line);
-                            }
+							  printStandardReport('indexed', $command_line);
+							}
 						}else if (($md5sum <> '') && ($md5sum <> $newmd5sum)) { //if page has changed, start updating
 
 							$result = $db->query("select link_id from ".$table_prefix."links where url='$url'");
 							echo sql_errorstring(__FILE__,__LINE__);
 							$row = $result->fetch();
 							$link_id = $row[0];
+							$result->closeCursor();
 							for ($i=0;$i<=15; $i++) {
 								$char = dechex($i);
 								$db->exec("delete from ".$table_prefix."link_keyword$char where link_id=$link_id");
 								echo sql_errorstring(__FILE__,__LINE__);
 							}
 							save_keywords($wordarray, $link_id, $dom_id);
-							$query = "update ".$table_prefix."links set title='$title', description ='$desc', fulltxt = '$fulltxt', indexdate=DATETIME('NOW'), size = '$pageSize', md5sum='$newmd5sum', level=$thislevel where link_id=$link_id";
+							$db->exec("update ".$table_prefix."links set title='$title', description ='$desc', fulltxt = '$fulltxt', indexdate=DATETIME('NOW'), size = '$pageSize', md5sum='$newmd5sum', level=$thislevel where link_id=$link_id");
 							echo sql_errorstring(__FILE__,__LINE__);
 							printStandardReport('re-indexed', $command_line);
 						}
-					}else {
+					} else {
 						printStandardReport('minWords', $command_line);
 
 					}
@@ -397,6 +390,7 @@ error_reporting(E_ALL);
 		echo sql_errorstring(__FILE__,__LINE__);
 		$row = $result->fetch();
 		$site_id = $row[0];
+		$result->closeCursor();
 
 		if ($site_id != "" && $reindex == 1) {
 			$db->exec("insert into ".$table_prefix."temp (link, level, id) values ('$url', 0, '$sessid')");
@@ -414,13 +408,14 @@ error_reporting(E_ALL);
 					"disallowed = '$url_not_inc', can_leave_domain=$can_leave_domain where site_id=$site_id";
 			$db->exec($qry);
 			echo sql_errorstring(__FILE__,__LINE__);
-		} else if ($site_id == '') {
+		} else if ($site_id == "") {
 			$db->exec("insert into ".$table_prefix."sites (url, indexdate, spider_depth, required, disallowed, can_leave_domain) " .
 					"values ('$url', DATETIME('NOW'), $maxlevel, '$url_inc', '$url_not_inc', $can_leave_domain)");
 			echo sql_errorstring(__FILE__,__LINE__);
 			$result = $db->query("select site_ID from ".$table_prefix."sites where url='$url'");
 			$row = $result->fetch();
 			$site_id = $row[0];
+			$result->closeCursor();
 		} else {
 			$db->exec("update ".$table_prefix."sites set indexdate=DATETIME('NOW'), spider_depth = $maxlevel, required = '$url_inc'," .
 					"disallowed = '$url_not_inc', can_leave_domain=$can_leave_domain where site_id=$site_id");
@@ -432,6 +427,7 @@ error_reporting(E_ALL);
 		echo sql_errorstring(__FILE__,__LINE__);
 		$row = $result->fetch();
 		$pending = $row[0];
+		$result->closeCursor();
 		$level = 0;
 		$domain_arr = get_domains();
 		if ($pending == '') {
@@ -439,12 +435,14 @@ error_reporting(E_ALL);
 			echo sql_errorstring(__FILE__,__LINE__);
 		} else if ($pending != '') {
 			printStandardReport('continueSuspended',$command_line);
-			$db->query("select temp_id, level, count from ".$table_prefix."pending where site_id='$site_id'");
+			$result = $db->query("select temp_id, level, count from ".$table_prefix."pending where site_id='$site_id'");
 			echo sql_errorstring(__FILE__,__LINE__);
+			$row = $result->fetch();
 			$sessid = $row[1];
 			$level = $row[2];
 			$pend_count = $row[3] + 1;
 			$num = $row[4];
+			$result->closeCursor();
 			$pending = 1;
 			$tmp_urls = get_temp_urls($sessid);
 		}
@@ -501,7 +499,7 @@ error_reporting(E_ALL);
 					$omiturl = trim($omiturl);
 
 					$omiturl_parts = parse_url($omiturl);
-					if ($omiturl_parts['scheme'] == '') {
+					if (!isset($omiturl_parts['scheme']) || $omiturl_parts['scheme'] == '') {
 						$check_omit = $urlparts['host'] . $omiturl;
 					} else {
 						$check_omit = $omiturl;
@@ -527,15 +525,16 @@ error_reporting(E_ALL);
 					$result = $db->query($query);
 					echo sql_errorstring(__FILE__,__LINE__);
 					$row = $result->fetch();
+					$result->closeCursor();
 					if (! $row) {
 						index_url($thislink, $level+1, $site_id, '',  $domain, '', $sessid, $can_leave_domain, $reindex);
-						$db->query("update ".$table_prefix."pending set level = $level, count=$count, num=$num where site_id=$site_id");
+						$db->exec("update ".$table_prefix."pending set level = $level, count=$count, num=$num where site_id=$site_id");
 						echo sql_errorstring(__FILE__,__LINE__);
 					}else if ($reindex == 1) {
 						$md5sum = $row['md5sum'];
 						$indexdate = $row['indexdate'];
 						index_url($thislink, $level+1, $site_id, $md5sum,  $domain, $indexdate, $sessid, $can_leave_domain, $reindex);
-						$db->query("update ".$table_prefix."pending set level = $level, count=$count, num=$num where site_id=$site_id");
+						$db->exec("update ".$table_prefix."pending set level = $level, count=$count, num=$num where site_id=$site_id");
 						echo sql_errorstring(__FILE__,__LINE__);
 					}else {
 						printStandardReport('inDatabase',$command_line);

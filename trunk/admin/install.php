@@ -14,7 +14,7 @@ include "$settings_dir/database.php";
 
 echo "<p>sites\n";
 $error = 0;
-$db_handle->exec("create table ".$table_prefix."[sites](
+$db->exec("create table ".$table_prefix."[sites](
 	site_id INTEGER PRIMARY KEY NOT NULL,
 	url VARCHAR(255),
 	title VARCHAR(255),
@@ -26,7 +26,7 @@ $db_handle->exec("create table ".$table_prefix."[sites](
 	can_leave_domain bool)");
 
 echo "<p>links\n";
-$db_handle->exec("create table ".$table_prefix."[links] (
+$db->exec("create table ".$table_prefix."[links] (
 	link_id INTEGER  PRIMARY KEY NOT NULL,
 	site_id INTEGER,
 	url VARCHAR(255) NOT NULL UNIQUE,
@@ -40,7 +40,7 @@ $db_handle->exec("create table ".$table_prefix."[links] (
 	level INTEGER)");
 
 echo "<p>keywords\n";
-$db_handle->exec("create table ".$table_prefix."[keywords]	(
+$db->exec("create table ".$table_prefix."[keywords]	(
 	keyword_id INTEGER PRIMARY KEY NOT NULL ,
 	keyword VARCHAR(30) NOT NULL UNIQUE
 	)");
@@ -49,7 +49,7 @@ $db_handle->exec("create table ".$table_prefix."[keywords]	(
 for ($i=0;$i<=15; $i++) {
 	$char = dechex($i);
     echo "<p>link_keyword$char\n";
-	$db_handle->exec("create table ".$table_prefix."link_keyword$char (
+	$db->exec("create table ".$table_prefix."link_keyword$char (
 		link_id INTEGER KEY NOT NULL,
 		keyword_id INTEGER KEY NOT NULL,
 		weight INTEGER(3),
@@ -58,27 +58,27 @@ for ($i=0;$i<=15; $i++) {
 }
 
 echo "<p>categories\n";
-$db_handle->exec("create table ".$table_prefix."categories (
+$db->exec("create table ".$table_prefix."categories (
 	category_id INTEGER PRIMARY KEY NOT NULL,
 	category TEXT,
 	parent_num INTEGER
 	)");
 
 echo "<p>site_category\n";
-$db_handle->exec("create table ".$table_prefix."site_category (
+$db->exec("create table ".$table_prefix."site_category (
 	site_id INTEGER,
 	category_id INTEGER
 	)");
 
 echo "<p>temp\n";
-$db_handle->exec("create table ".$table_prefix."temp (
+$db->exec("create table ".$table_prefix."temp (
 	link VARCHAR(255),
 	level INTEGER,
 	id VARCHAR (32)
 	)");
 
 echo "<p>pending\n";
-$db_handle->exec("create table ".$table_prefix."pending (
+$db->exec("create table ".$table_prefix."pending (
 	site_id INTEGER,
 	temp_id VARCHAR(32),
 	level INTEGER,
@@ -87,7 +87,7 @@ $db_handle->exec("create table ".$table_prefix."pending (
 )");
 
 echo "<p>query_log\n";
-$db_handle->exec("create table ".$table_prefix."query_log (
+$db->exec("create table ".$table_prefix."query_log (
 	query VARCHAR(255),
 	time timestamp(14),
 	elapsed FLOAT(2),
@@ -95,7 +95,7 @@ $db_handle->exec("create table ".$table_prefix."query_log (
 	)");
 
 echo "<p>domains\n";
-$db_handle->exec("create table ".$table_prefix."domains (
+$db->exec("create table ".$table_prefix."domains (
 	domain_id INTEGER  PRIMARY KEY NOT NULL,
 	domain VARCHAR(255))");
 

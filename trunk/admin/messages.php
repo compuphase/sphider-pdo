@@ -50,8 +50,8 @@ $messages = Array (
 	1 => " Re-indexed\n"
  ),
 "minWords" => Array (
-	0 => " <font color=\"red\">Page contains less than $min_words_per_page words</font><br>\n",
-	1 => " Page contains less than $min_words_per_page words.\n"
+	0 => " <font color=\"red\">Page contains less than $min_words_per_page significant words</font><br>\n",
+	1 => " Page contains less than $min_words_per_page significant words.\n"
  ),
 "skipped" => Array (
 	0 => " <font color=\"red\">This link is skipped</font><br>\n",
