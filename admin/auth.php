@@ -1,7 +1,7 @@
 <?php
 	error_reporting(E_ERROR);
-	$admin = "admin";
-	$admin_pw = "ikb&*k";
+	$admin = "username";
+	$admin_pw = "password";
 
 	session_start();
 

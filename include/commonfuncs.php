@@ -30,7 +30,7 @@
 	function sql_fetch_all($query) {
 		global $db;
 		$result = $db->query($query);
-		if($err = $db->errorCode() > 0) {
+		if($err = $db->errorCode() != '00000') {
 			print $query.'<br>'.sql_errorstring(__FILE__,__LINE__);
 		} else {
 			while($row=$result->fetch()) {
@@ -264,10 +264,8 @@ function countSubstrs($haystack, $needle) {
 }
 
 function quote_replace($str) {
-
-		$str = str_replace("\"",
-					  "&quot;", $str);
-		return str_replace("'","&apos;", $str);
+	$str = str_replace("\"", "&quot;", $str);
+	return str_replace("'", "&apos;", $str);
 }
 
 function fst_lt_snd($version1, $version2) {

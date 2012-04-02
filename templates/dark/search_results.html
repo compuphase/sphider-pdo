@@ -7,7 +7,7 @@ if (!isset($adv_qry))
 
 <?if ($search_results['did_you_mean']){?>
 	<div id="did_you_mean">
-	Did you mean: <a href="<?='search.php?query='.quote_replace(addmarks($search_results['did_you_mean'])).'&search=1'?>"><?=$search_results['did_you_mean_b']; ?></a>?
+	Did you mean: <a href="<?='search.php?query='.quote_replace(addmarks($search_results['did_you_mean'])).'&search=1&lang='.$language?>"><?=$search_results['did_you_mean_b']; ?></a>?
     </div>
 <? }?>	
 

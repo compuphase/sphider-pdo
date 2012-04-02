@@ -4,15 +4,13 @@ function getFileContents($url) {
     $urlparts = parse_url($url);
     $path = $urlparts['path'];
     $host = $urlparts['host'];
-    if ($urlparts['query'] != "")
-    $path .= "?".$urlparts['query'];
+    if (isset($urlparts['query']) && $urlparts['query'] != "")
+      $path .= "?".$urlparts['query'];
     if (isset ($urlparts['port'])) {
         $port = (int) $urlparts['port'];
-    } else
-    if ($urlparts['scheme'] == "http") {
+    } else if ($urlparts['scheme'] == "http") {
         $port = 80;
-    } else
-    if ($urlparts['scheme'] == "https") {
+    } else if ($urlparts['scheme'] == "https") {
         $port = 443;
     }
 
@@ -202,7 +200,7 @@ function check_robot_txt($url) {
         $regs = Array ();
         $this_agent= "";
         while (list ($id, $line) = each($robot)) {
-	    if (preg_match("/^user-agent: *([^#]+) */", $line, $regs)) {
+	    if (preg_match("/^user-agent: *([^#]+) */i", $line, $regs)) {
                 $this_agent = trim($regs[1]);
                 if ($this_agent == '*' || $this_agent == $user_agent)
                 $check = 1;
@@ -210,7 +208,7 @@ function check_robot_txt($url) {
                 $check = 0;
             }
 
-	    if (preg_match("/disallow: *([^#]+)/", $line, $regs) && $check == 1) {
+	    if (preg_match("/disallow: *([^#]+)/i", $line, $regs) && $check == 1) {
 	        $disallow_str = preg_replace("/[\n ]+/i", "", $regs[1]);
                 if (trim($disallow_str) != "") {
                     $omit[] = $disallow_str;
@@ -502,6 +500,7 @@ function save_keywords($wordarray, $link_id, $domain) {
                     echo sql_errorstring(__FILE__,__LINE__);
                     $row = $result->fetch();
                     $keyword_id = $row[0];
+                    $result->closeCursor();
                 } else{
                     $keyword_id = $db->lastInsertId();
                     $all_keywords[$word] = $keyword_id;
@@ -619,11 +618,13 @@ function clean_file($file, $url, $type) {
 
     $file = preg_replace("@<style[^>]*>.*?<\/style>@si", " ", $file);
 
-    //create spaces between tags, so that removing tags doesnt concatenate strings
-    $file = preg_replace("/<[\w ]+>/", "\\0 ", $file);
+    //create spaces between tags, so that removing tags does not concatenate strings
+    $file = preg_replace("/<[\w ]+\/?>/", "\\0 ", $file);
     $file = preg_replace("/<\/[\w ]+>/", "\\0 ", $file);
     $file = strip_tags($file);
     $file = preg_replace("/&nbsp;/", " ", $file);
+    // trim the contents, deleting leading & trailing spaces, plus duplicate spaces
+    $file = preg_replace("/\s\s+/", " ", trim($file));
 
     $fulltext = $file;
     if (isset($title))
@@ -634,7 +635,6 @@ function clean_file($file, $url, $type) {
     if ($index_meta_keywords == 1 && isset($headdata['keywords'])) {
         $file = $file." ".$headdata['keywords'];
     }
-
 
     //replace codes with ascii chars
     $file = preg_replace('~&#x([0-9a-f]+);~ei', 'chr(hexdec("\\1"))', $file);
@@ -726,6 +726,7 @@ function isDuplicateMD5($md5sum) {
         $retvalue = true;
     else
         $retvalue = false;
+    $result->closeCursor();
     return $retvalue;
 }
 
@@ -786,6 +787,7 @@ function check_for_removal($url) {
     $result = $db->query("select link_id, visible from ".$table_prefix."links"." where url='$url'");
     echo sql_errorstring(__FILE__,__LINE__);
     $row = $result->fetch();
+    $result->closeCursor();
     if ($row) {
         $link_id = $row[0];
         $visible = $row[1];

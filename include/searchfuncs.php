@@ -156,6 +156,7 @@ error_reporting (E_ALL | E_STRICT);
 		} else {
 			$domain_qry = "";
 		}
+		$result->closeCursor();
 
 		//find all sites that should not be included in the result
 		if (count($searchstr['+']) == 0) {
@@ -176,9 +177,7 @@ error_reporting (E_ALL | E_STRICT);
 			$wordmd5 = substr(md5($searchword), 0, 1);
 
 			$query1 = "SELECT link_id from ".$table_prefix."link_keyword$wordmd5, ".$table_prefix."keywords where ".$table_prefix."link_keyword$wordmd5.keyword_id= ".$table_prefix."keywords.keyword_id and keyword='$searchword'";
-
 			$result = $db->query($query1);
-
 			while ($row = $result->fetch()) {
 				$notlist[$not_words]['id'][$row[0]] = 1;
 			}
@@ -214,7 +213,7 @@ error_reporting (E_ALL | E_STRICT);
 		if (($category> 0) && $possible_to_find==1) {
 			$allcats = get_cats($category);
 			$catlist = implode(",", $allcats);
-			$query1 = "select link_id from ".$table_prefix."links, ".$table_prefix."sites, ".$table_prefix."categories, ".$table_prefix."site_category where ".$table_prefix."links.site_id = ".$table_prefix."sites.site_id and ".$table_prefix."sites.site_id =			".$table_prefix."site_category.site_id	and	".$table_prefix."site_category.category_id	in	($catlist)";
+			$query1 = "select link_id from ".$table_prefix."links, ".$table_prefix."sites, ".$table_prefix."categories, ".$table_prefix."site_category where ".$table_prefix."links.site_id = ".$table_prefix."sites.site_id and ".$table_prefix."sites.site_id = ".$table_prefix."site_category.site_id and ".$table_prefix."site_category.category_id in ($catlist)";
 			$result = $db->query($query1);
 			echo sql_errorstring(__FILE__,__LINE__);
 			$row = $result->fetch();
@@ -293,7 +292,7 @@ error_reporting (E_ALL | E_STRICT);
 					$weight = 1;
 					$break = 0;
 					while ($k < $words && $break== 0) {
-						if ($linklist[$k]['weight'][$temp_array[$j]] > 0) {
+						if (isset($linklist[$k]['weight'][$temp_array[$j]]) && $linklist[$k]['weight'][$temp_array[$j]] > 0) {
 							$weight = $weight + $linklist[$k]['weight'][$temp_array[$j]];
 						} else {
 							$break = 1;
@@ -419,7 +418,6 @@ error_reporting (E_ALL | E_STRICT);
 		}
 
 		$query1 = "SELECT distinct link_id, url, title, description,  $fulltxt, size FROM ".$table_prefix."links WHERE link_id in ($inlist)";
-
 		$result = $db->query($query1);
 		echo sql_errorstring(__FILE__,__LINE__);
 
@@ -438,7 +436,6 @@ error_reporting (E_ALL | E_STRICT);
 			$res[$i]['domain'] = $dom_row[0];
 			$i++;
 		}
-
 
 		if ($merge_site_results  && $domain_qry == "") {
 			sort_with_domains($res);

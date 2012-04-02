@@ -60,9 +60,16 @@ $word_upper_bound	= 100;
 // Index numbers as well
 $index_numbers		= 1;
 
-// if this value is set to 1, word in domain name and url path are also indexed,// so that for example the index of www.php.net returns a positive answer to query 'php' even 	// if the word is not included in the page itself.
-$index_host		 = 0;
+// If this value is set to 1, a link to a directory is indexed too. If this value
+// is set to 0, only files are indexed. If your site has links to directories as
+// well as files, you may want to set this value to 0, to avoid MD5-hash collisions
+// when "www.mydomain.com/" and "www.mydomain.com/index.html" are both indexed.
+$index_vpaths		= 1;
 
+// if this value is set to 1, word in domain name and url path are also indexed,
+// so that for example the index of www.php.net returns a positive answer to query 'php' even
+// if the word is not included in the page itself.
+$index_host		 = 0;
 
 // Wether to index keywords in a meta tag
 $index_meta_keywords = 1;
@@ -117,7 +124,9 @@ $cat_columns		= 2;
 // Can speed up searches on large database (should be 0)
 $bound_search_result = 0;
 
-// The length of the description string queried when displaying search results. // If set to 0 (default), makes a query for the whole page text, // otherwise queries this many bytes. Can significantly speed up searching on very slow machines
+// The length of the description string queried when displaying search results.
+// If set to 0 (default), makes a query for the whole page text,
+// otherwise queries this many bytes. Can significantly speed up searching on very slow machines
 $length_of_link_desc	= 0;
 
 // Number of links shown to next pages
