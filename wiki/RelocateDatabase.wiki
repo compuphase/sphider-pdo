@@ -8,6 +8,10 @@ The "sand box" web site is essentially a copy of the public web site, including 
 
 However,... the Sphider database keeps the full URL to the pages in its "links" tables. Therefore, if you upload the database, all search results will point to local addresses (which may not even be accessible from the outside). What you need to do before uploading, is to relocate the server.
 
+= Limitations =
+
+The database on the public server should be able to read the files/tables created on the "sandbox" server. In practice, it means that you need a self-contained database, such as SQLite, and that both the local and public servers need to have the same version of that self-contained database.
+
 = Relocation: step by step =
 
 In the Administrator interface, select the TAB "Sites" and for the site that you need to relocate, click on the button/link "options".
