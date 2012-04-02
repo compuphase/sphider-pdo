@@ -11,9 +11,8 @@ Below are a few examples.
 == !MySql ==
 
 {{{
-$database = "sphider";
+$db = new PDO('mysql:host=hostname; dbname=sphider', 'username', 'password');
 $table_prefix = "";
-$db = new PDO('mysql:host=hostname; dbname=$database', 'username', 'password');
 }}}
 
 The hostname, username and password need to be filled in in this query.
@@ -29,9 +28,8 @@ function quotestring($str) {
 == SQLite 3 ==
 
 {{{
-$database = dirname(__FILE__)."/../sphider.db";
+$db = new PDO('sqlite:'.dirname(__FILE__).'/../sphider.sqlite');
 $table_prefix = "";
-$db = new PDO('sqlite:'.$database);
 }}}
 
 For SQLite, I recommend a _quotestring_ function similar to:
@@ -48,9 +46,8 @@ function quotestring($str) {
 == SQLite 2 ==
 
 {{{
-$database = dirname(__FILE__)."/../sphider.db";
+$db = new PDO('sqlite2:'.dirname(__FILE__).'/../sphider.sqlite');
 $table_prefix = "";
-$db = new PDO('sqlite2:'.$database);
 }}}
 
 You can used the same _quotestring_ function as for SQLite 3.
