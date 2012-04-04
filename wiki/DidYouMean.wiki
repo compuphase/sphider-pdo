@@ -1,0 +1,23 @@
+#summary Configuring alternate search terms ("Did you mean?").
+
+= "Did you mean" in the original Sphider =
+
+When a search query returns zero results, Sphider goes through each word in the query and looks for the closest alternative in the list of keywords. The goal is to suggest alternative spellings (American English versus British English) or hint at typing mistakes.
+
+To find the closest words, Sphider first uses a query with the SOUNDEX function, to limit the word list to those that are at least somewhat similar. From this short-list, it picks the term with the lowest Levenshtein function.
+
+Once all words have gone through this, Sphider constructs a new search phrase from them en presents this as the "Did you mean?" alternative.
+
+= Modifications in Sphider-PDO =
+
+The first modification is that the use of the SOUNDEX function is configurable. Not all databases support SOUNDEX; notably SQLite does not.
+
+If the database does not support SOUNDEX, Sphider will run through every keyword. This places a larger burden on PHP (and less on the database, but databases that support SOUNDEX are probably also optimized to perform the operation), so it is advised to use SOUNDEX if it is available.
+
+Sphider-PDO also includes the [http://www.sphider.eu/forum/read.php?3,7541 changes proposed by Matt Jones] to improve the quality of the matches.
+
+Another modification is that Sphider may now also suggest alternatives even if there are results. That is, the original Sphider only showed a "Did you mean?" line if a search query had zero results. The Sphider-PDO release can be configured to also show this prompt when there are results. The rationale for this change is that alterative spellings of the same word may be used on different pages of a site.
+
+Furthermore, Sphider now proposes multiple new search queries in its "Did you mean?" prompt, one for each (significant) word in the original query. So a search query for "colour specter" would suggest both "color specter" and "colour spectre" (assuming that all of these spellings are used on the site). The rationale is that when the user does not find what he/she is looking for, he/she may want to use one of the suggested alternative spellings or close words, but typically not _all_ alternatives at the same time. (The original Sphider would suggest only "color spectre".)
+
+Finally, this release of Sphider supports with another word list, `nonpareil.txt`, which holds words that will be skipped when looking for alternatives. When the user searches for the word "LED", you do not want to suggest the word "let" instead. The same goes for brand names: if the user searches for a (correctly spelled) brand name, you will want to avoid suggesting alternative words for the name. Words like LED and (brand) names can then be added to the `nonpareil.txt` file.
