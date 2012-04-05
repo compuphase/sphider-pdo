@@ -198,26 +198,29 @@
 					  "aaaaaaaaaaaaaaoooooooooooooeeeeeeeeecceiiiiiiiiuuuuuuuunntsyy"));
 	}
 
-	$common = array
-		(
-		);
-
+	/* common word list (words to ignore in the search query) */
+	$common = array();
 	$lines = @file($include_dir.'/common.txt');
-
 	if (is_array($lines)) {
 		while (list($id, $word) = each($lines))
 			$common[trim($word)] = 1;
 	}
 
-	$ext = array
-		(
-		);
-
+	/* file extension list (of files to skip) */
+	$ext = array();
 	$lines = @file('ext.txt');
-
 	if (is_array($lines)) {
 		while (list($id, $word) = each($lines))
 			$ext[] = trim($word);
+	}
+
+	/* "matchless word" list (words that no alternatives are searched for, except
+	   if there are zero search results) */
+	$matchless = array();
+	$lines = @file($include_dir.'/nonpareil.txt');
+	if (is_array($lines)) {
+		while (list($id, $word) = each($lines))
+			$matchless[trim($word)] = 1;
 	}
 
 	function is_num($var) {

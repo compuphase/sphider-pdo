@@ -5,11 +5,18 @@ if (!isset($adv_qry))
     $adv_qry="";
 ?>
 
-<?php if ($search_results['did_you_mean']){?>
+<?php if (isset($search_results['did_you_mean']) && count($search_results['did_you_mean']) > 0){ ?>
 	<div id="did_you_mean">
-	<?php echo $sph_messages['DidYouMean'];?>: <a href="<?php print 'search.php?query='.quote_replace(addmarks($search_results['did_you_mean'])).'&search=1&lang='.$language?>"><?php print $search_results['did_you_mean_b']; ?></a>?
+	<?php echo $sph_messages['DidYouMean'];?>:
+      <?php for ($index = 0; $index < count($search_results['did_you_mean']); $index++) {
+        if ($index > 0)
+          print ", ";
+        print "<a href=search.php?query=".quote_replace(addmarks($search_results['did_you_mean'][$index]))."&search=1&lang=".$language.">".$search_results['did_you_mean_b'][$index]."</a>";
+      }
+      print " ?";
+      ?>
     </div>
-<?php  }?>
+<?php }?>
 
 <?php if ($search_results['ignore_words']){?>
 	<div id="common_report">

@@ -5,21 +5,28 @@ if (!isset($adv_qry))
     $adv_qry="";
 ?>
 
-<?if ($search_results['did_you_mean']){?>
+<?php if (isset($search_results['did_you_mean']) && count($search_results['did_you_mean']) > 0){ ?>
 	<div id="did_you_mean">
-	Did you mean: <a href="<?='search.php?query='.quote_replace(addmarks($search_results['did_you_mean'])).'&search=1&lang='.$language?>"><?=$search_results['did_you_mean_b']; ?></a>?
+	  <?php echo $sph_messages['DidYouMean'];?>:
+      <?php for ($index = 0; $index < count($search_results['did_you_mean']); $index++) {
+        if ($index > 0)
+          print ", ";
+        print "<a href=search.php?query=".quote_replace(addmarks($search_results['did_you_mean'][$index]))."&search=1&lang=".$language.">".$search_results['did_you_mean_b'][$index]."</a>";
+      }
+      print " ?";
+      ?>
     </div>
-<? }?>	
+<? }?>
 
 <?if ($search_results['ignore_words']){?>
 	<div id="common_report">
 	<?while ($thisword=each($ignore_words)) {
 		$ignored .= " ".$thisword[1];
-	}		
-	$msg = str_replace ('%ignored_words', $ignored, $sph_messages["ignoredWords"]); 
+	}
+	$msg = str_replace ('%ignored_words', $ignored, $sph_messages["ignoredWords"]);
 	echo $msg; ?>
     </div>
-<? }?>	
+<? }?>
 
 
 <?if ($search_results['total_results']==0){?>
@@ -29,12 +36,12 @@ if (!isset($adv_qry))
 		echo $msg;
 		?>
 	</div>
-<? }?>	
+<? }?>
 
 
 <?if ($total_results != 0 && $from <= $to){?>
 	<div id ="result_report">
-	<? 
+	<?
 	$result = $sph_messages['Results'];
 	$result = str_replace ('%from', $from, $result);
 	$result = str_replace ('%to', $to, $result);
@@ -46,12 +53,12 @@ if (!isset($adv_qry))
 		$matchword= $sph_messages["matches"];
 	}
 
-	$result = str_replace ('%matchword', $matchword, $result);	 
+	$result = str_replace ('%matchword', $matchword, $result);
 	$result = str_replace ('%secs', $time, $result);
 	echo $result;
 	?>
 	</div>
-<? }?>	
+<? }?>
 
 
 <?if (isset($qry_results)) {
@@ -67,7 +74,7 @@ if (!isset($adv_qry))
 		if ($show_query_scores == 0) {
 			$weight = '';
 		} else {
-			$weight = "[$weight%]"; 
+			$weight = "[$weight%]";
 		}
 		?>
 		<? if ($domain_name==$last_domain && $merge_site_results == 1 && $domain == "") {?>
@@ -98,19 +105,19 @@ if (!isset($adv_qry))
 	<?=$sph_messages["Result page"]?>:
 	<?if ($start >1){?>
 				<a href="<?='search.php?query='.quote_replace(addmarks($query)).'&start='.$prev.'&search=1&results='.$results_per_page.$type_qry.$adv_qry.'&domain='.$domain?>"><?=$sph_messages['Previous']?></a>
-	<? }?>	
+	<? }?>
 
 	<? foreach ($other_pages as $page_num) {
 				if ($page_num !=$start){?>
 					<a href="<?='search.php?query='.quote_replace(addmarks($query)).'&start='.$page_num.'&search=1&results='.$results_per_page.$type_qry.$adv_qry.'&domain='.$domain?>"><?=$page_num?></a>
-				<?} else {?>	
+				<?} else {?>
 					<b><?=$page_num?></b>
-				<? }?>	
+				<? }?>
 	<? }?>
 
-	<?if ($next <= $pages){?>	
+	<?if ($next <= $pages){?>
 			<a href="<?='search.php?query='.quote_replace(addmarks($query)).'&start='.$next.'&search=1&results='.$results_per_page.$type_qry.$adv_qry.'&domain='.$domain?>"><?=$sph_messages['Next']?></a>
-	<? }?>	
+	<? }?>
 
 	</div>
 
@@ -120,7 +127,7 @@ if (!isset($adv_qry))
 <div class="divline">
 </div>
 <div id="powered_by">
-<!--If you want to remove this, please donate to the project--> 		
+<!--If you want to remove this, please donate to the project-->
 <?poweredby()?>
 </div>
 

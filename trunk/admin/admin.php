@@ -1094,7 +1094,7 @@ function addcatform($parent) {
 					$char = dechex($i);
 					$result=$db->query("select keyword, count(".$table_prefix."link_keyword$char.keyword_id) as x from ".$table_prefix."keywords, ".$table_prefix."link_keyword$char where ".$table_prefix."keywords.keyword_id = ".$table_prefix."link_keyword$char.keyword_id group by keyword order by x desc limit 30");
 					echo sql_errorstring(__FILE__,__LINE__);
-					while (($row=$result->fetch())) {
+					while ($result && ($row=$result->fetch())) {
 						$topwords[$row[0]] = $row[1];
 					}
 				}

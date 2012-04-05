@@ -148,6 +148,7 @@ error_reporting (E_ALL | E_STRICT);
 	function search($searchstr, $category, $start, $per_page, $type, $domain) {
 		global $length_of_link_desc,$table_prefix, $show_meta_description, $merge_site_results, $stem_words;
 		global $did_you_mean_enabled,$did_you_mean_always,$soundex_available;
+		global $matchless;
 		global $db;
 		$possible_to_find = 1;
 		$result = $db->query("select domain_id from ".$table_prefix."domains where domain = '$domain'");
@@ -159,9 +160,8 @@ error_reporting (E_ALL | E_STRICT);
 		$result->closeCursor();
 
 		//find all sites that should not be included in the result
-		if (count($searchstr['+']) == 0) {
+		if (!isset($searchstr['+']) || count($searchstr['+']) == 0)
 			return null;
-		}
 		if (isset($searchstr['-']))
 			$wordarray = $searchstr['-'];
 		else
@@ -326,9 +326,11 @@ error_reporting (E_ALL | E_STRICT);
 		}
 		$end = getmicrotime()- $starttime;
 
-		if ((count($result_array_full) == 0 || $possible_to_find == 0 || $did_you_mean_always) && $did_you_mean_enabled == 1) {
+		if ((count($result_array_full) == 0 || $possible_to_find == 0 || $did_you_mean_always == 1) && $did_you_mean_enabled == 1) {
 			reset ($searchstr['+']);
 			foreach ($searchstr['+'] as $word) {
+				if (isset($matchless[$word]) && $matchless[$word] == 1 && count($result_array_full) > 0)
+					continue;
 				$word = quotestring($word);
 				if ($soundex_available)
 					$result = $db->query("select keyword from ".$table_prefix."keywords where soundex(keyword)=soundex('$word')");
@@ -494,19 +496,17 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 		$rows = "";
 	$time = round($endtime*100)/100;
 
-
 	$full_result['time'] = $time;
 
-	$did_you_mean = "";
-	$did_you_mean_b = "";
+	$did_you_mean = array();
+	$did_you_mean_b = array();
 
 	if (isset($result['did_you_mean']) && is_array($result['did_you_mean'])) {
-		$did_you_mean_b=html_to_latin1(utf8_decode($entitiesQuery));
-		$did_you_mean=html_to_latin1(utf8_decode($entitiesQuery));
 		while (list($key, $val) = each($result['did_you_mean'])) {
+			$entities = html_to_latin1(utf8_decode($entitiesQuery));
 			if ($key != $val) {
-				$did_you_mean_b = str_replace($key, "<b>$val</b>", $did_you_mean_b);
-				$did_you_mean = str_replace($key, "$val", $did_you_mean);
+				$did_you_mean_b[] = str_ireplace($key, "<b>$val</b>", $entities);
+				$did_you_mean[] = str_ireplace($key, "$val", $entities);
 			}
 		}
 	}
@@ -522,9 +522,7 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 	$num_of_results = count($result) - 2;
 
 
-
 	$full_result['num_of_results'] = $num_of_results;
-
 
 	if ($start < 2)
 		saveToLog(quotestring($query), $time, $rows);
