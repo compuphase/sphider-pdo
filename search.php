@@ -72,7 +72,6 @@ if (!isset($category) || !is_numeric($category)) {
 }
 
 
-
 if ($catid && is_numeric($catid)) {
 	$tpl_['category'] = sql_fetch_all('SELECT category FROM '.$table_prefix.'categories WHERE category_id='.(int)$_REQUEST['catid']);
 }
