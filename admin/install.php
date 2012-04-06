@@ -40,15 +40,17 @@ $db->exec("create table ".$table_prefix."[links] (
 	level INTEGER)");
 
 echo "<p>keywords\n";
-$db->exec("create table ".$table_prefix."[keywords]	(
-	keyword_id INTEGER PRIMARY KEY NOT NULL ,
-	keyword VARCHAR(30) NOT NULL UNIQUE
+$db->exec("create table ".$table_prefix."[keywords] (
+	keyword_id INTEGER PRIMARY KEY NOT NULL,
+	keyword VARCHAR(30) NOT NULL UNIQUE,
+	metaphone1 VARCHAR(4),
+	metaphone2 VARCHAR(4)
 	)");
 
 
 for ($i=0;$i<=15; $i++) {
 	$char = dechex($i);
-    echo "<p>link_keyword$char\n";
+	echo "<p>link_keyword$char\n";
 	$db->exec("create table ".$table_prefix."link_keyword$char (
 		link_id INTEGER KEY NOT NULL,
 		keyword_id INTEGER KEY NOT NULL,

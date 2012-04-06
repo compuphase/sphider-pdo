@@ -1,4 +1,6 @@
 <?php
+require_once "$include_dir/double_metaphone.php";
+
 function getFileContents($url) {
     global $user_agent;
     $urlparts = parse_url($url);
@@ -489,7 +491,11 @@ function save_keywords($wordarray, $link_id, $domain) {
             if (isset($all_keywords[$word])) {
                 $keyword_id = $all_keywords[$word];
             } else {
-                $res = $db->exec("insert into ".$table_prefix."keywords (keyword) values ('$word')");
+                /* create the double metaphone */
+                $meta = double_metaphone($word);
+                $meta1 = $meta["primary"];
+                $meta2 = $meta["secondary"];
+                $res = $db->exec("insert into ".$table_prefix."keywords (keyword,metaphone1,metaphone2) values ('$word','$meta1','$meta2')");
                 if (!$res) {  //error
                     $query = "select keyword_ID from ".$table_prefix."keywords where keyword='$word'";
                     $result = $db->query($query);

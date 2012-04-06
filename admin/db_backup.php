@@ -10,8 +10,7 @@ if($send2=="Optimize"){
 	while($i < $numtables) {
 		if (isset($tables[$i])) {
 		  mysql_query("OPTIMIZE TABLE ".$tables[$i]);
-
-			}
+		}
 		$i++;
 		}
 } else{
@@ -50,8 +49,8 @@ function get_def($database,$table,$fp) {
     $def = "";
     $def .= "DROP TABLE IF EXISTS $table;#%%\n";
     $def .= "CREATE TABLE $table (\n";
-    $result = mysql_db_query($database, "SHOW FIELDS FROM $table") or die("Table $table not existing in database");
-    while($row = mysql_fetch_array($result)) {
+    $result = $db->query("SHOW FIELDS FROM $table") or die("Table $table not existing in database");
+    while($row = $result->fetch()) {
         $def .= "    $row[Field] $row[Type]";
         if ($row["Default"] != "") $def .= " DEFAULT '$row[Default]'";
         if ($row["Null"] != "YES") $def .= " NOT NULL";
@@ -59,8 +58,8 @@ function get_def($database,$table,$fp) {
         	$def .= ",\n";
      }
      $def = ereg_replace(",\n$","", $def);
-     $result = mysql_db_query($database, "SHOW KEYS FROM $table");
-     while($row = mysql_fetch_array($result)) {
+     $result = $db->query("SHOW KEYS FROM $table");
+     while($row = $result->fetch()) {
           $kname=$row["Key_name"];
           if(($kname != "PRIMARY") && ($row["Non_unique"] == 0)) $kname="UNIQUE|$kname";
           if(!isset($index[$kname])) $index[$kname] = array();
@@ -80,13 +79,12 @@ function get_def($database,$table,$fp) {
 }
 
 function get_content($database,$table,$fp) {
-     $result = mysql_db_query($database, "SELECT * FROM $table") or die("Cannot get content of table");
+     $result = $db->query("SELECT * FROM $table") or die("Cannot get content of table");
 
-     while($row = mysql_fetch_row($result)) {
-
+     while($row = $result->fetch()) {
          $insert = "INSERT INTO $table VALUES (";
 
-         for($j=0; $j<mysql_num_fields($result);$j++) {
+         for($j=0; $j<$result->columnCount();$j++) {
             if(!isset($row[$j])) $insert .= "NULL,";
             elseif(isset($row[$j])) $insert .= "'".addslashes($row[$j])."',";
             else $insert .= "'',";

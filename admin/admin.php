@@ -17,7 +17,6 @@ $template_dir = "../templates";
 include "$settings_dir/conf.php";
 set_time_limit (0);
 
-
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -94,7 +93,9 @@ $database_funcs = Array ("database" => "default");
 		<li><a href="admin.php?f=clean" id="<?php print $clean_funcs[$f]?>">Clean tables</a> </li>
 		<li><a href="admin.php?f=settings" id="<?php print $settings_funcs[$f]?>">Settings</a></li>
 		<li><a href="admin.php?f=statistics" id="<?php print $stat_funcs[$f]?>">Statistics</a> </li>
+		<?php if ($db->getAttribute(constant("PDO::ATTR_DRIVER_NAME")) == 'mysql') {?>
 		<li><a href="admin.php?f=database" id="<?php print $database_funcs[$f]?>">Database</a></li>
+		<?php }?>
 		<li><a href="admin.php?f=24" id="default">Log out</a></li>
 		</ul>
 	</div>

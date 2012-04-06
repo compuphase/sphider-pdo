@@ -72,6 +72,10 @@ if ($_did_you_mean_enabled == "") {
 	$_did_you_mean_enabled = 0;
 }
 
+if ($_did_you_mean_always == "") {
+	$_did_you_mean_always = 1;
+}
+
 if ($_stem_words == "") {
 	$_stem_words = 0;
 }
@@ -141,7 +145,7 @@ if (isset($Submit)) {
 		fwrite($fhandle,"$"."word_upper_bound	= ".$_word_upper_bound. ";");
 		fwrite($fhandle, "\n\n// Index numbers as well\n");
 		fwrite($fhandle,"$"."index_numbers		= ".$_index_numbers. ";");
-		fwrite($fhandle,"\n\n// if this value is set to 1, word in domain name and url path are also indexed,// so that for example the index of www.php.net returns a positive answer to query 'php' even 	// if the word is not included in the page itself.\n");
+		fwrite($fhandle,"\n\n// if this value is set to 1, word in domain name and url path are also indexed,\n// so that for example the index of www.php.net returns a positive answer to query 'php' even\n// if the word is not included in the page itself.\n");
 		fwrite($fhandle,"$"."index_host		 = ".$_index_host.";\n");
 		fwrite($fhandle, "\n\n// Wether to index keywords in a meta tag \n");
 		fwrite($fhandle,"$"."index_meta_keywords = ".$_index_meta_keywords. ";");
@@ -177,8 +181,7 @@ if (isset($Submit)) {
 		fwrite($fhandle,"$"."cat_columns		= ".$_cat_columns. ";");
 		fwrite($fhandle, "\n\n// Can speed up searches on large database (should be 0)\n");
 		fwrite($fhandle,"$"."bound_search_result = ".$_bound_search_result. ";");
-		fwrite($fhandle, "\n\n");
-		fwrite($fhandle,"// The length of the description string queried when displaying search results. // If set to 0 (default), makes a query for the whole page text, // otherwise queries this many bytes. Can significantly speed up searching on very slow machines \n");
+		fwrite($fhandle,"\n\n// The length of the description string queried when displaying search results.\n// If set to 0 (default), makes a query for the whole page text,\n// otherwise queries this many bytes. Can significantly speed up searching on very slow machines \n");
 		fwrite($fhandle,"$"."length_of_link_desc	= ".$_length_of_link_desc. ";");
 		fwrite($fhandle, "\n\n// Number of links shown to next pages\n");
 		fwrite($fhandle,"$"."links_to_next		 = ".$_links_to_next. ";");
@@ -197,6 +200,8 @@ if (isset($Submit)) {
 		fwrite($fhandle,"$"."merge_site_results		= ".$_merge_site_results. ";");
 		fwrite($fhandle, "\n\n// Enable spelling suggestions (Did you mean...)\n");
 		fwrite($fhandle,"$"."did_you_mean_enabled	= ".$_did_you_mean_enabled. ";");
+		fwrite($fhandle, "\n\n// Show spelling suggestions only when there are no results for the search query\n");
+		fwrite($fhandle,"$"."did_you_mean_always	= ".$_did_you_mean_always. ";");
 		fwrite($fhandle, "\n\n// Enable Sphider Suggest \n");
 		fwrite($fhandle,"$"."suggest_enabled		= ".$_suggest_enabled. ";");
 		fwrite($fhandle, "\n\n// Search for suggestions in query log \n");
@@ -208,7 +213,6 @@ if (isset($Submit)) {
 		fwrite($fhandle, "\n\n// Limit number of suggestions \n");
 		fwrite($fhandle,"$"."suggest_rows		= ".$_suggest_rows. ";");
 
-
 		fwrite($fhandle,"\n\n\n/*********************** \nWeights\n***********************/");
 		fwrite($fhandle, "\n\n// Relative weight of a word in the title of a webpage\n");
 		fwrite($fhandle,"$"."title_weight  = ".$_title_weight. ";");
@@ -219,16 +223,10 @@ if (isset($Submit)) {
 		fwrite($fhandle, "\n\n// Relative weight of a word in meta_keywords\n");
 		fwrite($fhandle,"$"."meta_weight	= ".$_meta_weight. ";");
 
-
-
-
-
-
 		fwrite($fhandle,"?>");
 		fclose($fhandle);
 
 	}
-		//header("location: admin.php");
 }
 include "../settings/conf.php";
 ?>
@@ -570,18 +568,24 @@ if ($did_you_mean_enabled==1) echo "checked";?>> </td>
 <td> Enable spelling suggestions (Did you mean...)</td>
 </tr>
 
+<tr>
+<td class="left1"> <input
+name="_did_you_mean_always" type="checkbox" value="1" id="did_you_mean_always" <?php
+if ($did_you_mean_always==0) echo "checked";?>> </td>
+<td> Show spelling suggestions only when there are no results for the search query</td>
+</tr>
 
 <tr>
 <td class="left1"> <input
 name="_merge_site_results" type="checkbox" value="1" id="merge_site_results" <?php
 if ($merge_site_results==1) echo "checked";?>> </td>
-<td> Show only the 2 most relevant links from each site (a la google)</td>
+<td> Show only the 2 most relevant links from each site (&agrave; la Google)</td>
 </tr>
 
 
 
 <tr>
-<td></td><td><div class="tableSubSubHeading">Suggest</div></td>
+<td colspan="2"><div class="tableSubHeading">Suggest</div></td>
 </tr>
 
 <tr>
@@ -617,9 +621,6 @@ if ($suggest_phrases==1) echo "checked";?>> </td>
 maxlength="2" value="<?php print $suggest_rows;?>"> </td>
 <td> Limit number of suggestions</td>
 </tr>
-
-
-
 
 
 <tr>

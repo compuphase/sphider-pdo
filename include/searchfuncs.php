@@ -7,6 +7,8 @@
 
 error_reporting (E_ALL | E_STRICT);
 
+require_once "$include_dir/double_metaphone.php";
+
 	function swap_max (&$arr, $start, $domain) {
 		$pos  = $start;
 		$maxweight = $arr[$pos]['weight'];
@@ -117,7 +119,6 @@ error_reporting (E_ALL | E_STRICT);
 		foreach ($includeWords as $word) {
 			if (!($word =='')) {
 				if (ignoreWord($word)) {
-
 					$returnWords['ignore'][] = $word;
 				} else {
 					$returnWords['+'][] = $word;
@@ -147,7 +148,7 @@ error_reporting (E_ALL | E_STRICT);
 
 	function search($searchstr, $category, $start, $per_page, $type, $domain) {
 		global $length_of_link_desc,$table_prefix, $show_meta_description, $merge_site_results, $stem_words;
-		global $did_you_mean_enabled,$did_you_mean_always,$soundex_available;
+		global $did_you_mean_enabled,$did_you_mean_always;
 		global $matchless;
 		global $db;
 		$possible_to_find = 1;
@@ -332,28 +333,37 @@ error_reporting (E_ALL | E_STRICT);
 				if (isset($matchless[$word]) && $matchless[$word] == 1 && count($result_array_full) > 0)
 					continue;
 				$word = quotestring($word);
-				if ($soundex_available)
-					$result = $db->query("select keyword from ".$table_prefix."keywords where soundex(keyword)=soundex('$word')");
-				else
-					$result = $db->query("select keyword from ".$table_prefix."keywords");
-				// http://www.mdj.us/web-development/php-programming/creating-better-search-suggestions-with-sphider/
-				$max_distance = 4;
+				/* use the double-metaphone to find close words */
+				$meta = double_metaphone($word);
+				if (!isset($meta["primary"]) || strlen($meta["primary"]) == 0)
+					continue; /* no metaphone, don't match anything */
+				$where = "metaphone1='".$meta["primary"]."' OR metaphone2='".$meta["primary"]."'";
+				if (isset($meta["secondary"]) && strlen($meta["secondary"]) > 0)
+					$where .= " OR metaphone1='".$meta["secondary"]."' OR metaphone2='".$meta["secondary"]."'";
+				$result = $db->query("SELECT keyword FROM ".$table_prefix."keywords WHERE $where");
+				/* adapted from http://www.mdj.us/web-development/php-programming/creating-better-search-suggestions-with-sphider/
+				   but using a double-metaphone filter (instead of SOUNDEX) and
+				   adding a filter for accented characters */
+				$max_distance = 3;
 				$max_similar = 0;
 				$near_word = "";
 				while ($result && $row=$result->fetch()) {
-					if (strcasecmp($row[0], $word) != 0) {
-						$distance = levenshtein($row[0], $word);
+					$item = $row[0];
+					if (strcasecmp($item, $word) != 0) {
+						$distance = levenshtein($item, $word);
+						$distance_na = levenshtein(remove_accents($item), $word);
+						if ($distance_na < $distance)
+							$distance = $distance_na;
 						if ($distance < $max_distance) {
 							$max_distance = $distance;
-							$near_word = $row[0];
-						} else if ($distance == $max_distance) {
-							if (metaphone($row[0]) == metaphone($word)) {
-								$similar = similar_text($row[0], $word);
-								if ($similar >= $max_similar) {
-									$max_distance = $distance;
-									$max_similar = $similar;
-									$near_word = $row[0];
-								}
+							$near_word = $item;
+						}
+						if ($distance == $max_distance) {
+							$similar = similar_text($item, $word);
+							if ($similar >= $max_similar) {
+								$max_distance = $distance;
+								$max_similar = $similar;
+								$near_word = $item;
 							}
 						}
 					}
