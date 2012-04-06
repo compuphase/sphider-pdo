@@ -10,11 +10,9 @@ Once all words have gone through this, Sphider constructs a new search phrase fr
 
 = Modifications in Sphider-PDO =
 
-The first modification is that the use of the SOUNDEX function is configurable. Not all databases support SOUNDEX; notably SQLite does not.
+The first modification is Sphider uses a [http://en.wikipedia.org/wiki/Metaphone double-metaphone function] instead of SOUNDEX. SOUNDEX is widely available, but also widely considered deficient. Since the double-metaphone is much costlier to calculate (and since most databases do not support it internally), Sphider calculates the double-metaphone for all keywords when spidering a site, and stores the values along with the keywords.
 
-If the database does not support SOUNDEX, Sphider will run through every keyword. This places a larger burden on PHP (and less on the database, but databases that support SOUNDEX are probably also optimized to perform the operation), so it is advised to use SOUNDEX if it is available.
-
-Sphider-PDO also includes the [http://www.sphider.eu/forum/read.php?3,7541 changes proposed by Matt Jones] to improve the quality of the matches.
+When searching for alternative spellings or close names, Sphider first limits the list to all keywords that have a matching double-metaphone. From this list, Sphider then picks the closest words using three heuristics: the Levenshtein distance, the Levenshtein distance on the words after removing the accents, and the PHP `similar_text` function (which uses an algorithm published in _Programming Classics_ by Ian Oliver).
 
 Another modification is that Sphider may now also suggest alternatives even if there are results. That is, the original Sphider only showed a "Did you mean?" line if a search query had zero results. The Sphider-PDO release can be configured to also show this prompt when there are results. The rationale for this change is that alterative spellings of the same word may be used on different pages of a site.
 
