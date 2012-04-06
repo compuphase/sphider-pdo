@@ -11,11 +11,12 @@ Below are a few examples.
 == !MySql ==
 
 {{{
-$db = new PDO('mysql:host=hostname; dbname=sphider', 'username', 'password');
+$database = "sphider";
+$db = new PDO('mysql:host=hostname; dbname=$database', 'username', 'password');
 $table_prefix = "";
 }}}
 
-The hostname, username and password need to be filled in in this query.
+The hostname, username and password need to be filled in in this query. The database name must be in a separate variable (called `$database`) for the table optimization and backup functionality.
 
 The function to _escape_ special characters can simply be _mysql_real_escape_string_.
 
@@ -42,8 +43,6 @@ function quotestring($str) {
     return $str;
 }
 }}}
-
-The SQLite database does not support the "soundex" function. In the configuration, you should therefore set the variable `$soundex_available` to zero (in the file `conf.php`).
 
 == SQLite 2 ==
 
