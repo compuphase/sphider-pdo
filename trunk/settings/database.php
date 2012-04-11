@@ -1,6 +1,7 @@
 <?php
 	$db = new PDO('sqlite:'.dirname(__FILE__)."/../sphider.sqlite);
-	// $db = new PDO('mysql:host=hostname;dbname=sphider','username','password');
+	// $database = 'sphider';
+	// $db = new PDO('mysql:host=hostname;dbname=$database','username','password');
 	$table_prefix="";
 
 	function quotestring($str) {
