@@ -1082,7 +1082,7 @@ function addcatform($parent) {
 				print "<tr class=\"white\"><td><b>Links:</b></td><td align=\"center\"> ".$stats['links']."</td></tr>";
 				print "<tr class=\"grey\"><td><b>Categories:</b></td><td align=\"center\"> ".$stats['categories']."</td></tr>";
 				print "<tr class=\"white\"><td><b>Keywords:</b></td><td align=\"center\"> ".$stats['keywords']."</td></tr>";
-				print "<tr class=\"grey\"><td><b>Keyword-link realations:</b></td><td align=\"center\"> ".$stats['index']."</td></tr>";
+				print "<tr class=\"grey\"><td><b>Keyword-link relations:</b></td><td align=\"center\"> ".$stats['index']."</td></tr>";
 				print "<tr class=\"white\"><td><b>Cached texts total:</b></td><td align=\"center\"> $cachedSumSize kb</td></tr>";
 				print "<tr class=\"grey\"><td><b>Sites size total:</b></td><td align=\"center\"> $sitesSize kb</td></tr>";
 				print "</table></td></tr></table></div>";

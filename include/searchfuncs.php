@@ -422,7 +422,6 @@ require_once "$include_dir/double_metaphone.php";
 
 		$inlist = implode(",", $in);
 
-
 		if ($length_of_link_desc == 0) {
 			$fulltxt = "fulltxt";
 		} else {
@@ -437,10 +436,11 @@ require_once "$include_dir/double_metaphone.php";
 		while ($row = $result->fetch()) {
 			$res[$i]['title'] = $row[2];
 			$res[$i]['url'] = $row[1];
-			if ($row[3] != null && $show_meta_description == 1)
-				$res[$i]['fulltxt'] = $row[3];
+			if (isset($row[3]) && $row[3] != null && $show_meta_description == 1)
+				$res[$i]['summary'] = $row[3];
 			else
-				$res[$i]['fulltxt'] = $row[4];
+				$res[$i]['summary'] = "";
+			$res[$i]['fulltxt'] = $row[4];
 			$res[$i]['size'] = $row[5];
 			$res[$i]['weight'] = $result_array[$row[0]];
 			$dom_result = $db->query("select domain from ".$table_prefix."domains where domain_id='".$domains[$row[0]]."'");
@@ -553,6 +553,7 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 			}
 			$url = $result[$i]['url'];
 			$title = isset($result[$i]['title']) ? $result[$i]['title'] : "";
+			$summary = $result[$i]['summary'];
 			$fulltxt = $result[$i]['fulltxt'];
 			$page_size = $result[$i]['size'];
 			$domain = $result[$i]['domain'];
@@ -632,13 +633,13 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 			$full_result['qry_results'][$i]['weight'] =  $weight;
 			$full_result['qry_results'][$i]['url'] =  $url;
 			$full_result['qry_results'][$i]['title'] =  $title;
+			$full_result['qry_results'][$i]['summary'] =  $summary;
 			$full_result['qry_results'][$i]['fulltxt'] =  $fulltxt;
 			$full_result['qry_results'][$i]['page_size'] =  $page_size;
 			$full_result['qry_results'][$i]['domain_name'] =  $domain;
 			$i++;
 		}
 	}
-
 
 
 	$pages = ceil($rows / $results_per_page);
@@ -665,6 +666,5 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 	return $full_result;
 
 }
-
 
 ?>

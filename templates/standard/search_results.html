@@ -18,7 +18,8 @@ if (!isset($adv_qry))
     </div>
 <?php }?>
 
-<?php if ($search_results['ignore_words']){?>
+<?php if ($search_results['ignore_words']){
+    $ignored = "";?>
 	<div id="common_report">
 	<?php while ($thisword=each($ignore_words)) {
 		$ignored .= " ".$thisword[1];
@@ -85,6 +86,9 @@ if (!isset($adv_qry))
 		<?php }?>
 		<b><?php print $num?>.</b> <?php print $weight?>
 		<a href="<?php print $url?>" class="title">	<?php print ($title?$title:$sph_messages['Untitled'])?></a><br/>
+		<?php if (isset($summary) && strlen($summary) > 0) {?>
+        <div class="summary"><?php print $summary?></div>
+        <?php }?>
 		<div class="description"><?php print $fulltxt?></div>
 		<div class="url"><?php print $url?> - <?php print $page_size?></div>
 		<?php  if (isset($domain_name) && $domain_name==$last_domain && $merge_site_results == 1 && $domain == "") {?>
@@ -134,4 +138,3 @@ if (!isset($adv_qry))
 <!--If you want to remove this, please donate to the project at http://www.sphider.eu/donate.php-->
 <?php poweredby()?>
 </div>
-

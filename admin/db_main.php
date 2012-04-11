@@ -9,7 +9,7 @@ $dbname=$database;
 $dbprefix=$table_prefix;
 
 if (isset($send2)) {
-	include("db_backup.php"); //TODO Database backup not yet converted to PDO
+	include("db_backup.php");
 }
 ?>
 <head>

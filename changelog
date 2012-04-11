@@ -4,10 +4,12 @@ CHANGELOG
 By Ando Saabas          ando(a t)cs.ioc.ee
 ============================================
 
-Sphider-PDO 1.3.5, release date 2-04-2012
+Sphider-PDO 1.3.5, release date 6-04-2012
     Conversion to PHP Data Objects (PDO) (Thiadmer Riemersma)
     Improved support for accepted characters (Thiadmer Riemersma)
     Improved portability (Thiadmer Riemersma)
+    Improved "Did you mean?" word matching (Thiadmer Riemersma)
+    Always show page description from meta tag, if available (Thiadmer Riemersma)
 
 Sphider 1.3.5, release date 13-12-2009
     Fixed ereg warnings - PHP 6 compatible now (Ando Saabas)
