@@ -1,0 +1,37 @@
+#summary Integrating the Sphider search form on your site.
+
+= A typical lay-out =
+
+What the user sees of Sphider is the form to enter the search query and the list of results. These pages/forms are based on templates. Sphider comes with two example templates.
+
+The features that may be present on the forms also depend on the settings in the administration section (or in the file `conf.php`). For example, the setting `$advanced_search` determines whether the "advanced search" options (with AND and OR relations) are presented.
+
+It is also typical that a site has a small search field on a fixed location of every page. This is a "mini form" through which you jump to the Sphider search page.
+
+= Details =
+
+An example search "mini form" is:
+{{{
+<form action="sphider/search.php" method="get">
+<input type="text" name="query" size="18" value="Keywords">
+<input type="submit" name="search">
+</form>
+}}}
+A text field and a submit button are sufficient. The form should redirect to the `search.php` script in the directory where Sphider is installed.
+
+When using a graphic submit button instead of the standard text button, make sure that it includes the `name` parameter, because Sphider checks on that name. So:
+{{{
+<input type="submit" name="search">
+}}}
+becomes:
+{{{
+<input type="image" src="images/submit.png" value="search" name="search">
+<input type="hidden" name="search" value="1">
+}}}
+
+If you have a multilingual site, you may want to pass the language of the active page to Sphider. This way, when the user is reading a French page and types in a search query, the query results will also be presented in French. To do so, add a hidden element in the form with the two-letter language code.
+{{{
+<input type="hidden" name="lang" value="fr">
+}}}
+
+Any language passed through the form overrules the default language that is configured in the administration section (or `conf.php`).
