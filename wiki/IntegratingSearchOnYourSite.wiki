@@ -19,13 +19,13 @@ An example search "mini form" is:
 }}}
 A text field and a submit button are sufficient. The form should redirect to the `search.php` script in the directory where Sphider is installed.
 
-When using a graphic submit button instead of the standard text button, make sure that it includes the `name` parameter, because Sphider checks on that name. So:
+When using a graphic submit button instead of the standard text button, also add a hidden field with the `name` parameter set to "search" and the value set to "1", because Sphider uses other values for different operations. So:
 {{{
 <input type="submit" name="search">
 }}}
 becomes:
 {{{
-<input type="image" src="images/submit.png" value="search" name="search">
+<input type="image" src="images/submit.png" name="btn">
 <input type="hidden" name="search" value="1">
 }}}
 
