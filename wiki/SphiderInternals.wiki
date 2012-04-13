@@ -12,3 +12,13 @@ There are various character encodings in play with each other:
   * When the user types a word with an accented character in the search field, this word is passed to the search engine in UTF-8 encoding.
 
 The Sphider script need to convert one encoding into the other. The supported character set is the lowest common denominator, meaning Latin-1 (alias ISO 8859-1). This is sufficient for Western and West European languages.
+
+= Database and database-interface limitations =
+
+The port of Sphider uses the "PHP Data Objects" interface (PDO). PDO abstracts _access_ to a database. Basically, using PDO, you can talk to any database witout changing the code, with the exception of the [DatabaseSetup database specification string].
+
+It also means that PDO restricts itself to providing a common denominator for database access. PHP also includes a MySQL binding, with functions that are very specific to MySQL. A few of these functions are used in the database optimization and backup pages. Since there is no PDO-equivalent for these functions, Sphider only presents the page for database optimization and backup when the database configured for PDO happens to be MySQL.
+
+Next to a common demonitator for the database access, the database queries also need to be a common denominator for what databases accept. In practice, this means: standard SQL with no (or very few) extensions. Even with that, complete portability cannot be guaranteed, simply because a database may have limitations.
+
+One known issue in this area is SQLite version 2: querying the "Top Keywords" in the "Statistics" page is so slow that the PHP script usually aborts on time-out before returning results. No "fix" for this is planned, moving to SQLite 3 solves the problem.
