@@ -68,17 +68,16 @@ require_once "$include_dir/double_metaphone.php";
 			} else {
 				$returnWords['-s'][] = $regs[2];
 			}
-			$a = str_replace($regs[0], "", $a);
+			$a = str_replace($regs[0], "", $a);   /* remove the phrase from the search string */
 		}
-		$a = strtolower(preg_replace("/[ ]+/", " ", $a));
-		$a = trim($a);
+		$a = strtolower(preg_replace("/[ ]+/", " ", $a)); /* replace multiple spaces by a single one, and convert to lower case */
+		$a = trim($a);  		  /* erase leading and trailing spaces */
 		$words = explode(' ', $a);
 		if ($a=="") {
 			$limit = 0;
 		} else {
-		$limit = count($words);
+			$limit = count($words);
 		}
-
 
 		$k = 0;
 		//get all words (both include and exlude)
@@ -160,9 +159,10 @@ require_once "$include_dir/double_metaphone.php";
 		}
 		$result->closeCursor();
 
-		//find all sites that should not be included in the result
+		/* if there are no words to search for, quit */
 		if (!isset($searchstr['+']) || count($searchstr['+']) == 0)
 			return null;
+		/* find all sites that should _not_ be included in the result */
 		if (isset($searchstr['-']))
 			$wordarray = $searchstr['-'];
 		else
@@ -185,8 +185,7 @@ require_once "$include_dir/double_metaphone.php";
 			$not_words++;
 		}
 
-
-		//find all sites containing the search phrase
+		/* find all sites containing the search phrases */
 		if (isset($searchstr['+s']))
 			$wordarray = $searchstr['+s'];
 		else
@@ -195,7 +194,10 @@ require_once "$include_dir/double_metaphone.php";
 		while ($phrase_words < count($wordarray)) {
 
 			$searchword = quotestring($wordarray[$phrase_words]);
-			$query1 = "SELECT link_id from ".$table_prefix."links where fulltxt like '%$searchword%'";
+			$searchword = str_replace("|", "", $searchword);
+			$searchword = str_replace("%", "|%", $searchword);
+			$searchword = str_replace("_", "|_", $searchword);
+			$query1 = "SELECT link_id from ".$table_prefix."links where fulltxt like '%$searchword%' escape '|'";
 			$result = $db->query($query1);
 			echo sql_errorstring(__FILE__,__LINE__);
 			$row = $result->fetch();
@@ -209,7 +211,6 @@ require_once "$include_dir/double_metaphone.php";
 			}
 			$phrase_words++;
 		}
-
 
 		if (($category> 0) && $possible_to_find==1) {
 			$allcats = get_cats($category);
@@ -227,10 +228,10 @@ require_once "$include_dir/double_metaphone.php";
 			}
 		}
 
-		//find all sites that include the search word
+		/* find all sites that include the search words */
+		$word_not_found = array();
 		$wordarray = $searchstr['+'];
 		$words = 0;
-		$starttime = getmicrotime();
 		while (($words < count($wordarray)) && $possible_to_find == 1) {
 			if ($stem_words == 1) {
 				$searchword = quotestring(stem($wordarray[$words]));
@@ -238,11 +239,12 @@ require_once "$include_dir/double_metaphone.php";
 				$searchword = quotestring($wordarray[$words]);
 			}
 			$wordmd5 = substr(md5($searchword), 0, 1);
-			$query1 = "SELECT distinct link_id, weight, domain from ".$table_prefix."link_keyword$wordmd5, ".$table_prefix."keywords where ".$table_prefix."link_keyword$wordmd5.keyword_id= ".$table_prefix."keywords.keyword_id and keyword='$searchword' $domain_qry	order	by	weight	desc";
+			$query1 = "SELECT distinct link_id, weight, domain FROM ".$table_prefix."link_keyword$wordmd5, ".$table_prefix."keywords WHERE ".$table_prefix."link_keyword$wordmd5.keyword_id= ".$table_prefix."keywords.keyword_id AND keyword='$searchword' $domain_qry	ORDER	BY	weight	DESC";
 			$result = $db->query($query1);
 			echo sql_errorstring(__FILE__,__LINE__);
 			$row = $result->fetch();
 			if (! $row) {
+				$word_not_found[$wordarray[$words]] = 1;
 				if ($type != "or") {
 					$possible_to_find = 0;
 					break;
@@ -268,7 +270,7 @@ require_once "$include_dir/double_metaphone.php";
 		}
 		$result_array_full = Array();
 
-		if ($possible_to_find !=0) {
+		if ($possible_to_find != 0) {
 			if ($words == 1 && $not_words == 0 && $category < 1) { //if there is only one search word, we already have the result
 				$result_array_full = $linklist[0]['weight'];
 			} else { //otherwise build an intersection of all the results
@@ -282,8 +284,6 @@ require_once "$include_dir/double_metaphone.php";
 				}
 
 				$j = 0;
-
-
 				$temp_array = $linklist[$min]['id'];
 				$count = 0;
 				while ($j < count($temp_array)) {
@@ -325,12 +325,18 @@ require_once "$include_dir/double_metaphone.php";
 				}
 			}
 		}
-		$end = getmicrotime()- $starttime;
 
 		if ((count($result_array_full) == 0 || $possible_to_find == 0 || $did_you_mean_always == 1) && $did_you_mean_enabled == 1) {
 			reset ($searchstr['+']);
 			foreach ($searchstr['+'] as $word) {
+				/* words that are in the "nonpareil" list are excluded in searching
+				   for alternatives */
 				if (isset($matchless[$word]) && $matchless[$word] == 1 && count($result_array_full) > 0)
+					continue;
+				/* if there are misspelled words, show only alternatives for the
+				   misspelled words, (so, if the current word is not in the list
+				   of misspelled words, exclude it from the search for alternatives */
+				if (count($word_not_found) > 0 && !(isset($word_not_found[$word]) && $word_not_found[$word] == 1))
 					continue;
 				$word = quotestring($word);
 				/* use the double-metaphone to find close words */
@@ -512,11 +518,12 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 	$did_you_mean_b = array();
 
 	if (isset($result['did_you_mean']) && is_array($result['did_you_mean'])) {
-		while (list($key, $val) = each($result['did_you_mean'])) {
+		while (list($key, $alt) = each($result['did_you_mean'])) {
 			$entities = html_to_latin1(utf8_decode($entitiesQuery));
-			if ($key != $val) {
-				$did_you_mean_b[] = str_ireplace($key, "<b>$val</b>", $entities);
-				$did_you_mean[] = str_ireplace($key, "$val", $entities);
+			if ($key != $alt) {
+				$alt = html_to_latin1(utf8_decode($alt));
+				$did_you_mean_b[] = latin1_to_html(str_ireplace($key, "<b>$alt</b>", $entities));
+				$did_you_mean[] = str_ireplace($key, "$alt", $entities);
 			}
 		}
 	}

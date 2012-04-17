@@ -5,8 +5,8 @@
 	$table_prefix="";
 
 	function quotestring($str) {
-		$search  = array('"'     , "'"    , '<'   , '>'    );
-		$replace = array('&quot;', '&#39;', '&lt;', '&gt;' );
+		$search  = array('"'     , "'"    , '<'   , '>'   , '\0' );
+		$replace = array('&quot;', '&#39;', '&lt;', '&gt;', ''   );
 		$str = str_replace($search, $replace, $str);
 		return $str;
 	}
