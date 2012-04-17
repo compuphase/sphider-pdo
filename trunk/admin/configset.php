@@ -185,7 +185,7 @@ if (isset($Submit)) {
 		fwrite($fhandle,"$"."length_of_link_desc	= ".$_length_of_link_desc. ";");
 		fwrite($fhandle, "\n\n// Number of links shown to next pages\n");
 		fwrite($fhandle,"$"."links_to_next		 = ".$_links_to_next. ";");
-		fwrite($fhandle, "\n\n// Show meta description in results page if it exists, otherwise show an extract from the page text.\n");
+		fwrite($fhandle, "\n\n// Show meta description in results page if it exists (in addition to an extract from the page text).\n");
 		fwrite($fhandle,"$"."show_meta_description = ".$_show_meta_description. ";");
 		fwrite($fhandle, "\n\n// Advanced query form, shows and/or buttons\n");
 		fwrite($fhandle,"$"."advanced_search	= ".$_advanced_search. ";");
@@ -514,7 +514,7 @@ database (should be 0)</td>
 <td class="left1"><input name="_length_of_link_desc" type="text" value=
 "<?php print $length_of_link_desc;?>" id="length_of_link_desc" size=
 "5" maxlength="4"> </td>
-<td> The length of the description string queried from the database when displaying search results.  Can significantly speed up searching on very slow machines, if set to a lower value (eg 250 or 1000; 0 is unlimited), otherwise doesn't have an effect.</td>
+<td> The length of the description string queried from the database when displaying search results. Can significantly speed up searching on very slow machines, if set to a lower value (eg 250 or 1000; 0 is unlimited), otherwise doesn't have an effect.</td>
 </tr>
 
 <tr>
@@ -529,8 +529,7 @@ database (should be 0)</td>
 <input name="_show_meta_description" type="checkbox"   value="1" id=
 "show_meta_description" <?php  if ($show_meta_description==1) echo
 "checked";?>> </td>
-<td> Show meta description in results page if it exists, otherwise
-show an extract from the page text.</td>
+<td> Show meta description in results page if it exists (in addition to an extract from the page text.</td>
 </tr>
 
 <tr>

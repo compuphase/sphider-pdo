@@ -1098,6 +1098,7 @@ function addcatform($parent) {
 					while ($result && ($row=$result->fetch())) {
 						$topwords[$row[0]] = $row[1];
 					}
+					$result->closeCursor();
 				}
 				arsort($topwords);
 				$count = 0;
