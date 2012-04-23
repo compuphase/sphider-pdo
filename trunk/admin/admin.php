@@ -607,21 +607,24 @@ function addcatform($parent) {
 		$result = $db->query($query);
 		echo sql_errorstring(__FILE__,__LINE__);
 		$del = 0;
-		//??? get all results in an array, so that the cursor is closed
-		while ($row=$result->fetch()) {
-			$keyId=$row['keyword_id'];
-			$keyword=$row['keyword'];
+		/* get all results in an array, so that the cursor is closed, then run
+		   over the array */
+		$keywordlist = array();
+		while ($row=$result->fetch())
+			$keywordlist[$row['keyword_id']] = $row['keyword'];
+		while (list($keyId, $keyword) = each($keywordlist)) {
 			$wordmd5 = substr(md5($keyword), 0, 1);
-			$query = "select keyword_id from ".$table_prefix."link_keyword$wordmd5 where keyword_id = $keyId";
+			$query = "SELECT keyword_id FROM ".$table_prefix."link_keyword$wordmd5 WHERE keyword_id=$keyId";
 			$result2 = $db->query($query);
-			//??? get all results in an array, so that the cursor is closed
 			echo sql_errorstring(__FILE__,__LINE__);
 			if (! $result2->fetch()) {
 				$db->exec("DELETE FROM ".$table_prefix."keywords WHERE keyword_id=$keyId");
 				echo sql_errorstring(__FILE__,__LINE__);
 				$del++;
 			}
-		}?>
+		}
+		unset($keywordlist);
+		?>
 	<div id="submenu">
 	</div><?php
 		print "<br/><center><b>Keywords table cleaned, $del keywords deleted.</b></center>";
