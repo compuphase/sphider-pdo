@@ -9,7 +9,7 @@ This page is a "work in progress" on some of the internal operations of the Sphi
 There are various character encodings in play with each other:
   * The database stores text as Latin-1.
   * In HTML pages, special characters are encoded as HTML entities (`&eacute` for é). This applies both the pages scanned by the spider and to the pages generated as "search results" by the search engine.
-  * When the user types a word with an accented character in the search field, this word is passed to the search engine in UTF-8 encoding.
+  * When the user types a word with an accented character in the search field, this word is passed to the search engine in the encoding specified in the page, currently often UTF-8 (see also the section on characters sets in the [IntegratingSearchOnYourSite instructions for integrating search on your site].
 
 The Sphider script need to convert one encoding into the other. The supported character set is the lowest common denominator, meaning Latin-1 (alias ISO 8859-1). This is sufficient for Western and West European languages.
 
