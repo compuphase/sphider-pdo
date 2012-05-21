@@ -4,7 +4,7 @@
 
 When a search query returns zero results, Sphider goes through each word in the query and looks for the closest alternative in the list of keywords. The goal is to suggest alternative spellings (American English versus British English) or hint at typing mistakes.
 
-To find the closest words, Sphider first uses a query with the SOUNDEX function, to limit the word list to those that are at least somewhat similar. From this short-list, it picks the term with the lowest Levenshtein function.
+To find the closest words, Sphider first uses a query with the SOUNDEX function, to limit the word list to those that are at least somewhat similar. From this short-list, it picks the term with the lowest Levenshtein distance.
 
 Once all words have gone through this, Sphider constructs a new search phrase from them en presents this as the "Did you mean?" alternative.
 
