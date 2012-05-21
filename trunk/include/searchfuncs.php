@@ -308,7 +308,7 @@ require_once "$include_dir/double_metaphone.php";
 					}
 
 					while ($o < $phrase_words && $break== 0) {
-						if ($phraselist[$n]['id'][$temp_array[$j]] != 1) {
+						if (!isset($phraselist[$n]['id'][$temp_array[$j]]) || $phraselist[$n]['id'][$temp_array[$j]] != 1) {
 							$break = 1;
 						}
 						$o++;
@@ -487,7 +487,8 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 
 	$starttime = getmicrotime();
 	// catch " if only one time entered
-	if (substr_count($query,'"')==1){
+	$query = preg_replace("/&quot;/", "\"", $query);
+	if (substr_count($query,'"')==1) {
 	   $query=str_replace('"','',$query);
 	}
 	$words = makeboollist($query);
@@ -522,8 +523,9 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 			$entities = html_to_latin1(utf8_decode($entitiesQuery));
 			if ($key != $alt) {
 				$alt = html_to_latin1(utf8_decode($alt));
+				$entities = preg_replace("/&quot;/", "\"", $entities);
 				$did_you_mean_b[] = latin1_to_html(str_ireplace($key, "<b>$alt</b>", $entities));
-				$did_you_mean[] = str_ireplace($key, "$alt", $entities);
+				$did_you_mean[] = str_ireplace($key, utf8_encode($alt), $entities);
 			}
 		}
 	}
