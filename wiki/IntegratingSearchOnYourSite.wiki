@@ -38,7 +38,7 @@ Any language passed through the form overrules the default language that is conf
 
 = Character sets =
 
-Internally, web browsers typically use Unicode, but the pages may use differente character sets. The character set that a page uses should be set in the header. For Sphider, the character set for the page determines in what encoding the search queries will be passed. The original version of Sphider relied on Latin-1, Sphider-PDO uses UTF-8.
+Internally, web browsers typically use Unicode, but the pages may use different character sets. The character set that a page uses should be set in the header. For Sphider, the character set for the page determines in what encoding the search queries will be passed. The original version of Sphider relied on Latin-1, Sphider-PDO uses UTF-8.
 
 The line below tells the browser that a page uses the UTF-8 character set:
 {{{
