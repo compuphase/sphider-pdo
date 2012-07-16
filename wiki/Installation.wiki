@@ -1,0 +1,26 @@
+#summary A brief summary how to install SPhider-PDO.
+
+= Acknowledgement =
+
+This page is essentially copied from the [http://www.sphider.eu/docs.php original Sphider site]. A few steps are slightly different with Sphider-PDO, and I decided it was better to "copy & adjust" the installation instructions instead of listing only the changes.
+
+Note, though, that these instructions only cover the basic installation. There is more documentation on the [http://www.sphider.eu/docs.php original Sphider site] (e.g. customization and explanation of various indexing options).
+
+
+= Installation =
+
+  # Unpack the files, and copy them to the server, for example to `/home/youruser/sphider`
+  # Depending on the database that you wish to use, you may need to create it first. For example, when using MySQL, create a database in MySQL to hold Sphider data.
+    * at command prompt type (to log into MySQL):
+      `mysql -u <your username> -p`<br>
+      Enter your password when prompted.
+    * in MySQL, type:
+      `CREATE DATABASE sphider;`<br>
+      Of course you can use some other name for database instead of sphider.
+    * Use exit to exit MySQL.
+      For more information on how to create a database and give/get the necessary permissions, check MySQL.com
+  # In settings directory, edit database.php file and adjust/create the database connection string. Details are on the DatabaseSetup page. At the same time, you need to create (or adjust) the function `quotestring`; again, details are on the DatabaseSetup page.
+  # Open install.php script (admin sub-directory) in your browser, which will create the tables necessary for Sphider to operate.
+  # In admin sub-directory, edit auth.php to change the administrator user name and password (default values are 'admin' and 'admin').
+  # Open admin/admin.php in browser and start indexing.
+  # search.php is the default search page.
