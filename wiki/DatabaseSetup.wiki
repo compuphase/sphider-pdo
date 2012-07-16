@@ -18,6 +18,8 @@ $table_prefix = "";
 
 The hostname, username and password need to be filled in in this query. The database name must be in a separate variable (called `$database`) for the table optimization and backup functionality.
 
+If you have only a single database for multiple purposes (some shared-hosting accounts only give you a single MySQL database), you can avoid naming conflicts in the table names by setting the `$table_prefix` to some unique string (e.g. "sphider"). All tables that are used by Sphider will get this prefix.
+
 The function to _escape_ special characters can simply be _mysql_real_escape_string_.
 
 {{{
