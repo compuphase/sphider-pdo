@@ -327,7 +327,26 @@ require_once "$include_dir/double_metaphone.php";
 		}
 
 		if ((count($result_array_full) == 0 || $possible_to_find == 0 || $did_you_mean_always == 1) && $did_you_mean_enabled == 1) {
-			reset ($searchstr['+']);
+			/* search for word pairs written as two words where a single words
+			   for example: when the user typed "full colour", also search for
+			   fullcolour and full-colour */
+			for ($idx = 0; $idx < count($searchstr['+']) - 1; $idx++) {
+				$word = $searchstr['+'][$idx] . " " . $searchstr['+'][$idx+1];
+				$near_word = $searchstr['+'][$idx] . $searchstr['+'][$idx+1];
+				$result = $db->query("SELECT keyword FROM ".$table_prefix."keywords WHERE keyword='$near_word'");
+				if ($result && $row=$result->fetch()) {
+					$near_words[$word] = latin1_to_html($near_word);
+					$result->closeCursor();
+				}
+				$near_word = $searchstr['+'][$idx] . "-" . $searchstr['+'][$idx+1];
+				$result = $db->query("SELECT keyword FROM ".$table_prefix."keywords WHERE keyword='$near_word'");
+				if ($result && $row=$result->fetch()) {
+					$near_words[$word] = latin1_to_html($near_word);
+					$result->closeCursor();
+				}
+			}
+			/* then search for "near words" for the individual words */
+			reset($searchstr['+']);
 			foreach ($searchstr['+'] as $word) {
 				/* words that are in the "nonpareil" list are excluded in searching
 				   for alternatives */
