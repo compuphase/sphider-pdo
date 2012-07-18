@@ -1,4 +1,4 @@
-#summary A brief summary how to install SPhider-PDO.
+#summary A brief summary how to install Sphider-PDO.
 
 = Acknowledgement =
 
