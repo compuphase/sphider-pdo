@@ -148,7 +148,7 @@ require_once "$include_dir/double_metaphone.php";
 	function search($searchstr, $category, $start, $per_page, $type, $domain) {
 		global $length_of_link_desc,$table_prefix, $show_meta_description, $merge_site_results, $stem_words;
 		global $did_you_mean_enabled,$did_you_mean_always;
-		global $matchless;
+		global $matchless,$equivalent;
 		global $db;
 		$possible_to_find = 1;
 		$result = $db->query("select domain_id from ".$table_prefix."domains where domain = '$domain'");
@@ -333,16 +333,29 @@ require_once "$include_dir/double_metaphone.php";
 			for ($idx = 0; $idx < count($searchstr['+']) - 1; $idx++) {
 				$word = $searchstr['+'][$idx] . " " . $searchstr['+'][$idx+1];
 				$near_word = $searchstr['+'][$idx] . $searchstr['+'][$idx+1];
-				$result = $db->query("SELECT keyword FROM ".$table_prefix."keywords WHERE keyword='$near_word'");
-				if ($result && $row=$result->fetch()) {
-					$near_words[$word] = latin1_to_html($near_word);
-					$result->closeCursor();
+				/* words that are in the "nonpareil" list are excluded in searching
+				   for alternatives */
+				if (!isset($matchless[$near_word])) {
+					$result = $db->query("SELECT keyword FROM ".$table_prefix."keywords WHERE keyword='$near_word'");
+					if ($result && $row=$result->fetch()) {
+						$near_words[$word] = latin1_to_html($near_word);
+						$result->closeCursor();
+					}
 				}
 				$near_word = $searchstr['+'][$idx] . "-" . $searchstr['+'][$idx+1];
-				$result = $db->query("SELECT keyword FROM ".$table_prefix."keywords WHERE keyword='$near_word'");
-				if ($result && $row=$result->fetch()) {
-					$near_words[$word] = latin1_to_html($near_word);
-					$result->closeCursor();
+				if (!isset($matchless[$near_word])) {
+					$result = $db->query("SELECT keyword FROM ".$table_prefix."keywords WHERE keyword='$near_word'");
+					if ($result && $row=$result->fetch()) {
+						$near_words[$word] = latin1_to_html($near_word);
+						$result->closeCursor();
+					}
+				}
+			}
+			/* search for alternatives in the explicit equivalents word list */
+			reset($searchstr['+']);
+			foreach ($searchstr['+'] as $word) {
+				if (isset($equivalent[$word]) && strlen($equivalent[$word]) > 0) {
+					$near_words[$word] = latin1_to_html($equivalent[$word]);
 				}
 			}
 			/* then search for "near words" for the individual words */
