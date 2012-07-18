@@ -222,11 +222,21 @@
 		while (list($id, $word) = each($lines))
 			$matchless[trim($word)] = 1;
 	}
+	/* the "equivalent" word list (for words whose equivalent is a word pair, or
+	   some different term) */
+	$equivalent = array();
+	$lines = @file($include_dir.'/pareil.txt');
+	if (is_array($lines)) {
+		while (list($id, $line) = each($lines)) {
+			$eq = explode('=', $line, 2);
+			$equivalent[trim($eq[0])] = trim($eq[1]);
+		}
+	}
 
 	function is_num($var) {
 	   for ($i=0;$i<strlen($var);$i++) {
 		   $ascii_code=ord($var[$i]);
-		   if ($ascii_code >=49 && $ascii_code <=57){
+		   if ($ascii_code>=49 && $ascii_code<=57){
 			   continue;
 		   } else {
 			   return false;
