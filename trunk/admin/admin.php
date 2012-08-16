@@ -362,7 +362,7 @@ function addcatform($parent) {
 				$db->exec("UPDATE ".$table_prefix."links SET url='$link' WHERE link_id=$link_id");
 			  }
 			}
-			If (!sql_errorstring(__FILE__,__LINE__)) {
+			if (!sql_errorstring(__FILE__,__LINE__)) {
 				return "<br/><center><b>Site updated.</b></center>" ;
 			} else {
 				return sql_errorstring(__FILE__,__LINE__);;

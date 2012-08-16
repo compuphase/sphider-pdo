@@ -280,7 +280,8 @@ error_reporting(E_ALL);
 					$path = $data['path'];
 					$fulltxt = str_replace("\\'","&quot;",$data['fulltext']);
 
-					$desc = substr($data['description'], 0,254);
+					$desc = substr($data['description'],0,254);
+					$language = substr($data['language'],0,2);
 					$url_parts = parse_url($url);
 					$domain_for_db = $url_parts['host'];
 
@@ -297,7 +298,7 @@ error_reporting(E_ALL);
 					//if there are words to index, add the link to the database, get its id, and add the word + their relation
 					if (is_array($wordarray) && count($wordarray) > $min_words_per_page) {
 						if ($md5sum == '') {
-							$db->exec("insert into ".$table_prefix."links (site_id, url, title, description, fulltxt, indexdate, size, md5sum, level) values ('$site_id', '$url', '$title', '$desc', '$fulltxt',DATETIME('NOW'), '$pageSize', '$newmd5sum', $thislevel)");
+							$db->exec("insert into ".$table_prefix."links (site_id, url, title, description, language, fulltxt, indexdate, size, md5sum, level) values ('$site_id', '$url', '$title', '$desc', '$language', '$fulltxt',DATETIME('NOW'), '$pageSize', '$newmd5sum', $thislevel)");
 							$error = sql_errorstring(__FILE__,__LINE__);
 							if ($error) {
 							  echo $error;
@@ -308,13 +309,10 @@ error_reporting(E_ALL);
 							  $row = $result->fetch();
 							  $link_id = $row[0];
 							  $result->closeCursor();
-
 							  save_keywords($wordarray, $link_id, $dom_id);
-
 							  printStandardReport('indexed', $command_line);
 							}
-						}else if (($md5sum <> '') && ($md5sum <> $newmd5sum)) { //if page has changed, start updating
-
+						} else if (($md5sum <> '') && ($md5sum <> $newmd5sum)) { //if page has changed, start updating
 							$result = $db->query("select link_id from ".$table_prefix."links where url='$url'");
 							echo sql_errorstring(__FILE__,__LINE__);
 							$row = $result->fetch();
@@ -326,7 +324,7 @@ error_reporting(E_ALL);
 								echo sql_errorstring(__FILE__,__LINE__);
 							}
 							save_keywords($wordarray, $link_id, $dom_id);
-							$db->exec("update ".$table_prefix."links set title='$title', description ='$desc', fulltxt = '$fulltxt', indexdate=DATETIME('NOW'), size = '$pageSize', md5sum='$newmd5sum', level=$thislevel where link_id=$link_id");
+							$db->exec("update ".$table_prefix."links set title='$title', description ='$desc', language='$language', fulltxt = '$fulltxt', indexdate=DATETIME('NOW'), size = '$pageSize', md5sum='$newmd5sum', level=$thislevel where link_id=$link_id");
 							echo sql_errorstring(__FILE__,__LINE__);
 							printStandardReport('re-indexed', $command_line);
 						}

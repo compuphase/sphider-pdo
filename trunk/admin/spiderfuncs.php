@@ -544,6 +544,13 @@ function save_keywords($wordarray, $link_id, $domain) {
 function get_head_data($file) {
     global $db;
 
+    /* get the language first (because it is not in the "head" part) */
+    $language = "";
+    preg_match("/<html +lang *=[\"']?([^<>'\"]+)[\"']?>/i",$file, $res);
+    if (isset($res) && count($res) > 1) {
+        $language = $res[1];
+    }
+
     $headdata = "";
 
     preg_match("@<head[^>]*>(.*?)<\/head>@si",$file, $regs);
@@ -592,6 +599,7 @@ function get_head_data($file) {
         }
         $data['description'] = quotestring($description);
         $data['keywords'] = quotestring($keywords);
+        $data['language'] = $language;
         $data['nofollow'] = $nofollow;
         $data['noindex'] = $noindex;
         $data['base'] = $base;
@@ -662,6 +670,7 @@ function clean_file($file, $url, $type) {
     $data['content'] = quotestring($file);
     $data['title'] = isset($title) ? quotestring($title) : "";
     $data['description'] = isset($headdata['description']) ? $headdata['description'] : "";
+    $data['language'] = isset($headdata['language']) ? $headdata['language'] : "";
     $data['keywords'] = isset($headdata['keywords']) ? $headdata['keywords'] : "";
     $data['host'] = $host;
     $data['path'] = $path;

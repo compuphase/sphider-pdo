@@ -148,7 +148,7 @@ require_once "$include_dir/double_metaphone.php";
 	function search($searchstr, $category, $start, $per_page, $type, $domain) {
 		global $length_of_link_desc,$table_prefix, $show_meta_description, $merge_site_results, $stem_words;
 		global $did_you_mean_enabled,$did_you_mean_always;
-		global $matchless,$equivalent;
+		global $matchless,$equivalent,$language;
 		global $db;
 		$possible_to_find = 1;
 		$result = $db->query("select domain_id from ".$table_prefix."domains where domain = '$domain'");
@@ -448,7 +448,6 @@ require_once "$include_dir/double_metaphone.php";
 		$keys = array_keys($result_array);
 		$maxweight = $result_array[$keys[0]];
 
-
 		for ($i = ($start -1)*$per_page; $i <min($results, ($start -1)*$per_page + $per_page) ; $i++) {
 			$in[] = $keys[$i];
 
@@ -466,7 +465,7 @@ require_once "$include_dir/double_metaphone.php";
 			$fulltxt = "substring(fulltxt, 1, $length_of_link_desc)";
 		}
 
-		$query1 = "SELECT distinct link_id, url, title, description,  $fulltxt, size FROM ".$table_prefix."links WHERE link_id in ($inlist)";
+		$query1 = "SELECT distinct link_id, url, title, description, language, $fulltxt, size FROM ".$table_prefix."links WHERE link_id in ($inlist)";
 		$result = $db->query($query1);
 		echo sql_errorstring(__FILE__,__LINE__);
 
@@ -478,9 +477,16 @@ require_once "$include_dir/double_metaphone.php";
 				$res[$i]['summary'] = $row[3];
 			else
 				$res[$i]['summary'] = "";
-			$res[$i]['fulltxt'] = $row[4];
-			$res[$i]['size'] = $row[5];
+			$res[$i]['lang'] = $row[4];
+			$res[$i]['fulltxt'] = $row[5];
+			$res[$i]['size'] = $row[6];
 			$res[$i]['weight'] = $result_array[$row[0]];
+			/* if a language has been set for this page, and it is _not_ the
+			 * same language as the user language, decrease the weight
+			 */
+			if (isset($row[4]) && $row[4] != null && strlen($row[4]) > 0 && strcasecmp($row[4], $language) != 0) {
+				$res[$i]['weight'] *= 0.5;
+			}
 			$dom_result = $db->query("select domain from ".$table_prefix."domains where domain_id='".$domains[$row[0]]."'");
 			$dom_row = $dom_result->fetch();
 			$res[$i]['domain'] = $dom_row[0];
@@ -572,14 +578,12 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 
 	$num_of_results = count($result) - 2;
 
-
 	$full_result['num_of_results'] = $num_of_results;
 
 	if ($start < 2)
 		saveToLog(quotestring($query), $time, $rows);
 	$from = ($start-1) * $results_per_page+1;
 	$to = min(($start)*$results_per_page, $rows);
-
 
 	$full_result['from'] = $from;
 	$full_result['to'] = $to;
@@ -595,12 +599,12 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 			$url = $result[$i]['url'];
 			$title = isset($result[$i]['title']) ? $result[$i]['title'] : "";
 			$summary = $result[$i]['summary'];
+			$lang = $result[$i]['lang'];
 			$fulltxt = $result[$i]['fulltxt'];
 			$page_size = $result[$i]['size'];
 			$domain = $result[$i]['domain'];
 			if ($page_size!="")
 				$page_size = number_format($page_size, 1)."kb";
-
 
 			$txtlen = strlen($fulltxt);
 			if ($txtlen > $desc_length) {
@@ -616,7 +620,6 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 						$tmp = substr($tmp, $pos);
 						$places[] = $sum;
 						$found_in = strpos($tmp, $word);
-
 					}
 				}
 				sort($places);
@@ -667,7 +670,6 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 				}
 			}
 
-
 			$num = $from + $i;
 
 			$full_result['qry_results'][$i]['num'] =  $num;
@@ -675,6 +677,7 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 			$full_result['qry_results'][$i]['url'] =  $url;
 			$full_result['qry_results'][$i]['title'] =  $title;
 			$full_result['qry_results'][$i]['summary'] =  $summary;
+			$full_result['qry_results'][$i]['lang'] =  $lang;
 			$full_result['qry_results'][$i]['fulltxt'] =  $fulltxt;
 			$full_result['qry_results'][$i]['page_size'] =  $page_size;
 			$full_result['qry_results'][$i]['domain_name'] =  $domain;
@@ -701,7 +704,6 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 
 		for ($x=$firstpage; $x<=$lastpage; $x++)
 			$full_result['other_pages'][] = $x;
-
 	}
 
 	return $full_result;
