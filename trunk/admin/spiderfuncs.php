@@ -650,8 +650,13 @@ function clean_file($file, $url, $type) {
     while ($char = each($entities)) {
         $file = preg_replace("/".$char[0]."/i", $char[1], $file);
     }
-    $file = preg_replace("/&[a-z]{1,6};/", " ", $file);
-    $file = preg_replace("/[\*\^\+\?\\\.\[\]\^\$\|\{\)\(\}~!\"\/@#£$%&=`´;><:,]+/", " ", $file);
+    $file = preg_replace("/&[a-z]{1,6};/", " ", $file); /* remove remaining HTML entities (note that the text is already converted to Latin-1) */
+    $file = preg_replace("/[\*\^\+\?\\\[\]\^\$\|\{\)\(\}~!\"\'\/@#£$%&=`´;><:,]+/", " ", $file);
+    //periods are special: they are normally replace by spaces, but a period
+    //that serves as a decimal point must be preserved
+    $file = preg_replace("/\.\.+/", " ", $file);
+    $file = preg_replace("/(([^0-9])\.)|(\.([^0-9]))/", "$2 $4", $file);
+    //replace multiple spaces by a single one (and replace TABs by spaces too)
     $file = preg_replace("/\s+/", " ", $file);
     $data['fulltext'] = quotestring($fulltext);
     $data['content'] = quotestring($file);
