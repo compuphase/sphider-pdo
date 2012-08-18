@@ -13,6 +13,18 @@ There are various character encodings in play with each other:
 
 The Sphider script need to convert one encoding into the other. The supported character set is the lowest common denominator, meaning Latin-1 (alias ISO 8859-1). This is sufficient for Western and West European languages.
 
+= Keyword collection=
+
+The "spidering" operation builds tables with URLs ("links"), keywords, and a set of cross-reference tables that associate each keyword to a set of URLs.
+
+The first step in collecting the keywords on a page is to clean the text up. First, HTML comment blocks, style sheets and script blocks (e.g. Javascript) are removed. Parts in the HTML file flagged as `sphider_noindex` are removed as well. HTML tags are removed next, but a space is inserted at that place if needed (to prevent words that are separated by a tag to become concatenated).
+
+This becomes the "full text" as stored in the database.
+
+Then, the spider converts the HTML to Latin-1, translating HTML entities for accented characters to those characters. Any HTML entities that are left in the text, are replaced by space characters. That is, any character that cannot be represented in Latin-1 encoding, is stripped from the text. Punctuation is also replaced by spaces, as well as parentheses and brackets. (Multiple consecutive spaces get combined to a single space.) What is left is a list of space-separated words. The spider runs through them and adds each as a keyword.
+
+In removing the punctuation, there is one exception. A period between two digits is not removed. So in a text like "Version: 1.3.6", the colon will be removed, but the two periods are not.
+
 = Database and database-interface limitations =
 
 The port of Sphider uses the "PHP Data Objects" interface (PDO). PDO abstracts _access_ to a database. Basically, using PDO, you can talk to any database witout changing the code, with the exception of the [DatabaseSetup database specification string].
