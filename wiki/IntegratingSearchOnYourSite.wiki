@@ -29,7 +29,7 @@ becomes:
 <input type="hidden" name="search" value="1">
 }}}
 
-If you have a multilingual site, you may want to pass the language of the active page to Sphider. This way, when the user is reading a French page and types in a search query, the query results will also be presented in French. To do so, add a hidden element in the form with the two-letter language code.
+If you have a [MultilingualSupport multilingual site], you may want to pass the language of the active page to Sphider. This way, when the user is reading a French page and types in a search query, the query results will also be presented in French. To do so, add a hidden element in the form with the two-letter language code.
 {{{
 <input type="hidden" name="lang" value="fr">
 }}}
