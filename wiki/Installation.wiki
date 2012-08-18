@@ -19,8 +19,8 @@ Note, though, that these instructions only cover the basic installation. There i
       Of course you can use some other name for database instead of sphider.
     * Use exit to exit MySQL.
       For more information on how to create a database and give/get the necessary permissions, check MySQL.com
-  # In settings directory, edit database.php file and adjust/create the database connection string. Details are on the DatabaseSetup page. At the same time, you need to create (or adjust) the function `quotestring`; again, details are on the DatabaseSetup page.
-  # Open install.php script (admin sub-directory) in your browser, which will create the tables necessary for Sphider to operate.
-  # In admin sub-directory, edit auth.php to change the administrator user name and password (default values are 'admin' and 'admin').
-  # Open admin/admin.php in browser and start indexing.
-  # search.php is the default search page.
+  # In settings directory, edit the file `database.php` and adjust/create the database connection string. Details are on the DatabaseSetup page. At the same time, you need to create (or adjust) the function `quotestring`; again, details are on the DatabaseSetup page.
+  # Open `admin/install.php` in your browser, which will create the tables necessary for Sphider to operate.
+  # In the `admin` sub-directory, edit `auth.php` to change the administrator user name and password (default values are 'admin' and 'admin').
+  # Open `admin/admin.php` in browser and start indexing.
+  # `search.php` is the default search page.
