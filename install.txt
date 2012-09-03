@@ -1,6 +1,6 @@
 ============================================
 Sphider - a lightweight search engine in PHP
-Version 1.3.5, PDO version
+Version 1.3.6, PDO version
 
 Installation and usage instructions
 Ando Saabas 2005-2007

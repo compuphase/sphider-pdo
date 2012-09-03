@@ -650,8 +650,15 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 			}
 
 			$weight = number_format($result[$i]['weight']/$maxweight*100, 2);
-			if ($title=='')
-				$title = $sph_messages["Untitled"];
+			if ($title=='') {
+				/* for an untitled document, use the filename without the path */
+				$pos = strrpos($url, "/");
+				if ($pos >= 0)
+					$pos++;
+				else
+					$pos = 0;
+				$title = substr($url, $pos);
+			}
 			$regs = Array();
 
 			if (strlen($title) > 80) {

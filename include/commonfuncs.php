@@ -87,8 +87,10 @@
 
 	$entities = array
 		(
-		"&amp" => "&",
-		"&apos" => "'",
+		"&amp;" => "&",
+		"&apos;" => "'",
+		"&euro;" => "€",
+		"&micro;" => "µ",
 		"&THORN;"  => "Þ",
 		"&szlig;"  => "ß",
 		"&agrave;" => "à",
