@@ -2,7 +2,7 @@
 $sph_messages =  Array (
 	"Categories" => "Categorie&euml;n",
 	"CATEGORIES" => "CATEGORIEEN",
-	"Untitled" => "Leeg Document",
+	"Untitled" => "Document zonder titel",
 	"Powered by" => "Powered by",
 	"Previous" => "Vorige",
 	"Next" => "Volgende",

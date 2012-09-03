@@ -9,7 +9,7 @@ General settings
 ***********************/
 
 // Sphider version
-$version_nr			= '1.3.5';
+$version_nr			= '1.3.6';
 
 //Language of the search page
 $language			= 'en';
@@ -141,8 +141,6 @@ $advanced_search	= 0;
 // Query scores are not shown if set to 0
 $show_query_scores	 = 1;
 
-
-
  // Display category list
 $show_categories	 = 1;
 
@@ -173,6 +171,8 @@ $suggest_phrases		= 0;
 // Limit number of suggestions
 $suggest_rows		= 10;
 
+// A search term to ignore (because it is the default text)
+$searchprompt       = "";
 
 /***********************
 Weights
@@ -188,4 +188,5 @@ $domain_weight = 60;
 $path_weight	= 10;
 
 // Relative weight of a word in meta_keywords
-$meta_weight	= 5;?>
+$meta_weight	= 5;
+?>

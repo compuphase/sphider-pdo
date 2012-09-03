@@ -4,7 +4,11 @@ CHANGELOG
 By Ando Saabas          ando(a t)cs.ioc.ee
 ============================================
 
-Sphider-PDO 1.3.5, release date 6-04-2012
+Sphider-PDO 1.3.6, release date 3 September 2012
+    Enhanced multi-lingual site support (Thiadmer Riemersma)
+    Use document filename if no title is set (Thiadmer Riemersma)
+
+Sphider-PDO 1.3.5, release date 6 April 2012
     Conversion to PHP Data Objects (PDO) (Thiadmer Riemersma)
     Improved support for accepted characters (Thiadmer Riemersma)
     Improved portability (Thiadmer Riemersma)

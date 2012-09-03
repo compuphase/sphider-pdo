@@ -42,6 +42,9 @@ if (isset($_GET['adv']))
 if (isset($_GET['lang']))
 	$language = $_GET['lang'];
 
+if (strcasecmp($query, $searchprompt) == 0)
+	$query = "";
+
 require_once("$language_dir/$language-language.php");
 require_once "$template_dir/$template/header_$language.html";
 
@@ -118,13 +121,12 @@ function saveToLog ($query, $elapsed, $results) {
 	echo sql_errorstring(__FILE__,__LINE__);
 }
 
-if (!isset($search))
+if (!isset($search) || strlen($query) == 0)
     $search = 0;
 if (!isset($start))
     $start = 0;
 switch ($search) {
 	case 1:
-
 		if (!isset($results)) {
 			$results = "";
 		}
