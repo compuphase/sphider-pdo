@@ -36,6 +36,8 @@ If you have a [MultilingualSupport multilingual site], you may want to pass the 
 
 Any language passed through the form overrules the default language that is configured in the administration section (or `conf.php`).
 
+The order of the search results is also affected by the language: pages in French will get higher priority when passing "fr" as the active language.
+
 = Character sets =
 
 Internally, web browsers typically use Unicode, but the pages may use different character sets. The character set that a page uses should be set in the header. For Sphider, the character set for the page determines in what encoding the search queries will be passed. The original version of Sphider relied on Latin-1, Sphider-PDO uses UTF-8.
