@@ -11,46 +11,27 @@ Below are a few examples.
 == !MySql ==
 
 {{{
-$database = "sphider";
-$db = new PDO('mysql:host=hostname; dbname=$database', 'username', 'password');
-$table_prefix = "";
+define('DATABASE_NAME', 'sphider');
+define('TABLE_PREFIX', '');
+$db = new PDO('mysql:host=hostname; dbname='.DATABASE_NAME, 'username', 'password');
 }}}
 
-The hostname, username and password need to be filled in in this query. The database name must be in a separate variable (called `$database`) for the table optimization and backup functionality.
+The hostname, username and password need to be filled in in this query. The database name must be in a separate constant (called `DATABASE_NAME`) for the table optimization and backup functionality.
 
-If you have only a single database for multiple purposes (some shared-hosting accounts only give you a single MySQL database), you can avoid naming conflicts in the table names by setting the `$table_prefix` to some unique string (e.g. "sphider"). All tables that are used by Sphider will get this prefix.
+If you have only a single database for multiple purposes (some shared-hosting accounts only give you a single MySQL database), you can avoid naming conflicts in the table names by setting the `TABLE_PREFIX` to some unique string (e.g. "sphider"). All tables that are used by Sphider will get this prefix.
 
-The function to _escape_ special characters can simply be _mysql_real_escape_string_.
-
-{{{
-function quotestring($str) {
-    return mysql_real_escape_string($str);
-}
-}}}
 
 == SQLite 3 ==
 
 {{{
+define('TABLE_PREFIX', '');
 $db = new PDO('sqlite:'.dirname(__FILE__).'/../sphider.sqlite');
-$table_prefix = "";
 }}}
 
-For SQLite, I recommend a _quotestring_ function similar to:
-
-{{{
-function quotestring($str) {
-    $search  = array('"'     , "'"    , '<'   , '>'   , '\0' );
-    $replace = array('&quot;', '&#39;', '&lt;', '&gt;', '' );
-    $str = str_replace($search, $replace, $str);
-    return $str;
-}
-}}}
 
 == SQLite 2 ==
 
 {{{
+define('TABLE_PREFIX', '');
 $db = new PDO('sqlite2:'.dirname(__FILE__).'/../sphider.sqlite');
-$table_prefix = "";
 }}}
-
-You can used the same _quotestring_ function as for SQLite 3.
