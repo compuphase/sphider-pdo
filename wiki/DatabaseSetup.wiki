@@ -4,7 +4,7 @@
 
 PDO requires a driver for the database. You can query whether a suitable PDO driver is installed with phpinfo.
 
-The PDO definition must be in a file called "database.php" which is in the "settings" directory. That file should also contain a function called _quotestring_ that escapes or "quotes" special characters in a string.
+The PDO definition must be in a file called "database.php" which is in the "settings" directory.
 
 Below are a few examples.
 
