@@ -38,16 +38,9 @@ if (!strpos($_GET['q'],' '))
 if ($suggest_history && $_GET['q']!='"')
 {
     global $db;
-    global $table_prefix;
-	$result = $db->query("SELECT 	query as keyword, max(results) as results
-	                      FROM {$table_prefix}query_log
-	                      WHERE results > 0 AND (query LIKE '{$_GET['q']}%' OR query LIKE '\"{$_GET['q']}%')
-	                      GROUP BY query ORDER BY results DESC
-	                      LIMIT $suggest_rows");
+	$result = $db->query("SELECT query as keyword, max(results) as results FROM ".TABLE_PREFIX."query_log WHERE results > 0 AND (query LIKE '{$_GET['q']}%' OR query LIKE '\"{$_GET['q']}%') GROUP BY query ORDER BY results DESC LIMIT $suggest_rows");
     while($row = $result->fetch())
-    {
         $values[$row['keyword']] = $row['results'];
-    }
 }
 
 /*
@@ -58,12 +51,11 @@ if ($suggest_history && $_GET['q']!='"')
 if ($suggest_phrases)
 {
     global $db;
-    global $table_prefix;
 
     $_GET['q'] = strtolower( str_replace('"','',$_GET['q'] ));
 	$_words = substr_count($_GET['q'],' ') + 1;
 
-	$result = $db->query("SELECT count(link_id) as results, SUBSTRING_INDEX(SUBSTRING(fulltxt,LOCATE('{$_GET['q']}',LOWER(fulltxt))), ' ', '$_words') as keyword FROM {$table_prefix}links where fulltxt like '%{$_GET['q']}%'
+	$result = $db->query("SELECT count(link_id) as results, SUBSTRING_INDEX(SUBSTRING(fulltxt,LOCATE('{$_GET['q']}',LOWER(fulltxt))), ' ', '$_words') as keyword FROM ".TABLE_PREFIX."links where fulltxt like '%{$_GET['q']}%'
 	                      GROUP BY SUBSTRING_INDEX( SUBSTRING( fulltxt, LOCATE( '{$_GET['q']}', LOWER(fulltxt) ) ) , ' ', '$_words' ) LIMIT $suggest_rows");
     while($row = $result->fetch())
     {
@@ -79,18 +71,11 @@ if ($suggest_phrases)
 elseif ($suggest_keywords)
 {
     global $db;
-    global $table_prefix;
 	for ($i=0;$i<=15; $i++) {
 		$char = dechex($i);
-		$result = $db->query("SELECT keyword, count(keyword) as results
-		                      FROM {$table_prefix}keywords INNER JOIN {$table_prefix}link_keyword$char USING (keyword_id)
-		                      WHERE keyword LIKE '{$_GET['q']}%'
-		                      GROUP BY keyword
-		                      ORDER BY results desc
-		                      LIMIT $suggest_rows");
-        while($row = $result->fetch()) {
+		$result = $db->query("SELECT keyword, count(keyword) as results FROM ".TABLE_PREFIX."keywords INNER JOIN ".TABLE_PREFIX."link_keyword$char USING (keyword_id) WHERE keyword LIKE '{$_GET['q']}%' GROUP BY keyword ORDER BY results DESC LIMIT $suggest_rows");
+        while($row = $result->fetch())
             $values[$row['keyword']] = $row['results'];
-        }
 	}
 	arsort($values);
 	$values = array_slice($values, 0, $suggest_rows);

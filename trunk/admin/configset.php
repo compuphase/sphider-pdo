@@ -1,6 +1,9 @@
 <?php
 
 include "auth.php";
+if (!CONFIGSET)
+    exit("Function disabled");
+
 if ($_index_numbers=="") {
 	$_index_numbers=0;
 }

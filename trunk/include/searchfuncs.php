@@ -146,18 +146,19 @@ require_once "$include_dir/double_metaphone.php";
 	}
 
 	function search($searchstr, $category, $start, $per_page, $type, $domain) {
-		global $length_of_link_desc,$table_prefix, $show_meta_description, $merge_site_results, $stem_words;
+		global $length_of_link_desc, $show_meta_description, $merge_site_results, $stem_words;
 		global $did_you_mean_enabled,$did_you_mean_always;
 		global $matchless,$equivalent,$language;
 		global $db;
 		$possible_to_find = 1;
-		$result = $db->query("select domain_id from ".$table_prefix."domains where domain = '$domain'");
-		if ($row = $result->fetch()) {
+        $stat = $db->prepare("SELECT domain_id FROM ".TABLE_PREFIX."domains WHERE domain = :domain");
+		$stat->execute(array(':domain' => $domain));
+		if ($row = $stat->fetch()) {
 			$domain_qry = "and domain = ".$row[0];
 		} else {
 			$domain_qry = "";
 		}
-		$result->closeCursor();
+		$stat->closeCursor();
 
 		/* if there are no words to search for, quit */
 		if (!isset($searchstr['+']) || count($searchstr['+']) == 0)
@@ -170,18 +171,16 @@ require_once "$include_dir/double_metaphone.php";
 		$notlist = array();
 		$not_words = 0;
 		while ($not_words < count($wordarray)) {
-			if ($stem_words == 1) {
-				$searchword = quotestring(stem($wordarray[$not_words]));
-			} else {
-				$searchword = quotestring($wordarray[$not_words]);
-			}
+			if ($stem_words == 1)
+				$searchword = stem($wordarray[$not_words]);
+			else
+				$searchword = $wordarray[$not_words];
 			$wordmd5 = substr(md5($searchword), 0, 1);
 
-			$query1 = "SELECT link_id from ".$table_prefix."link_keyword$wordmd5, ".$table_prefix."keywords where ".$table_prefix."link_keyword$wordmd5.keyword_id= ".$table_prefix."keywords.keyword_id and keyword='$searchword'";
-			$result = $db->query($query1);
-			while ($row = $result->fetch()) {
+			$stat = $db->prepare("SELECT link_id from ".TABLE_PREFIX."link_keyword$wordmd5, ".TABLE_PREFIX."keywords where ".TABLE_PREFIX."link_keyword$wordmd5.keyword_id= ".TABLE_PREFIX."keywords.keyword_id and keyword = :keyword");
+			$stat->execute(array(':keyword' => $searchword));
+			while ($row = $stat->fetch())
 				$notlist[$not_words]['id'][$row[0]] = 1;
-			}
 			$not_words++;
 		}
 
@@ -192,40 +191,40 @@ require_once "$include_dir/double_metaphone.php";
 			$wordarray = array();
 		$phrase_words = 0;
 		while ($phrase_words < count($wordarray)) {
-
-			$searchword = quotestring($wordarray[$phrase_words]);
+			$searchword = $wordarray[$phrase_words];
 			$searchword = str_replace("|", "", $searchword);
 			$searchword = str_replace("%", "|%", $searchword);
 			$searchword = str_replace("_", "|_", $searchword);
-			$query1 = "SELECT link_id from ".$table_prefix."links where fulltxt like '%$searchword%' escape '|'";
-			$result = $db->query($query1);
+			$stat = $db->prepare("SELECT link_id from ".TABLE_PREFIX."links where fulltxt like :keyword escape '|'");
+			$stat->execute(array(':keyword' => "%".$searchword."%"));
 			echo sql_errorstring(__FILE__,__LINE__);
-			$row = $result->fetch();
+			$row = $stat->fetch();
 			if (! $row) {
 				$possible_to_find = 0;
+				$stat->closeCursor();
 				break;
 			}
 			$phraselist[$phrase_words]['id'][$row[0]] = 1;
-			while ($row = $result->fetch()) {
+			while ($row = $stat->fetch()) {
 				$phraselist[$phrase_words]['id'][$row[0]] = 1;
 			}
 			$phrase_words++;
 		}
 
-		if (($category> 0) && $possible_to_find==1) {
+		if ($category> 0 && $possible_to_find==1) {
 			$allcats = get_cats($category);
 			$catlist = implode(",", $allcats);
-			$query1 = "select link_id from ".$table_prefix."links, ".$table_prefix."sites, ".$table_prefix."categories, ".$table_prefix."site_category where ".$table_prefix."links.site_id = ".$table_prefix."sites.site_id and ".$table_prefix."sites.site_id = ".$table_prefix."site_category.site_id and ".$table_prefix."site_category.category_id in ($catlist)";
-			$result = $db->query($query1);
+			$result = $db->query("SELECT link_id FROM ".TABLE_PREFIX."links, ".TABLE_PREFIX."sites, ".TABLE_PREFIX."categories, ".TABLE_PREFIX."site_category where ".TABLE_PREFIX."links.site_id = ".TABLE_PREFIX."sites.site_id and ".TABLE_PREFIX."sites.site_id = ".TABLE_PREFIX."site_category.site_id and ".TABLE_PREFIX."site_category.category_id in ($catlist)");
 			echo sql_errorstring(__FILE__,__LINE__);
 			$row = $result->fetch();
 			if (! $row) {
 				$possible_to_find = 0;
-			}
-			$category_list[$row[0]] = 1;
-			while ($row = $result->fetch()) {
+			} else {
 				$category_list[$row[0]] = 1;
+				while ($row = $result->fetch())
+					$category_list[$row[0]] = 1;
 			}
+            $result->closeCursor();
 		}
 
 		/* find all sites that include the search words */
@@ -233,20 +232,20 @@ require_once "$include_dir/double_metaphone.php";
 		$wordarray = $searchstr['+'];
 		$words = 0;
 		while (($words < count($wordarray)) && $possible_to_find == 1) {
-			if ($stem_words == 1) {
-				$searchword = quotestring(stem($wordarray[$words]));
-			} else {
-				$searchword = quotestring($wordarray[$words]);
-			}
+			if ($stem_words == 1)
+				$searchword = stem($wordarray[$words]);
+			else
+				$searchword = $wordarray[$words];
 			$wordmd5 = substr(md5($searchword), 0, 1);
-			$query1 = "SELECT distinct link_id, weight, domain FROM ".$table_prefix."link_keyword$wordmd5, ".$table_prefix."keywords WHERE ".$table_prefix."link_keyword$wordmd5.keyword_id= ".$table_prefix."keywords.keyword_id AND keyword='$searchword' $domain_qry	ORDER	BY	weight	DESC";
-			$result = $db->query($query1);
+			$stat = $db->prepare("SELECT distinct link_id, weight, domain FROM ".TABLE_PREFIX."link_keyword$wordmd5, ".TABLE_PREFIX."keywords WHERE ".TABLE_PREFIX."link_keyword$wordmd5.keyword_id= ".TABLE_PREFIX."keywords.keyword_id AND keyword=:keyword $domain_qry	ORDER	BY	weight	DESC");
+			$stat->execute(array(':keyword' => $searchword));
 			echo sql_errorstring(__FILE__,__LINE__);
-			$row = $result->fetch();
+			$row = $stat->fetch();
 			if (! $row) {
 				$word_not_found[$wordarray[$words]] = 1;
 				if ($type != "or") {
 					$possible_to_find = 0;
+					$stat->closeCursor();
 					break;
 				}
 			}
@@ -260,14 +259,12 @@ require_once "$include_dir/double_metaphone.php";
 				$linklist[$indx]['id'][] = $row[0];
 				$domains[$row[0]] = $row[2];
 				$linklist[$indx]['weight'][$row[0]] = $row[1];
-			} while ($row = $result->fetch());
+			} while ($row = $stat->fetch());
 			$words++;
 		}
 
-
-		if ($type == "or") {
+		if ($type == "or")
 			$words = 1;
-		}
 		$result_array_full = Array();
 
 		if ($possible_to_find != 0) {
@@ -336,41 +333,40 @@ require_once "$include_dir/double_metaphone.php";
 				/* words that are in the "nonpareil" list are excluded in searching
 				   for alternatives */
 				if (!isset($matchless[$near_word])) {
-					$result = $db->query("SELECT keyword FROM ".$table_prefix."keywords WHERE keyword='$near_word'");
-					if ($result && $row=$result->fetch()) {
+					$stat = $db->prepare("SELECT keyword FROM ".TABLE_PREFIX."keywords WHERE keyword=:keyword");
+					if ($stat->execute(array(':keyword' => $near_word)) && $row=$stat->fetch()) {
 						$near_words[$word] = latin1_to_html($near_word);
-						$result->closeCursor();
+						$stat->closeCursor();
 					}
 				}
 				$near_word = $searchstr['+'][$idx] . "-" . $searchstr['+'][$idx+1];
 				if (!isset($matchless[$near_word])) {
-					$result = $db->query("SELECT keyword FROM ".$table_prefix."keywords WHERE keyword='$near_word'");
-					if ($result && $row=$result->fetch()) {
+					$stat = $db->prepare("SELECT keyword FROM ".TABLE_PREFIX."keywords WHERE keyword=:keyword");
+					if ($stat->execute(array(':keyword' => $near_word)) && $row=$stat->fetch()) {
 						$near_words[$word] = latin1_to_html($near_word);
-						$result->closeCursor();
+						$stat->closeCursor();
 					}
 				}
 			}
 			/* search for alternatives in the explicit equivalents word list */
 			reset($searchstr['+']);
 			foreach ($searchstr['+'] as $word) {
-				if (isset($equivalent[$word]) && strlen($equivalent[$word]) > 0) {
+				if (isset($equivalent[$word]) && strlen($equivalent[$word]) > 0)
 					$near_words[$word] = latin1_to_html($equivalent[$word]);
-				}
 			}
 			/* then search for "near words" for the individual words */
 			reset($searchstr['+']);
 			foreach ($searchstr['+'] as $word) {
 				/* words that are in the "nonpareil" list are excluded in searching
 				   for alternatives */
-				if (isset($matchless[$word]) && $matchless[$word] == 1 && count($result_array_full) > 0)
+				if (isset($matchless[$word]) && $matchless[$word] == 1)
 					continue;
 				/* if there are misspelled words, show only alternatives for the
 				   misspelled words, (so, if the current word is not in the list
 				   of misspelled words, exclude it from the search for alternatives */
 				if (count($word_not_found) > 0 && !(isset($word_not_found[$word]) && $word_not_found[$word] == 1))
 					continue;
-				$word = quotestring($word);
+				$word = sanitize($word);
 				/* use the double-metaphone to find close words */
 				$meta = double_metaphone($word);
 				if (!isset($meta["primary"]) || strlen($meta["primary"]) == 0)
@@ -378,7 +374,7 @@ require_once "$include_dir/double_metaphone.php";
 				$where = "metaphone1='".$meta["primary"]."' OR metaphone2='".$meta["primary"]."'";
 				if (isset($meta["secondary"]) && strlen($meta["secondary"]) > 0)
 					$where .= " OR metaphone1='".$meta["secondary"]."' OR metaphone2='".$meta["secondary"]."'";
-				$result = $db->query("SELECT keyword FROM ".$table_prefix."keywords WHERE $where");
+				$result = $db->query("SELECT keyword FROM ".TABLE_PREFIX."keywords WHERE $where");
 				/* adapted from http://www.mdj.us/web-development/php-programming/creating-better-search-suggestions-with-sphider/
 				   but using a double-metaphone filter (instead of SOUNDEX) and
 				   adding a filter for accented characters */
@@ -419,7 +415,6 @@ require_once "$include_dir/double_metaphone.php";
 			return null;
 		}
 		arsort ($result_array_full);
-
 
 		if ($merge_site_results == 1 && $domain_qry == "") {
 			while (list($key, $value) = each($result_array_full)) {
@@ -465,8 +460,8 @@ require_once "$include_dir/double_metaphone.php";
 			$fulltxt = "substring(fulltxt, 1, $length_of_link_desc)";
 		}
 
-		$query1 = "SELECT distinct link_id, url, title, description, language, $fulltxt, size FROM ".$table_prefix."links WHERE link_id in ($inlist)";
-		$result = $db->query($query1);
+		$query = "SELECT distinct link_id, url, title, description, language, $fulltxt, size FROM ".TABLE_PREFIX."links WHERE link_id in ($inlist)";
+		$result = $db->query($query);
 		echo sql_errorstring(__FILE__,__LINE__);
 
 		$i = 0;
@@ -487,7 +482,7 @@ require_once "$include_dir/double_metaphone.php";
 			if (isset($row[4]) && $row[4] != null && strlen($row[4]) > 0 && strcasecmp($row[4], $language) != 0) {
 				$res[$i]['weight'] *= 0.5;
 			}
-			$dom_result = $db->query("select domain from ".$table_prefix."domains where domain_id='".$domains[$row[0]]."'");
+			$dom_result = $db->query("select domain from ".TABLE_PREFIX."domains where domain_id='".$domains[$row[0]]."'");
 			$dom_row = $dom_result->fetch();
 			$res[$i]['domain'] = $dom_row[0];
 			$i++;
@@ -509,14 +504,9 @@ require_once "$include_dir/double_metaphone.php";
 	}
 
 function get_search_results($query, $start, $category, $searchtype, $results, $domain) {
-	global $sph_messages, $results_per_page,
-		$links_to_next,
-		$show_query_scores,
-		$table_prefix,
-		$desc_length;
-	if ($results != "") {
+	global $sph_messages, $results_per_page, $links_to_next, $show_query_scores, $desc_length;
+	if ($results != "")
 		$results_per_page = $results;
-	}
 
 	if ($searchtype == "phrase") {
 	   $query=str_replace('"','',$query);
@@ -581,7 +571,7 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 	$full_result['num_of_results'] = $num_of_results;
 
 	if ($start < 2)
-		saveToLog(quotestring($query), $time, $rows);
+		saveToLog($query, $time, $rows);
 	$from = ($start-1) * $results_per_page+1;
 	$to = min(($start)*$results_per_page, $rows);
 

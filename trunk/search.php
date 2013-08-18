@@ -12,7 +12,6 @@ $settings_dir = "./settings";
 $language_dir = "./languages";
 
 include ("$include_dir/commonfuncs.php");
-//extract(getHttpVars());
 
 require_once("$settings_dir/database.php");
 require_once("$include_dir/searchfuncs.php");
@@ -20,25 +19,24 @@ require_once("$include_dir/categoryfuncs.php");
 
 include "$settings_dir/conf.php";
 
-// http://www.sphider.eu/forum/read.php?2,9135 (modified for PDO)
 if (isset($_GET['query']))
-	$query = quotestring($_GET['query']);
+	$query = sanitize($_GET['query']);
 if (isset($_GET['search']))
-	$search = quotestring($_GET['search']);
+	$search = sanitize($_GET['search']);
 if (isset($_GET['domain']))
-	$domain = quotestring($_GET['domain']);
+	$domain = sanitize($_GET['domain']);
 if (isset($_GET['type']))
-	$type = quotestring($_GET['type']);
+	$type = sanitize($_GET['type']);
 if (isset($_GET['catid']))
-	$catid = quotestring($_GET['catid']);
+	$catid = sanitize($_GET['catid']);
 if (isset($_GET['category']))
-	$category = quotestring($_GET['category']);
+	$category = sanitize($_GET['category']);
 if (isset($_GET['results']))
-	$results = quotestring($_GET['results']);
+	$results = sanitize($_GET['results']);
 if (isset($_GET['start']))
-	$start = quotestring($_GET['start']);
+	$start = sanitize($_GET['start']);
 if (isset($_GET['adv']))
-	$adv = quotestring($_GET['adv']);
+	$adv = sanitize($_GET['adv']);
 if (isset($_GET['lang']))
 	$language = $_GET['lang'];
 
@@ -62,7 +60,7 @@ if (isset($results) && $results != "") {
 	$results_per_page = $results;
 }
 
-if (get_magic_quotes_gpc()==1) {
+if (isset($query) && get_magic_quotes_gpc()==1) {
 	$query = stripslashes($query);
 }
 
@@ -76,10 +74,10 @@ if (!isset($category) || !is_numeric($category)) {
 
 
 if ($catid && is_numeric($catid)) {
-	$tpl_['category'] = sql_fetch_all('SELECT category FROM '.$table_prefix.'categories WHERE category_id='.(int)$_REQUEST['catid']);
+	$tpl_['category'] = sql_fetch_all('SELECT category FROM '.TABLE_PREFIX.'categories WHERE category_id=:catid', array(':catid' => (int)$_REQUEST['catid']));
 }
 
-$count_level0 = sql_fetch_all('SELECT count(*) FROM '.$table_prefix.'categories WHERE parent_num=0');
+$count_level0 = sql_fetch_all('SELECT count(*) FROM '.TABLE_PREFIX.'categories WHERE parent_num=:parent', array(':parent' => 0));
 $has_categories = 0;
 
 if ($count_level0) {
@@ -102,23 +100,17 @@ function poweredby () {
 	global $sph_messages;
     //If you want to remove this, please donate to the project at http://www.sphider.eu/donate.php
     print $sph_messages['Powered by'];?>  <a href="http://www.sphider.eu/"><img src="sphider-logo.png" border="0" style="vertical-align: middle" alt="Sphider"></a>
-
     <?php
 }
 
 
 function saveToLog ($query, $elapsed, $results) {
-        global $table_prefix;
-        global $db;
-        global $search;
-        global $start;
+	global $db;
 
-    if ($results =="") {
-        $results = 0;
-    }
-    $query =  "insert into ".$table_prefix."query_log (query, time, elapsed, results) values ('$query', DATETIME('NOW'), '$elapsed', '$results')";
-	$db->exec($query);
-	echo sql_errorstring(__FILE__,__LINE__);
+    if ($results =="")
+		$results = 0;
+	$stat = $db->prepare("insert into ".TABLE_PREFIX."query_log (query, time, elapsed, results) values (:query, DATETIME('NOW'), :elapsed, :results)");
+	$stat->execute(array(':query' => $query, ':elapsed' => $elapsed, ':results' => $results));
 }
 
 if (!isset($search) || strlen($query) == 0)
@@ -127,9 +119,25 @@ if (!isset($start))
     $start = 0;
 switch ($search) {
 	case 1:
-		if (!isset($results)) {
+		if (!isset($results))
 			$results = "";
+		if ($type != "phrase") {
+			$query = str_replace("\"", " ", $query);
+			$query = str_replace("&quot;", " ", $query);
+			$query = str_replace("&#39;", " ", $query);
 		}
+		$query = str_replace("&amp;", " ", $query);
+		$query = str_replace("&lt;", " ", $query);
+		$query = str_replace("&gt;", " ", $query);
+		$query = str_replace("#", " ", $query);
+		$query = str_replace("&", " ", $query);
+		$query = str_replace(";", " ", $query);
+		$query = str_replace("'", " ", $query);
+		$query = str_replace("*", " ", $query);
+		$query = str_replace("%", " ", $query);
+		$query = str_replace("\\", " ", $query);
+		if (strpos($query, '\0') != FALSE)
+			$query = "";
 		$search_results = get_search_results($query, $start, $category, $type, $results, $domain);
 		require("$template_dir/$template/search_results.html");
 	break;

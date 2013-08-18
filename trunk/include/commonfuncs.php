@@ -11,6 +11,12 @@
 	}
 
 
+	function sanitize($str) {
+        $str = strip_tags($str);
+        $str = htmlspecialchars($str, ENT_QUOTES, "ISO-8859-1", false);
+		return $str;
+	}
+
 	function sql_errorstring($filename, $linenr) {
 	  global $db;
 	  $code = $db->errorCode();
@@ -24,23 +30,20 @@
 	/**
 	* Returns the result of a query as an array
 	*
-	* @param string $query SQL päring stringina
-	* @return array|null massiiv
+	* @param $query SQL expression
+	* @return array|null
 	 */
-	function sql_fetch_all($query) {
+	function sql_fetch_all($query, $parameters) {
 		global $db;
-		$result = $db->query($query);
-		if($err = $db->errorCode() != '00000') {
-			print $query.'<br>'.sql_errorstring(__FILE__,__LINE__);
-		} else {
-			while($row=$result->fetch()) {
+		$stat = $db->prepare($query);
+		if ($stat->execute($parameters)) {
+			while ($row=$stat->fetch())
 				$data[]=$row;
-			}
+		} else {
+			print $query.'<br>'.sql_errorstring(__FILE__,__LINE__);
 		}
 		return $data;
 	}
-
-
 
 	/*
 	Removes duplicate elements from an array
@@ -64,9 +67,8 @@
 	}
 
 	function get_cats($parent) {
-		global $table_prefix;
 		global $db;
-		$query = "SELECT * FROM ".$table_prefix."categories WHERE parent_num=$parent";
+		$query = "SELECT * FROM ".TABLE_PREFIX."categories WHERE parent_num=$parent";
 		$result = $db->query($query);
 		echo sql_errorstring(__FILE__,__LINE__);
 		$arr[] = $parent;
@@ -245,28 +247,6 @@
 		   }
 	   }
 		   return true;
-	}
-
-	function getHttpVars() {
-		$superglobs = array(
-			'_POST',
-			'_GET',
-			'HTTP_POST_VARS',
-			'HTTP_GET_VARS');
-
-		$httpvars = array();
-
-		// extract the right array
-		foreach ($superglobs as $glob) {
-			global $$glob;
-			if (isset($$glob) && is_array($$glob)) {
-				$httpvars = $$glob;
-			 }
-			if (count($httpvars) > 0)
-				break;
-		}
-		return $httpvars;
-
 	}
 
 function countSubstrs($haystack, $needle) {
