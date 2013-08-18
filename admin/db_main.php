@@ -5,8 +5,6 @@ extract($_POST);
 extract($_REQUEST);
 include "auth.php";
 $backup_path="./backup/";
-$dbname=$database;
-$dbprefix=$table_prefix;
 
 if (isset($send2)) {
 	include("db_backup.php");
@@ -70,7 +68,7 @@ function checkAll(theForm, cName, allNo_stat) {
  <?php
 
         global $db;
-		$stats  = $db->query("SHOW TABLE STATUS FROM $dbname LIKE '$dbprefix%'");
+		$stats  = $db->query("SHOW TABLE STATUS FROM ".DATABASE_NAME." LIKE '".TABLE_PREFIX."%'");
 		if ($tats) {
     		$bgcolor='grey';
     		$i=0;
@@ -105,7 +103,7 @@ echo "
 	<td>
 	 <font color='#990000' size='1'><strong>Backup File Name: </strong></font>
 
-	 <input name='filename' type='text' class='textbox' id='filename' size='20' maxlength='25' value='$dbname.sql.gz' >
+	 <input name='filename' type='text' class='textbox' id='filename' size='20' maxlength='25' value=DATABASE_NAME.'.sql.gz' >
 	<input  id='submit'"; if (!get_extension_funcs('zlib'))echo 'disabled'; echo " type='submit' name='send2' value='Backup'>
 	</td>
  </tr>

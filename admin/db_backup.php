@@ -2,7 +2,7 @@
 include "auth.php";
 $backup_path="./backup/";
 
-$stats  = mysql_query("SHOW TABLE STATUS FROM $database LIKE '$table_prefix%'");
+$stats  = mysql_query("SHOW TABLE STATUS FROM $database LIKE '".TABLE_PREFIX."%'");
 $numtables = mysql_num_rows($stats);
 $starttime=microtime();
 if($send2=="Optimize"){
@@ -20,7 +20,7 @@ if($send2=="Optimize"){
 	$fp = gzopen ($backup_path.$filename,"w");
         $copyr="# Table backup from Sphider\n".
                "# Creation date: ".date("d-M-Y H:s",time())."\n".
-               "# Database: ".$database."\n".
+               "# Database: ".DATABASE_NAME."\n".
                "# MySQL Server version: ".mysql_get_server_info()."\n\n" ;
 	gzwrite ($fp,$copyr);
 	gzclose ($fp);
@@ -33,9 +33,9 @@ if (!eregi("/restore\.",$_SERVER['PHP_SELF'])) {
 	$fp = gzopen ($backup_path.$filename,"a");
 	while($i < $numtables) {
            if (isset($tables[$i])) {
-	         	 get_def($database,$tables[$i],$fp);
+	         	 get_def(DATABASE_NAME,$tables[$i],$fp);
 	           if (!isset($structonly) || $structonly!="Yes") {
-	             get_content($database,$tables[$i],$fp);
+	             get_content(DATABASE_NAME,$tables[$i],$fp);
 	       	   }
 	         }
 	      $i++;

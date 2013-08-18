@@ -479,7 +479,7 @@ function url_purify($url, $parent_url, $can_leave_domain) {
 }
 
 function save_keywords($wordarray, $link_id, $domain) {
-    global $table_prefix, $all_keywords;
+    global $all_keywords;
     global $db;
     reset($wordarray);
     $inserts = array();
@@ -495,9 +495,9 @@ function save_keywords($wordarray, $link_id, $domain) {
                 $meta = double_metaphone($word);
                 $meta1 = $meta["primary"];
                 $meta2 = $meta["secondary"];
-                $res = $db->exec("insert into ".$table_prefix."keywords (keyword,metaphone1,metaphone2) values ('$word','$meta1','$meta2')");
+                $res = $db->exec("insert into ".TABLE_PREFIX."keywords (keyword,metaphone1,metaphone2) values ('$word','$meta1','$meta2')");
                 if (!$res) {  //error
-                    $query = "select keyword_ID from ".$table_prefix."keywords where keyword='$word'";
+                    $query = "select keyword_ID from ".TABLE_PREFIX."keywords where keyword='$word'";
                     $result = $db->query($query);
                     $error = sql_errorstring(__FILE__,__LINE__);
                     if ($error) {
@@ -528,7 +528,7 @@ function save_keywords($wordarray, $link_id, $domain) {
         if ($values!="") {
             $arr = explode( ';', $values );
             foreach ($arr as $insert_sql){
-                $query = "insert into ".$table_prefix."link_keyword$char (link_id, keyword_id, weight, domain) values $insert_sql";
+                $query = "insert into ".TABLE_PREFIX."link_keyword$char (link_id, keyword_id, weight, domain) values $insert_sql";
                 $db->exec($query);
                 $error = sql_errorstring(__FILE__, __LINE__);
                 if ($error) {
@@ -597,8 +597,8 @@ function get_head_data($file) {
                 $nofollow = 1;
             }
         }
-        $data['description'] = quotestring($description);
-        $data['keywords'] = quotestring($keywords);
+        $data['description'] = $description;
+        $data['keywords'] = $keywords;
         $data['language'] = $language;
         $data['nofollow'] = $nofollow;
         $data['noindex'] = $noindex;
@@ -666,9 +666,9 @@ function clean_file($file, $url, $type) {
     $file = preg_replace("/(([^0-9])\.)|(\.([^0-9]))/", "$2 $4", $file);
     //replace multiple spaces by a single one (and replace TABs by spaces too)
     $file = preg_replace("/\s+/", " ", $file);
-    $data['fulltext'] = quotestring($fulltext);
-    $data['content'] = quotestring($file);
-    $data['title'] = isset($title) ? quotestring($title) : "";
+    $data['fulltext'] = $fulltext;
+    $data['content'] = $file;
+    $data['title'] = isset($title) ? $title : "";
     $data['description'] = isset($headdata['description']) ? $headdata['description'] : "";
     $data['language'] = isset($headdata['language']) ? $headdata['language'] : "";
     $data['keywords'] = isset($headdata['keywords']) ? $headdata['keywords'] : "";
@@ -737,9 +737,8 @@ function calc_weights($wordarray, $title, $host, $path, $keywords) {
 }
 
 function isDuplicateMD5($md5sum) {
-    global $table_prefix;
     global $db;
-    $result = $db->query("select link_id from ".$table_prefix."links where md5sum='$md5sum'");
+    $result = $db->query("select link_id from ".TABLE_PREFIX."links where md5sum='$md5sum'");
     echo sql_errorstring(__FILE__,__LINE__);
 
     if ($result->fetch())
@@ -801,10 +800,9 @@ function check_include($link, $inc, $not_inc) {
 }
 
 function check_for_removal($url) {
-    global $table_prefix;
     global $command_line;
     global $db;
-    $result = $db->query("select link_id, visible from ".$table_prefix."links"." where url='$url'");
+    $result = $db->query("select link_id, visible from ".TABLE_PREFIX."links"." where url='$url'");
     echo sql_errorstring(__FILE__,__LINE__);
     $row = $result->fetch();
     $result->closeCursor();
@@ -813,14 +811,14 @@ function check_for_removal($url) {
         $visible = $row[1];
         if ($visible > 0) {
             $visible --;
-            $db->exec("update ".$table_prefix."links set visible=$visible where link_id=$link_id");
+            $db->exec("update ".TABLE_PREFIX."links set visible=$visible where link_id=$link_id");
             echo sql_errorstring(__FILE__,__LINE__);
         } else {
-            $db->exec("delete from ".$table_prefix."links where link_id=$link_id");
+            $db->exec("delete from ".TABLE_PREFIX."links where link_id=$link_id");
             echo sql_errorstring(__FILE__,__LINE__);
             for ($i=0;$i<=15; $i++) {
                 $char = dechex($i);
-                $db->exec("delete from ".$table_prefix."link_keyword$char where link_id=$link_id");
+                $db->exec("delete from ".TABLE_PREFIX."link_keyword$char where link_id=$link_id");
                 echo sql_errorstring(__FILE__,__LINE__);
             }
             printStandardReport('pageRemoved',$command_line);

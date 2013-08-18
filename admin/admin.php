@@ -91,11 +91,13 @@ $database_funcs = Array ("database" => "default");
 		<li><a href="admin.php?f=categories" id="<?php print $cat_funcs[$f]?>">Categories</a></li>
 		<li><a href="admin.php?f=index" id="<?php print $index_funcs[$f]?>">Index</a></li>
 		<li><a href="admin.php?f=clean" id="<?php print $clean_funcs[$f]?>">Clean tables</a> </li>
-		<li><a href="admin.php?f=settings" id="<?php print $settings_funcs[$f]?>">Settings</a></li>
+        <?php if (CONFIGSET) { ?>
+		    <li><a href="admin.php?f=settings" id="<?php print $settings_funcs[$f]?>">Settings</a></li>
+        <?php } ?>
 		<li><a href="admin.php?f=statistics" id="<?php print $stat_funcs[$f]?>">Statistics</a> </li>
 		<?php if ($db->getAttribute(constant("PDO::ATTR_DRIVER_NAME")) == 'mysql') {?>
-		<li><a href="admin.php?f=database" id="<?php print $database_funcs[$f]?>">Database</a></li>
-		<?php }?>
+		    <li><a href="admin.php?f=database" id="<?php print $database_funcs[$f]?>">Database</a></li>
+		<?php } ?>
 		<li><a href="admin.php?f=24" id="default">Log out</a></li>
 		</ul>
 	</div>
@@ -103,7 +105,6 @@ $database_funcs = Array ("database" => "default");
 
 <?php
 	function list_cats($parent, $lev, $color, $message) {
-		global $table_prefix;
 		global $db;
 		if ($lev == 0) {
 			?>
@@ -121,7 +122,7 @@ $database_funcs = Array ("database" => "default");
 		for ($x = 0; $x < $lev; $x++)
 			$space .= "&nbsp;&nbsp;&nbsp;&nbsp;";
 
-		$query = "SELECT * FROM ".$table_prefix."categories WHERE parent_num=$parent ORDER BY category";
+		$query = "SELECT * FROM ".TABLE_PREFIX."categories WHERE parent_num=$parent ORDER BY category";
 		$result = $db->query($query);
 		echo sql_errorstring(__FILE__,__LINE__);
 
@@ -144,13 +145,12 @@ $database_funcs = Array ("database" => "default");
 	}
 
 	function walk_through_cats($parent, $lev, $site_id) {
-		global $table_prefix;
 		global $db;
 		$space = "";
 		for ($x = 0; $x < $lev; $x++)
 			$space .= "&nbsp;&nbsp;&nbsp;&nbsp;";
 
-		$query = "SELECT * FROM ".$table_prefix."categories WHERE parent_num=$parent ORDER BY category";
+		$query = "SELECT * FROM ".TABLE_PREFIX."categories WHERE parent_num=$parent ORDER BY category";
 		$result = $db->query($query);
 		echo sql_errorstring(__FILE__,__LINE__);
 
@@ -159,7 +159,7 @@ $database_funcs = Array ("database" => "default");
 			$cat = $row['category'];
 			$state = '';
 			if ($site_id <> '') {
-				$result2 = $db->query("select * from ".$table_prefix."site_category where site_id=$site_id and category_id=$id");
+				$result2 = $db->query("select * from ".TABLE_PREFIX."site_category where site_id=$site_id and category_id=$id");
 				echo sql_errorstring(__FILE__,__LINE__);
 
 				if ($result2->fetch()) {
@@ -177,7 +177,6 @@ $database_funcs = Array ("database" => "default");
 
 
 function addcatform($parent) {
-	global $table_prefix;
 	global $db;
 	$par2 = "";
 	$par2num = "";
@@ -188,12 +187,12 @@ function addcatform($parent) {
 	 if ($parent=='')
 	   $par='(Top level)';
 	 else {
-		$query = "SELECT category, parent_num FROM ".$table_prefix."categories WHERE category_id='$parent'";
+		$query = "SELECT category, parent_num FROM ".TABLE_PREFIX."categories WHERE category_id='$parent'";
 		$result = $db->query($query);
 		if (!sql_errorstring(__FILE__,__LINE__)) {
 			if ($row = $result->fetch()) {
 				$par=$row[0];
-				$query = "SELECT Category_ID, Category FROM ".$table_prefix."categories WHERE Category_ID='$row[1]'";
+				$query = "SELECT Category_ID, Category FROM ".TABLE_PREFIX."categories WHERE Category_ID='$row[1]'";
 				$result2 = $db->query($query);
 				echo sql_errorstring(__FILE__,__LINE__);
 				if ($row = $result2->fetch()) {
@@ -221,7 +220,7 @@ function addcatform($parent) {
 
 <?php
 	print "<tr><td colspan=2>";
-	$query = "SELECT category_ID, Category FROM ".$table_prefix."categories WHERE parent_num='$parent'";
+	$query = "SELECT category_ID, Category FROM ".TABLE_PREFIX."categories WHERE parent_num='$parent'";
 	$result = $db->query($query);
 	echo sql_errorstring(__FILE__,__LINE__);
 	if ($row = $result->fetch()) {
@@ -236,23 +235,19 @@ function addcatform($parent) {
 
 
 	function addcat ($category, $parent) {
-		global $table_prefix;
 		global $db;
-		if ($category=="") return;
-		$category = quotestring($category);
-		if ($parent == "") {
+		if (strlen($category) == 0)
+			return;
+		if ($parent == "")
 			$parent = 0;
-		}
-		$query = "INSERT INTO ".$table_prefix."categories (category, parent_num)
-				 VALUES ('$category', ".$parent.")";
-		$db->exec($query);
+		$stat = $db->prepare("INSERT INTO ".TABLE_PREFIX."categories (category, parent_num) VALUES (:$category, :parent)");
+		$stat->execute(array(':category' => $category, ':parent' => $parent));
 		If (!sql_errorstring(__FILE__,__LINE__)) {
 			return "<center><b>Category $category added.</b></center>" ;
 		} else {
 			return sql_errorstring(__FILE__,__LINE__);;
 		}
 	}
-
 
 
 
@@ -273,9 +268,8 @@ function addcatform($parent) {
 	}
 
 	function editsiteform($site_id) {
-		global $table_prefix;
 		global $db;
-		$result = $db->query("SELECT site_id, url, title, short_desc, spider_depth, required, disallowed, can_leave_domain from ".$table_prefix."sites where site_id=$site_id");
+		$result = $db->query("SELECT site_id, url, title, short_desc, spider_depth, required, disallowed, can_leave_domain from ".TABLE_PREFIX."sites where site_id=$site_id");
 		echo sql_errorstring(__FILE__,__LINE__);
 		$row = $result->fetch();
 		$result->closeCursor();
@@ -319,10 +313,9 @@ function addcatform($parent) {
 
 
 		function editsite ($site_id, $url, $title, $short_desc, $depth, $required, $disallowed, $domaincb,  $cat) {
-			global $table_prefix;
 			global $db;
 			// get the current "root path"
-			$result = $db->query("select url from ".$table_prefix."sites where site_id=$site_id");
+			$result = $db->query("select url from ".TABLE_PREFIX."sites where site_id=$site_id");
 			if ($result) {
 			  $row = $result->fetch();
 			  $old_url = remove_file_from_url($row[0]);
@@ -331,35 +324,35 @@ function addcatform($parent) {
 			}
 			$result->closeCursor();
 			//??? split the domain, set it
-			$short_desc = quotestring($short_desc);
-			$title = quotestring($title);
-			$db->exec("delete from ".$table_prefix."site_category where site_id=$site_id");
+			$short_desc = $db->quote($short_desc);
+			$title = $db->quote($title);
+			$db->exec("DELETE FROM ".TABLE_PREFIX."site_category where site_id=$site_id");
 			echo sql_errorstring(__FILE__,__LINE__);
 			$compurl=parse_url($url);
 			if ($compurl['path']=='')
 				$url=$url."/";
-			$db->exec("UPDATE ".$table_prefix."sites SET url='$url', title='$title', short_desc='$short_desc', spider_depth =$depth, required='$required', disallowed='$disallowed', can_leave_domain=$domaincb WHERE site_id=$site_id");
+			$db->exec("UPDATE ".TABLE_PREFIX."sites SET url='$url', title=$title, short_desc=$short_desc, spider_depth =$depth, required='$required', disallowed='$disallowed', can_leave_domain=$domaincb WHERE site_id=$site_id");
 			echo sql_errorstring(__FILE__,__LINE__);
-			$result=$db->query("select category_id from ".$table_prefix."categories");
+			$result=$db->query("select category_id from ".TABLE_PREFIX."categories");
 			echo sql_errorstring(__FILE__,__LINE__);
 			print sql_errorstring(__FILE__,__LINE__);
 			while ($row=$result->fetch()) {
 				$cat_id=$row[0];
 				if ($cat[$cat_id]=='on') {
-					$db->exec("INSERT INTO ".$table_prefix."site_category (site_id, category_id) values ('$site_id', '$cat_id')");
+					$db->exec("INSERT INTO ".TABLE_PREFIX."site_category (site_id, category_id) values ('$site_id', '$cat_id')");
 					echo sql_errorstring(__FILE__,__LINE__);
 				}
 			}
 			/* update all links */
 			$new_url = remove_file_from_url($url);
 			if (strcasecmp($new_url, $old_url) != 0) {
-			  $result = $db->query("SELECT link_id, url FROM ".$table_prefix."links WHERE site_id=$site_id");
+			  $result = $db->query("SELECT link_id, url FROM ".TABLE_PREFIX."links WHERE site_id=$site_id");
 			  while ($row = $result->fetch()) {
 				$link_id = $row[0];
 				$link = $row[1];
 				$link = substr($link, strlen($old_url));
 				$link = $new_url . $link;
-				$db->exec("UPDATE ".$table_prefix."links SET url='$link' WHERE link_id=$link_id");
+				$db->exec("UPDATE ".TABLE_PREFIX."links SET url='$link' WHERE link_id=$link_id");
 			  }
 			}
 			if (!sql_errorstring(__FILE__,__LINE__)) {
@@ -370,9 +363,8 @@ function addcatform($parent) {
 		}
 
 	function editcatform($cat_id) {
-		global $table_prefix;
 		global $db;
-		$result = $db->query("SELECT category FROM ".$table_prefix."categories where category_id='$cat_id'");
+		$result = $db->query("SELECT category FROM ".TABLE_PREFIX."categories where category_id='$cat_id'");
 		echo sql_errorstring(__FILE__,__LINE__);
 		$row=$result->fetch();
 		$result->closeCursor();
@@ -393,9 +385,8 @@ function addcatform($parent) {
 
 
 	function editcat ($cat_id, $category) {
-		global $table_prefix;
 		global $db;
-		$qry = "UPDATE ".$table_prefix."categories SET category='".quotestring($category)."' WHERE category_id='$cat_id'";
+		$qry = "UPDATE ".TABLE_PREFIX."categories SET category=".$db->quote($category)." WHERE category_id='$cat_id'";
 		$db->exec($qry);
 		if (!sql_errorstring(__FILE__,__LINE__))	{
 			return "<br/><center><b>Category updated</b></center>";
@@ -407,9 +398,8 @@ function addcatform($parent) {
 
 
 	function showsites($message) {
-		global $table_prefix;
 		global $db;
-		$result = $db->query("SELECT site_id, url, title, indexdate from ".$table_prefix."sites ORDER By indexdate, title");
+		$result = $db->query("SELECT site_id, url, title, indexdate from ".TABLE_PREFIX."sites ORDER By indexdate, title");
 		echo sql_errorstring(__FILE__,__LINE__);
 		$row = $result->fetch();
 		?>
@@ -443,7 +433,7 @@ function addcatform($parent) {
 				$indexoption="<a href=\"admin.php?f=index&url=$row[url]\">Index</a>";
 			} else {
 				$site_id = $row['site_id'];
-				$result2 = $db->query("SELECT site_id from ".$table_prefix."pending where site_id =$site_id");
+				$result2 = $db->query("SELECT site_id from ".TABLE_PREFIX."pending where site_id =$site_id");
 				echo sql_errorstring(__FILE__,__LINE__);
 				$row2=$result2->fetch();
 				if ($row2['site_id'] == $row['site_id']) {
@@ -470,23 +460,21 @@ function addcatform($parent) {
 	}
 
 	function deletecat($cat_id) {
-		global $table_prefix;
 		global $db;
 		$list = implode(",", get_cats($cat_id));
-		$db->exec("delete from ".$table_prefix."categories where category_id in ($list)");
+		$db->exec("delete from ".TABLE_PREFIX."categories where category_id in ($list)");
 		echo sql_errorstring(__FILE__,__LINE__);
-		$db->exec("delete from ".$table_prefix."site_category where category_id=$cat_id");
+		$db->exec("delete from ".TABLE_PREFIX."site_category where category_id=$cat_id");
 		echo sql_errorstring(__FILE__,__LINE__);
 		return "<center><b>Category deleted.</b></center>";
 	}
 	function deletesite($site_id) {
-		global $table_prefix;
 		global $db;
-		$db->exec("delete from ".$table_prefix."sites where site_id=$site_id");
+		$db->exec("delete from ".TABLE_PREFIX."sites where site_id=$site_id");
 		echo sql_errorstring(__FILE__,__LINE__);
-		$db->exec("delete from ".$table_prefix."site_category where site_id=$site_id");
+		$db->exec("delete from ".TABLE_PREFIX."site_category where site_id=$site_id");
 		echo sql_errorstring(__FILE__,__LINE__);
-		$query = "select link_id from ".$table_prefix."links where site_id=$site_id";
+		$query = "select link_id from ".TABLE_PREFIX."links where site_id=$site_id";
 		$result = $db->query($query);
 		echo sql_errorstring(__FILE__,__LINE__);
 		$todelete = array();
@@ -498,27 +486,26 @@ function addcatform($parent) {
 			$todelete = implode(",", $todelete);
 			for ($i=0;$i<=15; $i++) {
 				$char = dechex($i);
-				$query = "delete from ".$table_prefix."link_keyword$char where link_id in($todelete)";
+				$query = "delete from ".TABLE_PREFIX."link_keyword$char where link_id in($todelete)";
 				$db->exec($query);
 				echo sql_errorstring(__FILE__,__LINE__);
 			}
 		}
 
-		$db->exec("delete from ".$table_prefix."links where site_id=$site_id");
+		$db->exec("delete from ".TABLE_PREFIX."links where site_id=$site_id");
 		echo sql_errorstring(__FILE__,__LINE__);
-		$db->exec("delete from ".$table_prefix."pending where site_id=$site_id");
+		$db->exec("delete from ".TABLE_PREFIX."pending where site_id=$site_id");
 		echo sql_errorstring(__FILE__,__LINE__);
 		return "<br/><center><b>Site deleted</b></center>";
 	}
 
 	function deletePage($link_id) {
-		global $table_prefix;
 		global $db;
-		$db->exec("delete from ".$table_prefix."links where link_id=$link_id");
+		$db->exec("delete from ".TABLE_PREFIX."links where link_id=$link_id");
 		echo sql_errorstring(__FILE__,__LINE__);
 		for ($i=0;$i<=15; $i++) {
 			$char = dechex($i);
-			$db->exec("delete from ".$table_prefix."link_keyword$char where link_id=$link_id");
+			$db->exec("delete from ".TABLE_PREFIX."link_keyword$char where link_id=$link_id");
 		}
 		echo sql_errorstring(__FILE__,__LINE__);
 		return "<br/><center><b>Page deleted</b></center>";
@@ -526,9 +513,8 @@ function addcatform($parent) {
 
 
 	function cleanTemp() {
-		global $table_prefix;
 		global $db;
-		$del = $db->exec("delete from ".$table_prefix."temp where level >= 0");
+		$del = $db->exec("delete from ".TABLE_PREFIX."temp where level >= 0");
 		echo sql_errorstring(__FILE__,__LINE__);
 				?>
 		<div id="submenu">
@@ -537,9 +523,8 @@ function addcatform($parent) {
 	}
 
 	function clearLog() {
-		global $table_prefix;
 		global $db;
-		$del = $db->exec("delete from ".$table_prefix."query_log where time >= 0");
+		$del = $db->exec("delete from ".TABLE_PREFIX."query_log where time >= 0");
 		echo sql_errorstring(__FILE__,__LINE__);
 		?>
 	<div id="submenu">
@@ -549,9 +534,8 @@ function addcatform($parent) {
 
 
 	function cleanLinks() {
-		global $table_prefix;
 		global $db;
-		$query = "select site_id from ".$table_prefix."sites";
+		$query = "select site_id from ".TABLE_PREFIX."sites";
 		$result = $db->query($query);
 		echo sql_errorstring(__FILE__,__LINE__);
 		$todelete = array();
@@ -564,7 +548,7 @@ function addcatform($parent) {
 			$sql_end = " not in ($todelete)";
 		}
 
-		$result = $db->query("select link_id from ".$table_prefix."links where site_id".$sql_end);
+		$result = $db->query("select link_id from ".TABLE_PREFIX."links where site_id".$sql_end);
 		echo sql_errorstring(__FILE__,__LINE__);
 		$del = 0;
 		//??? get all results in an array, so that the cursor is closed
@@ -572,25 +556,25 @@ function addcatform($parent) {
 			$link_id=$row[link_id];
 			for ($i=0;$i<=15; $i++) {
 				$char = dechex($i);
-				$db->exec("delete from ".$table_prefix."link_keyword$char where link_id=$link_id");
+				$db->exec("delete from ".TABLE_PREFIX."link_keyword$char where link_id=$link_id");
 				echo sql_errorstring(__FILE__,__LINE__);
 			}
-			$db->exec("delete from ".$table_prefix."links where link_id=$link_id");
+			$db->exec("delete from ".TABLE_PREFIX."links where link_id=$link_id");
 			echo sql_errorstring(__FILE__,__LINE__);
 			$del++;
 		}
 
-		$result = $db->query("select link_id from ".$table_prefix."links where site_id is NULL");
+		$result = $db->query("select link_id from ".TABLE_PREFIX."links where site_id is NULL");
 		echo sql_errorstring(__FILE__,__LINE__);
 		//??? get all results in an array, so that the cursor is closed
 		while ($row=$result->fetch()) {
 			$link_id=$row[link_id];
 			for ($i=0;$i<=15; $i++) {
 				$char = dechex($i);
-				$db->exec("delete from ".$table_prefix."link_keyword$char where link_id=$link_id");
+				$db->exec("delete from ".TABLE_PREFIX."link_keyword$char where link_id=$link_id");
 				echo sql_errorstring(__FILE__,__LINE__);
 			}
-			$db->exec("delete from ".$table_prefix."links where link_id=$link_id");
+			$db->exec("delete from ".TABLE_PREFIX."links where link_id=$link_id");
 			echo sql_errorstring(__FILE__,__LINE__);
 			$del++;
 		}
@@ -601,9 +585,8 @@ function addcatform($parent) {
 	}
 
 	function cleanKeywords() {
-		global $table_prefix;
 		global $db;
-		$query = "select keyword_id, keyword from ".$table_prefix."keywords";
+		$query = "select keyword_id, keyword from ".TABLE_PREFIX."keywords";
 		$result = $db->query($query);
 		echo sql_errorstring(__FILE__,__LINE__);
 		$del = 0;
@@ -614,11 +597,11 @@ function addcatform($parent) {
 			$keywordlist[$row['keyword_id']] = $row['keyword'];
 		while (list($keyId, $keyword) = each($keywordlist)) {
 			$wordmd5 = substr(md5($keyword), 0, 1);
-			$query = "SELECT keyword_id FROM ".$table_prefix."link_keyword$wordmd5 WHERE keyword_id=$keyId";
+			$query = "SELECT keyword_id FROM ".TABLE_PREFIX."link_keyword$wordmd5 WHERE keyword_id=$keyId";
 			$result2 = $db->query($query);
 			echo sql_errorstring(__FILE__,__LINE__);
 			if (! $result2->fetch()) {
-				$db->exec("DELETE FROM ".$table_prefix."keywords WHERE keyword_id=$keyId");
+				$db->exec("DELETE FROM ".TABLE_PREFIX."keywords WHERE keyword_id=$keyId");
 				echo sql_errorstring(__FILE__,__LINE__);
 				$del++;
 			}
@@ -631,13 +614,12 @@ function addcatform($parent) {
 	}
 
 	function getStatistics() {
-		global $table_prefix;
 		global $db;
 		$stats = array();
-		$keywordQuery = "select count(keyword_id) from ".$table_prefix."keywords";
-		$linksQuery = "select count(url) from ".$table_prefix."links";
-		$siteQuery = "select count(site_id) from ".$table_prefix."sites";
-		$categoriesQuery = "select count(category_id) from ".$table_prefix."categories";
+		$keywordQuery = "select count(keyword_id) from ".TABLE_PREFIX."keywords";
+		$linksQuery = "select count(url) from ".TABLE_PREFIX."links";
+		$siteQuery = "select count(site_id) from ".TABLE_PREFIX."sites";
+		$categoriesQuery = "select count(category_id) from ".TABLE_PREFIX."categories";
 
 		$result = $db->query($keywordQuery);
 		echo sql_errorstring(__FILE__,__LINE__);
@@ -653,7 +635,7 @@ function addcatform($parent) {
 		$result->closeCursor();
 		for ($i=0;$i<=15; $i++) {
 			$char = dechex($i);
-			$result = $db->query("select count(link_id) from ".$table_prefix."link_keyword$char");
+			$result = $db->query("select count(link_id) from ".TABLE_PREFIX."link_keyword$char");
 			echo sql_errorstring(__FILE__,__LINE__);
 			if ($row=$result->fetch()) {
 				$stats['index']+=$row[0];
@@ -678,28 +660,27 @@ function addcatform($parent) {
 
 
 	function addsite ($url, $title, $short_desc, $cat) {
-		global $table_prefix;
 		global $db;
-		$short_desc = quotestring($short_desc);
-		$title = quotestring($title);
+		$short_desc = $db->quote($short_desc);
+		$title = $db->quote($title);
 		$compurl=parse_url("".$url);
 		if ($compurl['path']=='')
 			$url=$url."/";
-		$result = $db->query("select site_ID from ".$table_prefix."sites where url='$url'");
+		$result = $db->query("select site_ID from ".TABLE_PREFIX."sites where url='$url'");
 		echo sql_errorstring(__FILE__,__LINE__);
 		if (! $result->fetch()) {
-			$db->query("INSERT INTO ".$table_prefix."sites (url, title, short_desc) VALUES ('$url', '$title', '$short_desc')");
+			$db->query("INSERT INTO ".TABLE_PREFIX."sites (url, title, short_desc) VALUES ('$url', $title, $short_desc)");
 			echo sql_errorstring(__FILE__,__LINE__);
-			$result = $db->query("select site_ID from ".$table_prefix."sites where url='$url'");
+			$result = $db->query("select site_ID from ".TABLE_PREFIX."sites where url='$url'");
 			echo sql_errorstring(__FILE__,__LINE__);
 			$row = $result->fetch();
 			$site_id = $row[0];
-			$result=$db->query("select category_id from ".$table_prefix."categories");
+			$result=$db->query("select category_id from ".TABLE_PREFIX."categories");
 			echo sql_errorstring(__FILE__,__LINE__);
 			while ($row=$result->fetch()) {
 				$cat_id=$row[0];
 				if ($cat[$cat_id]=='on') {
-					$db->query("INSERT INTO ".$table_prefix."site_category (site_id, category_id) values ('$site_id', '$cat_id')");
+					$db->query("INSERT INTO ".TABLE_PREFIX."site_category (site_id, category_id) values ('$site_id', '$cat_id')");
 					echo sql_errorstring(__FILE__,__LINE__);
 				}
 			}
@@ -718,7 +699,6 @@ function addcatform($parent) {
 
 
 	function indexscreen ($url, $reindex) {
-		global $table_prefix;
 		global $db;
 		$check = "";
 		$levelchecked = "checked";
@@ -728,7 +708,7 @@ function addcatform($parent) {
 			$advurl = "";
 		} else {
 			$advurl = $url;
-			$result = $db->query("select spider_depth, required, disallowed, can_leave_domain from ".$table_prefix."sites " .
+			$result = $db->query("select spider_depth, required, disallowed, can_leave_domain from ".TABLE_PREFIX."sites " .
 					"where url='$url'");
 			echo sql_errorstring(__FILE__,__LINE__);
 			if ($row = $result->fetch()) {
@@ -790,9 +770,8 @@ function addcatform($parent) {
 	}
 
 	function siteScreen($site_id, $message)  {
-		global $table_prefix;
 		global $db;
-		$result = $db->query("SELECT site_id, url, title, short_desc, indexdate from ".$table_prefix."sites where site_id=$site_id");
+		$result = $db->query("SELECT site_id, url, title, short_desc, indexdate from ".TABLE_PREFIX."sites where site_id=$site_id");
 		echo sql_errorstring(__FILE__,__LINE__);
 		$row=$result->fetch();
 		$url = replace_ampersand($row[url]);
@@ -801,7 +780,7 @@ function addcatform($parent) {
 			$indexoption="<a href=\"admin.php?f=index&url=$url\">Index</a>";
 		} else {
 			$site_id = $row['site_id'];
-			$result2 = $db->query("SELECT site_id from ".$table_prefix."pending where site_id =$site_id");
+			$result2 = $db->query("SELECT site_id from ".TABLE_PREFIX."pending where site_id =$site_id");
 			echo sql_errorstring(__FILE__,__LINE__);
 
 			$row2 = $result->fetch();
@@ -867,17 +846,16 @@ function addcatform($parent) {
 
 
 	function siteStats($site_id) {
-		global $table_prefix;
 		global $db;
-		$result = $db->query("select url from ".$table_prefix."sites where site_id=$site_id");
+		$result = $db->query("select url from ".TABLE_PREFIX."sites where site_id=$site_id");
 		echo sql_errorstring(__FILE__,__LINE__);
 		if ($row=$result->fetch()) {
 			$url=$row[0];
 
-			$lastIndexQuery = "SELECT indexdate from ".$table_prefix."sites where site_id = $site_id";
-			$sumSizeQuery = "select sum(length(fulltxt)) from ".$table_prefix."links where site_id = $site_id";
-			$siteSizeQuery = "select sum(size) from ".$table_prefix."links where site_id = $site_id";
-			$linksQuery = "select count(*) from ".$table_prefix."links where site_id = $site_id";
+			$lastIndexQuery = "SELECT indexdate from ".TABLE_PREFIX."sites where site_id = $site_id";
+			$sumSizeQuery = "select sum(length(fulltxt)) from ".TABLE_PREFIX."links where site_id = $site_id";
+			$siteSizeQuery = "select sum(size) from ".TABLE_PREFIX."links where site_id = $site_id";
+			$linksQuery = "select count(*) from ".TABLE_PREFIX."links where site_id = $site_id";
 
 			$result = $db->query($lastIndexQuery);
 			echo sql_errorstring(__FILE__,__LINE__);
@@ -898,7 +876,7 @@ function addcatform($parent) {
 
 			for ($i=0;$i<=15; $i++) {
 				$char = dechex($i);
-				$result = $db->query("select count(*) from ".$table_prefix."links, ".$table_prefix."link_keyword$char where ".$table_prefix."links.link_id=".$table_prefix."link_keyword$char.link_id and ".$table_prefix."links.site_id = $site_id");
+				$result = $db->query("select count(*) from ".TABLE_PREFIX."links, ".TABLE_PREFIX."link_keyword$char where ".TABLE_PREFIX."links.link_id=".TABLE_PREFIX."link_keyword$char.link_id and ".TABLE_PREFIX."links.site_id = $site_id");
 				echo sql_errorstring(__FILE__,__LINE__);
 				if ($row=$result->fetch()) {
 					$stats['index']+=$row[0];
@@ -906,7 +884,7 @@ function addcatform($parent) {
 			}
 			for ($i=0;$i<=15; $i++) {
 				$char = dechex($i);
-				$wordQuery = "select count(distinct keyword) from ".$table_prefix."keywords, ".$table_prefix."links, ".$table_prefix."link_keyword$char where ".$table_prefix."links.link_id=".$table_prefix."link_keyword$char.link_id and ".$table_prefix."links.site_id = $site_id and ".$table_prefix."keywords.keyword_id = ".$table_prefix."link_keyword$char.keyword_id";
+				$wordQuery = "select count(distinct keyword) from ".TABLE_PREFIX."keywords, ".TABLE_PREFIX."links, ".TABLE_PREFIX."link_keyword$char where ".TABLE_PREFIX."links.link_id=".TABLE_PREFIX."link_keyword$char.link_id and ".TABLE_PREFIX."links.site_id = $site_id and ".TABLE_PREFIX."keywords.keyword_id = ".TABLE_PREFIX."link_keyword$char.keyword_id";
 				$result = $db->query($wordQuery);
 				echo sql_errorstring(__FILE__,__LINE__);
 				if ($row=$result->fetch()) {
@@ -937,9 +915,8 @@ function addcatform($parent) {
 	}
 
 	function browsePages($site_id, $start, $filter, $per_page) {
-		global $table_prefix;
 		global $db;
-		$result = $db->query("select url from ".$table_prefix."sites where site_id=$site_id");
+		$result = $db->query("select url from ".TABLE_PREFIX."sites where site_id=$site_id");
 		echo sql_errorstring(__FILE__,__LINE__);
 		$row = $result->fetch();
 		$url = $row[0];
@@ -948,7 +925,7 @@ function addcatform($parent) {
 		if ($filter != "") {
 			$query_add = "and url like '%$filter%'";
 		}
-		$linksQuery = "select count(*) from ".$table_prefix."links where site_id = $site_id $query_add";
+		$linksQuery = "select count(*) from ".TABLE_PREFIX."links where site_id = $site_id $query_add";
 		$result = $db->query($linksQuery);
 		echo sql_errorstring(__FILE__,__LINE__);
 		$row = $result->fetch();
@@ -960,7 +937,7 @@ function addcatform($parent) {
 		$to = min(($start)*10, $numOfPages);
 
 
-		$linksQuery = "select link_id, url from ".$table_prefix."links where site_id = $site_id and url like '%$filter%' order by url limit $from, $per_page";
+		$linksQuery = "select link_id, url from ".TABLE_PREFIX."links where site_id = $site_id and url like '%$filter%' order by url limit $from, $per_page";
 		$result = $db->query($linksQuery);
 		echo sql_errorstring(__FILE__,__LINE__);
 		?>
@@ -1018,14 +995,13 @@ function addcatform($parent) {
 
 
 	function cleanForm () {
-		global $table_prefix;
 		global $db;
-		$result = $db->query("select count(*) from ".$table_prefix."query_log");
+		$result = $db->query("select count(*) from ".TABLE_PREFIX."query_log");
 		echo sql_errorstring(__FILE__,__LINE__);
 		if ($row=$result->fetch()) {
 			$log=$row[0];
 		}
-		$result = $db->query("select count(*) from ".$table_prefix."temp");
+		$result = $db->query("select count(*) from ".TABLE_PREFIX."temp");
 		echo sql_errorstring(__FILE__,__LINE__);
 		if ($row=$result->fetch()) {
 			$temp=$row[0];
@@ -1049,7 +1025,7 @@ function addcatform($parent) {
 	}
 
 	function statisticsForm ($type) {
-		global $table_prefix, $log_dir;
+		global $log_dir;
 		global $db;
 		?>
 		<div id='submenu'>
@@ -1064,15 +1040,15 @@ function addcatform($parent) {
 
 		<?php
 			if ($type == "") {
-				$cachedSumQuery = "select sum(length(fulltxt)) from ".$table_prefix."links";
-				$result=$db->query("select sum(length(fulltxt)) from ".$table_prefix."links");
+				$cachedSumQuery = "select sum(length(fulltxt)) from ".TABLE_PREFIX."links";
+				$result=$db->query("select sum(length(fulltxt)) from ".TABLE_PREFIX."links");
 				echo sql_errorstring(__FILE__,__LINE__);
 				if ($row=$result->fetch()) {
 					$cachedSumSize = $row[0];
 				}
 				$cachedSumSize = number_format($cachedSumSize / 1024, 2);
 
-				$sitesSizeQuery = "select sum(size) from ".$table_prefix."links";
+				$sitesSizeQuery = "select sum(size) from ".TABLE_PREFIX."links";
 				$result=$db->query("$sitesSizeQuery");
 				echo sql_errorstring(__FILE__,__LINE__);
 				if ($row=$result->fetch()) {
@@ -1096,7 +1072,7 @@ function addcatform($parent) {
 				print "<br/><div align=\"center\"><table cellspacing =\"0\" cellpadding=\"0\" class=\"darkgrey\"><tr><td><table cellpadding=\"3\" cellspacing = \"1\"><tr  class=\"grey\"><td><b>Keyword</b></td><td><b>Occurrences</b></td></tr>";
 				for ($i=0;$i<=15; $i++) {
 					$char = dechex($i);
-					$result=$db->query("select keyword, count(".$table_prefix."link_keyword$char.keyword_id) as x from ".$table_prefix."keywords, ".$table_prefix."link_keyword$char where ".$table_prefix."keywords.keyword_id = ".$table_prefix."link_keyword$char.keyword_id group by keyword order by x desc limit 30");
+					$result=$db->query("select keyword, count(".TABLE_PREFIX."link_keyword$char.keyword_id) as x from ".TABLE_PREFIX."keywords, ".TABLE_PREFIX."link_keyword$char where ".TABLE_PREFIX."keywords.keyword_id = ".TABLE_PREFIX."link_keyword$char.keyword_id group by keyword order by x desc limit 30");
 					echo sql_errorstring(__FILE__,__LINE__);
 					while ($result && ($row=$result->fetch())) {
 						$topwords[$row[0]] = $row[1];
@@ -1126,7 +1102,7 @@ function addcatform($parent) {
 			   <b>Page</b></td>
 			   <td><b>Text size</b></td></tr>
 			<?php
-				$result=$db->query("select ".$table_prefix."links.link_id, url, length(fulltxt)  as x from ".$table_prefix."links order by x desc limit 20");
+				$result=$db->query("select ".TABLE_PREFIX."links.link_id, url, length(fulltxt)  as x from ".TABLE_PREFIX."links order by x desc limit 20");
 				echo sql_errorstring(__FILE__,__LINE__);
 				while ($row=$result->fetch()) {
 					if ($class =="white")
@@ -1143,7 +1119,7 @@ function addcatform($parent) {
 			if ($type=='top_searches') {
 				$class = "grey";
 				print "<br/><div align=\"center\"><table cellspacing =\"0\" cellpadding=\"0\" class=\"darkgrey\"><tr><td><table cellpadding=\"3\" cellspacing = \"1\"><tr  class=\"grey\"><td><b>Query</b></td><td><b>Count</b></td><td><b> Average results</b></td><td><b>Last	queried</b></td></tr>";
-				$result=$db->query("select query, count(*) as c, max(time), avg(results)  from ".$table_prefix."query_log group by query order by c desc");
+				$result=$db->query("select query, count(*) as c, max(time), avg(results)  from ".TABLE_PREFIX."query_log group by query order by c desc");
 				echo sql_errorstring(__FILE__,__LINE__);
 				while ($row=$result->fetch()) {
 					if ($class =="white")
@@ -1162,7 +1138,7 @@ function addcatform($parent) {
 			if ($type=='log') {
 				$class = "grey";
 				print "<br/><div align=\"center\"><table cellspacing =\"0\" cellpadding=\"0\" class=\"darkgrey\"><tr><td><table cellpadding=\"3\" cellspacing = \"1\"><tr  class=\"grey\"><td align=\"center\"><b>Query</b></td><td align=\"center\"><b>Results</b></td><td	align=\"center\"><b>Queried	at</b></td><td	align=\"center\"><b>Time	taken</b></td></tr>";
-				$result=$db->query("select query,  time, elapsed, results from ".$table_prefix."query_log order by time desc");
+				$result=$db->query("select query,  time, elapsed, results from ".TABLE_PREFIX."query_log order by time desc");
 				echo sql_errorstring(__FILE__,__LINE__);
 				while ($row=$result->fetch()) {
 					if ($class =="white")
@@ -1217,7 +1193,7 @@ function addcatform($parent) {
 			if ($compurl['path']=='')
 				$url=$url."/";
 
-			$result = $db->query("select site_id from ".$table_prefix."sites where url='$url'");
+			$result = $db->query("select site_id from ".TABLE_PREFIX."sites where url='$url'");
 			echo sql_errorstring(__FILE__,__LINE__);
 			$row = $result->fetch();
 			if ($site_id != "")
@@ -1343,7 +1319,8 @@ function addcatform($parent) {
 			include "db_main.php";
 		break;
 		case settings;
-			include('configset.php');
+            if (CONFIGSET)
+				include('configset.php');
 		break;
 		case 'delete_log';
 			unlink($log_dir."/".$file);

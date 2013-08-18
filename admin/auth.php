@@ -1,20 +1,29 @@
 <?php
-	error_reporting(E_ERROR);
-	$admin = "username";
-	$admin_pw = "password";
 
+	/* ***** please adjust the user name and the ***** */
+
+	define("ADMIN", "admin");	/* user name and password for the site administrator */
+	define("PASSW", "admin");
+	define('CONFIGSET', 1); 	/* if set to zero, changing the configuration via the web interface is disabled */
+
+	/* ***** no customizations below this point ***** */
+
+	error_reporting(E_ERROR);
 	session_start();
 
 if (isset($_POST['user']) && isset($_POST['pass'])) {
 
 	$username = $_POST['user'];
 	$password = $_POST['pass'];
-	if (($username == $admin) && ($password ==$admin_pw)) {
+	if (($username == ADMIN) && ($password == PASSW)) {
 		$_SESSION['admin'] = $username;
 		$_SESSION['admin_pw'] = $password;
+	} else {
+		sleep(3);
 	}
 	header("Location: admin.php");
-} elseif ((isset($_SESSION['admin']) && isset($_SESSION['admin_pw']) &&$_SESSION['admin'] == $admin && $_SESSION['admin_pw'] == $admin_pw ) || (getenv("REMOTE_ADDR")=="")) {
+    exit();
+} elseif (isset($_SESSION['admin']) && isset($_SESSION['admin_pw']) &&$_SESSION['admin'] == ADMIN && $_SESSION['admin_pw'] == PASSW) {
 
 } else {
 
@@ -42,7 +51,7 @@ if (isset($_POST['user']) && isset($_POST['pass'])) {
 	</center>
 	</body>
 	</html>
-	<?php
+<?php
 	exit();
 }
 
