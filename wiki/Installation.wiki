@@ -23,4 +23,14 @@ Note, though, that these instructions only cover the basic installation. There i
   # Open `admin/install.php` in your browser, which will create the tables necessary for Sphider to operate.
   # Edit `admin/auth.php` to change the administrator user name and password (default values are 'admin' and 'admin').
   # Open `admin/admin.php` in your browser and start indexing.
-  # `search.php` is the default search page.
+  # `search.php` is the default search page. You can now test the Sphider search engine.
+  # If all is well, it is recommended to delete `admin/install.php` from the server. This is because this script is not password-protected.
+
+
+= Configuration =
+
+The Sphider search engine can be customized either through the administrator interface or by editing the configuration file directly.
+  * To use the administrator interface, open `admin/admin.php` in your browser.
+  * To change the configuration directly, edit the file `settings/conf.php`.
+
+Note that the administrator interface can be disabled, for changing the configuration. in the file `admin/auth.php`, you can set the definition of `CONFIGSET` to 1 to disable the administrator interface. This increases the security of the search engine (but reduces the convenience).
