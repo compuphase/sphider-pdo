@@ -12,7 +12,7 @@ It is also typical that a site has a small search field on a fixed location of e
 
 An example search "mini form" is:
 {{{
-<form action="sphider/search.php" method="get">
+<form action="sphider/search.php" method="post">
 <input type="text" name="query" size="18" value="Keywords">
 <input type="submit" name="search">
 </form>
