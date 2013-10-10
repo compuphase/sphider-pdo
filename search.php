@@ -19,28 +19,37 @@ require_once("$include_dir/categoryfuncs.php");
 
 include "$settings_dir/conf.php";
 
-if (isset($_GET['query']))
+if (isset($_POST['query']))
+	$query = sanitize($_POST['query']);
+else if (isset($_GET['query']))
 	$query = sanitize($_GET['query']);
-if (isset($_GET['search']))
+
+if (isset($_POST['search']))
+	$search = sanitize($_POST['search']);
+else if (isset($_GET['search']))
 	$search = sanitize($_GET['search']);
-if (isset($_GET['domain']))
-	$domain = sanitize($_GET['domain']);
-if (isset($_GET['type']))
-	$type = sanitize($_GET['type']);
-if (isset($_GET['catid']))
-	$catid = sanitize($_GET['catid']);
-if (isset($_GET['category']))
-	$category = sanitize($_GET['category']);
-if (isset($_GET['results']))
-	$results = sanitize($_GET['results']);
-if (isset($_GET['start']))
-	$start = sanitize($_GET['start']);
-if (isset($_GET['adv']))
-	$adv = sanitize($_GET['adv']);
-if (isset($_GET['lang']))
+
+if (isset($_POST['lang']))
+	$language = $_POST['lang'];
+else if (isset($_GET['lang']))
 	$language = $_GET['lang'];
 
-if (strcasecmp($query, $searchprompt) == 0)
+if (isset($_POST['domain']))
+	$domain = sanitize($_POST['domain']);
+if (isset($_POST['type']))
+	$type = sanitize($_POST['type']);
+if (isset($_POST['catid']))
+	$catid = sanitize($_POST['catid']);
+if (isset($_POST['category']))
+	$category = sanitize($_POST['category']);
+if (isset($_POST['results']))
+	$results = sanitize($_POST['results']);
+if (isset($_POST['start']))
+	$start = sanitize($_POST['start']);
+if (isset($_POST['adv']))
+	$adv = sanitize($_POST['adv']);
+
+if (!isset($query) || strcasecmp($query, $searchprompt) == 0)
 	$query = "";
 
 require_once("$language_dir/$language-language.php");

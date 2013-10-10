@@ -13,7 +13,8 @@
 
 	function sanitize($str) {
         $str = strip_tags($str);
-        $str = htmlspecialchars($str, ENT_QUOTES, "ISO-8859-1", false);
+        $str = str_replace("&amp;", "&", $str);
+        $str = htmlspecialchars($str, ENT_QUOTES, "ISO-8859-1");
 		return $str;
 	}
 

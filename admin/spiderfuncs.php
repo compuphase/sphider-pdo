@@ -7,7 +7,7 @@ function getFileContents($url) {
     $path = $urlparts['path'];
     $host = $urlparts['host'];
     if (isset($urlparts['query']) && $urlparts['query'] != "")
-      $path .= "?".$urlparts['query'];
+        $path .= "?".$urlparts['query'];
     if (isset ($urlparts['port'])) {
         $port = (int) $urlparts['port'];
     } else if ($urlparts['scheme'] == "http") {
@@ -114,7 +114,7 @@ function url_status($url) {
         fputs($fp, $request);
         $answer = fgets($fp, 4096);
         $regs = Array ();
-		if (preg_match("@HTTP/[0-9.]+ (([0-9])[0-9]{2})@", $answer, $regs)) { // http://www.sphider.eu/forum/read.php?2,9258
+        if (preg_match("@HTTP/[0-9.]+ (([0-9])[0-9]{2})@", $answer, $regs)) { // http://www.sphider.eu/forum/read.php?2,9258
             $httpcode = $regs[2];
             $full_httpcode = $regs[1];
 
@@ -128,25 +128,25 @@ function url_status($url) {
             while ($answer) {
                 $answer = fgets($fp, 4096);
 
-		if (preg_match("/Location: *([^\n\r ]+)/", $answer, $regs) && $httpcode == 3 && $full_httpcode != 302) {
+        if (preg_match("/Location: *([^\n\r ]+)/", $answer, $regs) && $httpcode == 3 && $full_httpcode != 302) {
                     $status['path'] = $regs[1];
                     $status['state'] = "Relocation: http $full_httpcode";
                     fclose($fp);
                     return $status;
                 }
 
-		if (preg_match("/Last-Modified: *([a-z0-9,: ]+)/i", $answer, $regs)) {
+        if (preg_match("/Last-Modified: *([a-z0-9,: ]+)/i", $answer, $regs)) {
                     $status['date'] = $regs[1];
                 }
 
-		if (preg_match("/Content-Type:/i", $answer)) {
+        if (preg_match("/Content-Type:/i", $answer)) {
                     $content = $answer;
                     $answer = '';
                     break;
                 }
             }
             $socket_status = socket_get_status($fp);
-	    if (preg_match("/Content-Type: *([a-z\/.-]*)/i", $content, $regs)) {
+        if (preg_match("/Content-Type: *([a-z\/.-]*)/i", $content, $regs)) {
                 if ($regs[1] == 'text/html' || $regs[1] == 'text/' || $regs[1] == 'text/plain') {
                     $status['content'] = 'text';
                     $status['state'] = 'ok';
@@ -181,8 +181,8 @@ function url_status($url) {
 }
 
 /*
-Read robots.txt file in the server, to find any disallowed files/folders
-*/
+   Read robots.txt file in the server, to find any disallowed files/folders
+ */
 function check_robot_txt($url) {
     global $user_agent;
     $urlparts = parse_url($url);
@@ -202,23 +202,18 @@ function check_robot_txt($url) {
         $regs = Array ();
         $this_agent= "";
         while (list ($id, $line) = each($robot)) {
-	    if (preg_match("/^user-agent: *([^#]+) */i", $line, $regs)) {
-                $this_agent = trim($regs[1]);
-                if ($this_agent == '*' || $this_agent == $user_agent)
-                $check = 1;
-                else
-                $check = 0;
-            }
-
-	    if (preg_match("/disallow: *([^#]+)/i", $line, $regs) && $check == 1) {
-	        $disallow_str = preg_replace("/[\n ]+/i", "", $regs[1]);
-                if (trim($disallow_str) != "") {
-                    $omit[] = $disallow_str;
-                } else {
-                    if ($this_agent == '*' || $this_agent == $user_agent) {
-                        return null;
-                    }
+            if (preg_match("/^user-agent: *([^#]+) */i", $line, $regs)) {
+                    $this_agent = trim($regs[1]);
+                    if ($this_agent == '*' || $this_agent == $user_agent)
+                        $check = 1;
+                    else
+                        $check = 0;
                 }
+
+            if (preg_match("/disallow: *([^#]+)/i", $line, $regs) && $check == 1) {
+                $disallow_str = preg_replace("/[\n ]+/i", "", $regs[1]);
+                if (trim($disallow_str) != "")
+                    $omit[] = $disallow_str;
             }
         }
     }

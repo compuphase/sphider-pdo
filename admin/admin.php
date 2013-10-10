@@ -11,7 +11,7 @@ $include_dir = "../include";
 include "auth.php";
 include "$include_dir/commonfuncs.php";
 include "spiderfuncs.php";
-extract (getHttpVars());
+extract($_POST);
 $settings_dir = "../settings";
 $template_dir = "../templates";
 include "$settings_dir/conf.php";
@@ -27,9 +27,7 @@ set_time_limit (0);
 </head>
 <body>
 <?php
-if (!isset($f)) {
-	$f=2;
-}
+$f= isset($_GET["f"]) ? $_GET["f"] : 2;
 $site_funcs = Array (22=> "default",21=> "default",4=> "default", 19=> "default", 1=> "default", 2 => "default", "add_site" => "default", 20=> "default", "edit_site" => "default", 5=>"default");
 $stat_funcs = Array ("statistics" => "default",  "delete_log"=> "default");
 $settings_funcs = Array ("settings" => "default");
@@ -289,8 +287,7 @@ function addcatform($parent) {
 			$domainchecked = "";
 		}
 		?>
-					<div id="submenu"><center><b>Edit site</b></center>
-			</div>
+			<div id="submenu"><center><b>Edit site</b></center></div>
 			<br/><div align=center><center><table>
 			<form action=admin.php method=post>
 			<input type=hidden name=f value=4>
@@ -370,9 +367,7 @@ function addcatform($parent) {
 		$result->closeCursor();
 		$category=$row[0];
 		?>
-				<div id="submenu">
-				<center><b>Edit category</b></center>
-			</div>
+			<div id="submenu"><center><b>Edit category</b></center></div>
 			<br/>
 		   <div align="center"><center><table>
 			<form action="admin.php" method="post">
@@ -829,10 +824,14 @@ function addcatform($parent) {
 		</div>
 		<div id= "vertmenu">
 		<ul>
-		 <li><a href=admin.php?f=edit_site&site_id=<?php print  $row['site_id']?>>Edit</a></li>
+		<?php if (CONFIGSET) { ?>
+		    <li><a href=admin.php?f=edit_site&site_id=<?php print  $row['site_id']?>>Edit</a></li>
+		<?php } ?>
 		<li><?php print $indexoption?></li>
-		<li><a href=admin.php?f=21&site_id=<?php print  $row['site_id']?>>Browse pages</a></li>
-		<li><a href=admin.php?f=5&site_id=<?php print  $row['site_id'];?> onclick="return confirm('Are you sure you want to delete? Index will be lost.')">Delete</a></li>
+		<?php if (CONFIGSET) { ?>
+		    <li><a href=admin.php?f=21&site_id=<?php print  $row['site_id']?>>Browse pages</a></li>
+		    <li><a href=admin.php?f=5&site_id=<?php print  $row['site_id'];?> onclick="return confirm('Are you sure you want to delete? Index will be lost.')">Delete</a></li>
+		<?php } ?>
 		<li><a href=admin.php?f=19&site_id=<?php print  $row['site_id'];?>>Stats</a></li>
 		</div>
 		</ul>
@@ -1186,6 +1185,10 @@ function addcatform($parent) {
 
 	}
 
+    $site_id = isset($_GET["site_id"]) ? $_GET["site_id"] : "";
+    $url = isset($_GET["url"]) ? $_GET["url"] : "";
+    $reindex = isset($_GET["reindex"]) ? $_GET["reindex"] : "";
+
 	switch ($f) {
 		case 1:
 			$message = addsite($url, $title, $short_desc, $cat);
@@ -1205,7 +1208,8 @@ function addcatform($parent) {
 			showsites();
 		break;
 		case edit_site:
-			editsiteform($site_id);
+            if (CONFIGSET)
+			    editsiteform($site_id);
 		break;
 		case 4:
 			if (!isset($domaincb))
@@ -1249,13 +1253,8 @@ function addcatform($parent) {
 			list_cats (0, 0, "white");
 		break;
 		case index;
-			if (!isset($url))
-				$url = "";
-			if (!isset($reindex))
-				$reindex = "";
-			if (isset($adv)) {
-					$_SESSION['index_advanced']=$adv;
-			}
+			if (isset($_GET["adv"]))
+			    $_SESSION['index_advanced']=$_GET["adv"];
 			indexscreen($url, $reindex);
 		break;
 		case add_site;
@@ -1277,8 +1276,7 @@ function addcatform($parent) {
 		break;
 
 		case statistics;
-			if (!isset($type))
-				$type = "";
+			$type = isset($_GET["type"]) ? $_GET["type"] : "";
 			statisticsForm($type);
 		break;
 
