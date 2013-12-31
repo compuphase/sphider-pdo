@@ -163,7 +163,7 @@ require_once "$include_dir/double_metaphone.php";
 		/* if there are no words to search for, quit */
 		if (!isset($searchstr['+']) || count($searchstr['+']) == 0)
 			return null;
-		/* find all sites that should _not_ be included in the result */
+		/* find all words that should _not_ be included in the result */
 		if (isset($searchstr['-']))
 			$wordarray = $searchstr['-'];
 		else
@@ -184,7 +184,7 @@ require_once "$include_dir/double_metaphone.php";
 			$not_words++;
 		}
 
-		/* find all sites containing the search phrases */
+		/* find all phrases */
 		if (isset($searchstr['+s']))
 			$wordarray = $searchstr['+s'];
 		else
@@ -227,7 +227,7 @@ require_once "$include_dir/double_metaphone.php";
             $result->closeCursor();
 		}
 
-		/* find all sites that include the search words */
+		/* find individual words */
 		$word_not_found = array();
 		$wordarray = $searchstr['+'];
 		$words = 0;
@@ -348,12 +348,6 @@ require_once "$include_dir/double_metaphone.php";
 					}
 				}
 			}
-			/* search for alternatives in the explicit equivalents word list */
-			reset($searchstr['+']);
-			foreach ($searchstr['+'] as $word) {
-				if (isset($equivalent[$word]) && strlen($equivalent[$word]) > 0)
-					$near_words[$word] = latin1_to_html($equivalent[$word]);
-			}
 			/* then search for "near words" for the individual words */
 			reset($searchstr['+']);
 			foreach ($searchstr['+'] as $word) {
@@ -361,6 +355,11 @@ require_once "$include_dir/double_metaphone.php";
 				   for alternatives */
 				if (isset($matchless[$word]) && $matchless[$word] == 1)
 					continue;
+				/* search for alternatives in the explicit equivalents word list first */
+				if (isset($equivalent[$word]) && strlen($equivalent[$word]) > 0) {
+					$near_words[$word] = latin1_to_html($equivalent[$word]);
+					continue;
+				}
 				/* if there are misspelled words, show only alternatives for the
 				   misspelled words, (so, if the current word is not in the list
 				   of misspelled words, exclude it from the search for alternatives */
@@ -404,6 +403,8 @@ require_once "$include_dir/double_metaphone.php";
 				}
 				if ($near_word != "")
 					$near_words[$word] = latin1_to_html($near_word);
+				else if (isset($word_not_found[$word]) && $word_not_found[$word] == 1 && count($wordarray) > 1)
+					$near_words[$word] = "/$word";
 			}
 			if (!isset($near_words))
 				$near_words = "";
@@ -551,9 +552,16 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 			$entities = html_to_latin1(utf8_decode($entitiesQuery));
 			if ($key != $alt) {
 				$alt = html_to_latin1(utf8_decode($alt));
+				$alt = sanitize($alt);
 				$entities = preg_replace("/&quot;/", "\"", $entities);
-				$did_you_mean_b[] = latin1_to_html(str_ireplace($key, "<b>$alt</b>", $entities));
-				$did_you_mean[] = str_ireplace($key, utf8_encode($alt), $entities);
+				if ($alt[0] == "/") {	/* this indicates that the search word is not found and there is no close alternative either */
+					$alt = substr($alt, 1);
+					$did_you_mean_b[] = latin1_to_html(str_ireplace($key, "<strike>$alt</strike>", $entities));
+					$did_you_mean[] = str_ireplace($key, "", $entities);
+				} else {
+					$did_you_mean_b[] = latin1_to_html(str_ireplace($key, "<b>$alt</b>", $entities));
+					$did_you_mean[] = str_ireplace($key, utf8_encode($alt), $entities);
+				}
 			}
 		}
 	}
