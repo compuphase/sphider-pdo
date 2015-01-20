@@ -25,13 +25,18 @@ If you have only a single database for multiple purposes (some shared-hosting ac
 
 {{{
 define('TABLE_PREFIX', '');
+define('AUTOINCREMENT, '');
 $db = new PDO('sqlite:'.dirname(__FILE__).'/../sphider.sqlite');
 }}}
 
+The `AUTOINCREMENT` constant must be set to an empty string (because it is non-empty by default). SQLite does not support the `autoincrement` keywords (but implicitly defines a primary key to be automatically incremented).
 
 == SQLite 2 ==
 
 {{{
 define('TABLE_PREFIX', '');
+define('AUTOINCREMENT, '');
 $db = new PDO('sqlite2:'.dirname(__FILE__).'/../sphider.sqlite');
 }}}
+
+See the case for SQLite 3 for the `AUTOINCREMENT` constant.
