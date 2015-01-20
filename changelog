@@ -4,6 +4,13 @@ CHANGELOG
 By Ando Saabas          ando(a t)cs.ioc.ee
 ============================================
 
+Sphider-PDO 1.3.8, release date 20 January 2015
+    MySQL no longer accepts brackets around table names; these have been removed (Thiadmer Riemersma)
+    MySQL no longer supports NOW() for a date field, so dates are now filled in from PHP variables (Thiadmer Riemersma)
+    AUTO_INCREMENT has to be set for MySQL, but may not be set for SQLite, so this has become a database configuration parameter (Thiadmer Riemersma)
+    The install page writes a temporary record in the database, to make sure that the database is accessible and read-write (Thiadmer Riemersma)
+    A few bugs with conflicting "get" and "post" parameters have been solved; these occured in the administrator interface (Thiadmer Riemersma)
+
 Sphider-PDO 1.3.7, release date 14 August 2013
     Variable $table_prefix is now constant TABLE_PREFIX (Thiadmer Riemersma)
     Use "quote" or escape function from the PDO driver (Thiadmer Riemersma)

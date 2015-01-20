@@ -1,10 +1,10 @@
 ============================================
 Sphider - a lightweight search engine in PHP
-Version 1.3.7, PDO version
+Version 1.3.8, PDO version
 
 Installation and usage instructions
 Ando Saabas 2005-2007
-(PDO port by Thiadmer Riemersma, 2012-2013)
+(PDO port by Thiadmer Riemersma, 2012-2015)
 ============================================
 
 ------------
@@ -24,44 +24,97 @@ Documentation
 
 1. Installation
 ===============
-1. Unpack the files, and copy them to the server, for example to
-   /home/youruser/public_html/sphider (later referred to as [path_of_sphider])
+1.  Unpack the files somewhere on your drive. On Microsoft Windows, you can
+    create a folder "sphider" in your "My Documents" folder. On Linux, make
+    a subdirectory in your home directory.
 
-2. In the server, create a database to hold Sphider data (in MySQL, SQLite or
-   another supported format).
+    Alternatively, you can unpack the files directly on the server, if that is
+    convenient to you.
 
-   For MySQL:
-   a) at command prompt type (to log into MySQL):
-      mysql -u <your username> -p
-      Enter your password when prompted.
+2.  In the server, create a database to hold Sphider data (in MySQL, SQLite or
+    another supported format).
 
-   b) in MySQL, type:
-      CREATE DATABASE sphider_db;
+    If you have direct access to the server (e.g. with a secure shell login),
+    the steps are:
+    a) Type: mysql -u <your username> -p
+       (enter your password when prompted)
+    b) Type: create database sphider_db;
+       (of course you can use some other name for database instead of sphider_db)
+    c) Type: exit
 
-      Of course you can use some other name for database instead of sphider_db.
+    When you use DirectAdmin:
+    a) Log-on to your DirectAdmin account
+    b) Click on "MySQL Management"
+    c) In the next page, click on "Create new Database"
+    d) Fill in the database name (e.g. "sphider_db"), the user name and the
+       password. Note that DirectAdmin may prefix the account name to the
+       database name (and/or the user name).
 
-   c) Use exit to exit MySQL.
-      For more information on how to create a database and give/get the necessary
-      permissions, check MySQL.com
+    When using SQLite, make sure that the folder in which the database is
+    stored, as well as the file itself, have read/write permissions for the web
+    server pseudo-user.
 
-3.  In settings directory, edit database.php file and change the definition of
-    the database (in variable $db); See the PDO documentation for the syntax.
+3.  In the "settings" directory, edit the "database.php" file and change the
+    definition of the database (in variable $db); See the PDO documentation for
+    the syntax.
+
     For MySQL, constant DATABASE_NAME also needs to be set, and possibly
     TABLE_PREFIX as well.
 
-4. Open install.php script (admin directory) in your browser, which will create
-   the tables necessary for Sphider to operate.
+    For SQLite, constant AUTOINCREMENT has to be defined as an empty string, for
+    example:
+        define("AUTOINCREMENT", "");
 
-5. In admin directory, edit auth.php to change the administrator user name and
-   password (default values are "admin" and "admin"). In this file, you can also
-   disable the web interface for changing the configuration.
+4.  In the "admin" directory, edit "auth.php" to change the administrator user
+    name and password (default values are "admin" and "admin"). In this file,
+    you can also disable the web interface for changing the configuration.
 
-6. Open admin/admin.php in browser and start indexing.
+5.  Upload everything to your web server (not needed if you had unpacked all
+    files on the server directly).
 
-7. search.php is the default search page. You can how test the search engine.
+6.  Open "install.php" script ("admin" directory) in your browser, which will
+    create the tables necessary for Sphider to operate.
 
-8. If the test succeeds, it is recommended to delete the file install.php from
-   the admin directory, so that nobody can (accidentally) recreate the database.
+    So, when your web server is at "www.mydomain.com" and you uploaded Sphider
+    in directory "search" at that domain, you need to type the folllowing
+    address in your browser:
+
+        http://www.mydomain.com/search/admin/install.php
+
+    The install page just lists a number of names for tables (25 in total) and
+    it should end with a line that all is fine. If there is an error message, or
+    if the table names do not appear, the installation failed.
+
+7.  Still in the web browser, open admin/admin.php in browser. Again, the full
+    address would be:
+
+        http://www.mydomain.com/search/admin/admin.php
+
+    You need to fill in your name and password (the ones in "auth.php"). Note
+    that these are both case-sensitive.
+
+8.  Now you can add your site. The site refers to the first page where the
+    spidering starts. For technical reasons, this must be a true file; it may
+    be a PHP file, but not a redirect. So, continuing the example that your
+    site is at "www.mydomain.com", you could add:
+
+        http://www.mydomain.com/index.html
+
+    (This assumes that there is a file "index.html" on the site.)
+
+9.  After adding the site, click on the button "options" next to the site and
+    then click on "index". The default spidering depth is 2, which is fine for
+    a test, but see "Indexing options" (section 2) below.
+
+10. "search.php" is the default search page. You can how test the search engine.
+    Assuming that you uploaded Sphider in the directory "search" at the root of
+    the domain, the full address would be:
+
+        http://www.mydomain.com/search/search.php
+
+11. If the test succeeds, it is recommended to delete the file install.php from
+    the "admin" directory, so that nobody can (accidentally) recreate the
+    database.
 
 
 2. Indexing options
@@ -81,7 +134,8 @@ Spider can leave domain :
             highly advisable to define proper must include / must not include
             string lists to prevent the spider from going too far.
 Must include / must not include:
-            See section 5 of this document for an explanation.
+            See section 5 of this document ("Keeping pages from being indexed")
+            for an explanation.
 
 
 3. Customizing
