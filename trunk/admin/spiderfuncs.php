@@ -189,7 +189,7 @@ function check_robot_txt($url) {
     $url = 'http://'.$urlparts['host']."/robots.txt";
 
     $url_status = url_status($url);
-    $omit = array ();
+    $omit = array();
 
     if ($url_status['state'] == "ok") {
         $robot = file($url);
@@ -522,7 +522,7 @@ function save_keywords($wordarray, $link_id, $domain) {
             $values="";
         if ($values!="") {
             $arr = explode( ';', $values );
-            foreach ($arr as $insert_sql){
+            foreach ($arr as $insert_sql) {
                 $query = "insert into ".TABLE_PREFIX."link_keyword$char (link_id, keyword_id, weight, domain) values $insert_sql";
                 $db->exec($query);
                 $error = sql_errorstring(__FILE__, __LINE__);
@@ -531,8 +531,6 @@ function save_keywords($wordarray, $link_id, $domain) {
                 }
             }
         }
-
-
     }
 }
 

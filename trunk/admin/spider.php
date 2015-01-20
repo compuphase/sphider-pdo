@@ -211,7 +211,6 @@ error_reporting(E_ALL);
 				$file = $contents['file'];
 			}
 
-
 			$pageSize = number_format(strlen($file)/1024, 2, ".", "");
 			printPageSizeReport($pageSize);
 
@@ -293,6 +292,7 @@ error_reporting(E_ALL);
 					}
 
 					$wordarray = calc_weights ($wordarray, $title, $host, $path, $data['keywords']);
+                                        $tstamp = "'".date("Y-m-d")."'";
 
 					//if there are words to index, add the link to the database, get its id, and add the word + their relation
 					if (is_array($wordarray) && count($wordarray) > $min_words_per_page) {
@@ -305,7 +305,7 @@ error_reporting(E_ALL);
 						$pageSize = $db->quote($pageSize);
 						$Qmd5sum = $db->quote($newmd5sum);
 						if ($md5sum == '') {
-							$db->exec("INSERT INTO ".TABLE_PREFIX."links (site_id, url, title, description, language, fulltxt, indexdate, size, md5sum, level) VALUES ($site_id, $url, $title, $desc, $language, $fulltxt, DATETIME('NOW'), $pageSize, $Qmd5sum, $thislevel)");
+							$db->exec("INSERT INTO ".TABLE_PREFIX."links (site_id, url, title, description, language, fulltxt, indexdate, size, md5sum, level) VALUES ($site_id, $url, $title, $desc, $language, $fulltxt, $tstamp, $pageSize, $Qmd5sum, $thislevel)");
 							$error = sql_errorstring(__FILE__,__LINE__);
 							if ($error) {
 							  echo $error;
@@ -331,7 +331,7 @@ error_reporting(E_ALL);
 								echo sql_errorstring(__FILE__,__LINE__);
 							}
 							save_keywords($wordarray, $link_id, $dom_id);
-							$db->exec("UPDATE ".TABLE_PREFIX."links SET title=$title, description=$desc, language=$language, fulltxt=$fulltxt, indexdate=DATETIME('NOW'), size=$pageSize, md5sum=$Qmd5sum, level=$thislevel WHERE link_id=$link_id");
+							$db->exec("UPDATE ".TABLE_PREFIX."links SET title=$title, description=$desc, language=$language, fulltxt=$fulltxt, indexdate=$tstamp, size=$pageSize, md5sum=$Qmd5sum, level=$thislevel WHERE link_id=$link_id");
 							echo sql_errorstring(__FILE__,__LINE__);
 							printStandardReport('re-indexed', $command_line);
 						}
@@ -394,6 +394,7 @@ error_reporting(E_ALL);
 		$row = $result->fetch();
 		$site_id = $row[0];
 		$result->closeCursor();
+                $tstamp = "'".date("Y-m-d")."'";
 
 		if ($site_id != "" && $reindex == 1) {
 			$db->exec("insert into ".TABLE_PREFIX."temp (link, level, id) values ('$url', 0, '$sessid')");
@@ -407,21 +408,21 @@ error_reporting(E_ALL);
 				}
 			}
 
-			$qry = "update ".TABLE_PREFIX."sites set indexdate=DATETIME('NOW'), spider_depth = $maxlevel, required = '$url_inc'," .
-					"disallowed = '$url_not_inc', can_leave_domain=$can_leave_domain where site_id=$site_id";
+			$qry = "update ".TABLE_PREFIX."sites set indexdate=$tstamp, spider_depth=$maxlevel, required='$url_inc'," .
+					"disallowed='$url_not_inc', can_leave_domain=$can_leave_domain where site_id=$site_id";
 			$db->exec($qry);
 			echo sql_errorstring(__FILE__,__LINE__);
 		} else if ($site_id == "") {
 			$db->exec("insert into ".TABLE_PREFIX."sites (url, indexdate, spider_depth, required, disallowed, can_leave_domain) " .
-					"values ('$url', DATETIME('NOW'), $maxlevel, '$url_inc', '$url_not_inc', $can_leave_domain)");
+					"values ('$url', $tstamp, $maxlevel, '$url_inc', '$url_not_inc', $can_leave_domain)");
 			echo sql_errorstring(__FILE__,__LINE__);
 			$result = $db->query("select site_ID from ".TABLE_PREFIX."sites where url='$url'");
 			$row = $result->fetch();
 			$site_id = $row[0];
 			$result->closeCursor();
 		} else {
-			$db->exec("update ".TABLE_PREFIX."sites set indexdate=DATETIME('NOW'), spider_depth = $maxlevel, required = '$url_inc'," .
-					"disallowed = '$url_not_inc', can_leave_domain=$can_leave_domain where site_id=$site_id");
+			$db->exec("update ".TABLE_PREFIX."sites set indexdate=$tstamp, spider_depth=$maxlevel, required='$url_inc'," .
+					"disallowed='$url_not_inc', can_leave_domain=$can_leave_domain where site_id=$site_id");
 			echo sql_errorstring(__FILE__,__LINE__);
 		}
 
@@ -458,11 +459,9 @@ error_reporting(E_ALL);
 
 		$time = time();
 
-
 		$omit = check_robot_txt($url);
 
-		printHeader ($omit, $url, $command_line);
-
+		printHeader($omit, $url, $command_line);
 
 		$mainurl = $url;
 		$num = 0;
