@@ -2,29 +2,33 @@
 
 = Acknowledgement =
 
-This page is essentially copied from the [http://www.sphider.eu/docs.php original Sphider site]. A few steps are slightly different with Sphider-PDO, and I decided it was better to "copy & adjust" the installation instructions instead of listing only the changes.
+This page is adapted from the instructions on the [http://www.sphider.eu/docs.php original Sphider site].
 
-Note, though, that these instructions only cover the basic installation. There is more documentation on the [http://www.sphider.eu/docs.php original Sphider site] (e.g. customization and explanation of various indexing options).
+Most of the original Sphider documentation still applies to this variant, so you may want to look through it for customization options.
 
 
 = Installation =
 
-  # Unpack the files, and copy them to the server, for example to `/home/youruser/sphider`.
-  # Depending on the database that you wish to use, you may need to create it first. For example, when using MySQL, create a database in MySQL to hold Sphider data.
-    * at command prompt type (to log into MySQL):
-      `mysql -u <your username> -p`<br>
-      Enter your password when prompted.
-    * in MySQL, type:
-      `CREATE DATABASE sphider;`<br>
-      Of course you can use some other name for database instead of sphider.
-    * Use `exit` to exit MySQL.
-      For more information on how to create a MySQL database and give it the necessary permissions, check [http://www.MySQL.com]
-  # Edit the file `settings/database.php` and adjust/create the database connection string. Details are on the DatabaseSetup page.
-  # Open `admin/install.php` in your browser, which will create the tables necessary for Sphider to operate.
-  # Edit `admin/auth.php` to change the administrator user name and password (default values are 'admin' and 'admin').
-  # Open `admin/admin.php` in your browser and start indexing.
-  # `search.php` is the default search page. You can now test the Sphider search engine.
-  # If all is well, it is recommended to delete `admin/install.php` from the server. This is because this script is not password-protected.
+ # Unpack the files somewhere on your drive. On Microsoft Windows, you can create a folder "sphider" in your "My Documents" folder. On Linux, make a subdirectory in your home directory.<p>Alternatively, you can unpack the files directly on the server, if that is convenient to you.
+ # In the server, create a database to hold Sphider data (in MySQL, SQLite or another supported format).<p>If you have *direct access to the server* (e.g. with a secure shell login), the steps are:
+  * At command prompt type (to log into MySQL): `mysql -u <your username> -p`<br>(enter your password when prompted)
+  * At the mysql prompt, type: `CREATE DATABASE sphider_db;`<br>(of course you can use some other name for database instead of sphider_db).
+  * Leave the mysql client with `exit`<p>For more information on how to create a MySQL database and give it the necessary permissions, check [http://www.MySQL.com]
+  When you use *DirectAdmin*:
+  * Log-on to your DirectAdmin account
+  * Click on "MySQL Management"
+  * In the next page, click on "Create new Database"
+  * Fill in the database name (e.g. "sphider_db"), the user name and the password. Note that DirectAdmin may prefix the account name to the database name (and/or the user name).
+  When using *SQLite*, make sure that the folder in which the database is stored, as well as the file itself, have read/write permissions for the web server pseudo-user.
+ # In the "settings" directory, edit the "database.php" file and change the definition of the database (in variable `$db`); See the page [DatabaseSetup Database configuration] for examples and notes, and see the PDO documentation technical details.<p>For *MySQL*, constant `DATABASE_NAME` also needs to be set, and possibly `TABLE_PREFIX` as well.<p>For *SQLite*, constant `AUTOINCREMENT` has to be defined as an empty string, for example:<p>{{{ define("AUTOINCREMENT", ""); }}}
+ # In the "admin" directory, edit "auth.php" to change the administrator user name and password (default values are "admin" and "admin"). In this file, you can also disable the web interface for changing the configuration.
+ # Upload everything to your web server (not needed if you had unpacked all files on the server directly).
+ # Open "install.php" script ("admin" directory) in your browser, which will create the tables necessary for Sphider to operate.<p>So, when your web server is at "www.mydomain.com" and you uploaded Sphider in directory "search" at that domain, you need to type the following address in your browser:<p>{{{ http://www.mydomain.com/search/admin/install.php }}}<p>The install page just lists a number of names for tables (25 in total) and it should end with a line that all is fine. If there is an error message, or if the table names do not appear, the installation failed.
+ # Still in the web browser, open admin/admin.php in browser. Again, the full address would be:<p>{{{ http://www.mydomain.com/search/admin/admin.php }}}<p>You need to fill in your name and password (the ones in "auth.php"). Note that these are both case-sensitive.
+ # Now you can add your site to the search engine. A "site" refers to the first page where the spidering starts. For technical reasons, this must be a true file; it may be a PHP file, but not a redirect. So, continuing the example that your site is at "www.mydomain.com", you could add:<p>{{{ http://www.mydomain.com/index.html }}}<p>(This assumes that there is a file "index.html" on the site.)
+ # After adding the site, click on the button "options" next to the site and then click on "index". The default spidering depth is 2, which is fine for a test, but see the page [IndexingOptions Indexing options].
+ # "search.php" is the default search page. You can how test the search engine. Assuming that you uploaded Sphider in the directory "search" at the root of the domain, the full address would be:<p>{{{ http://www.mydomain.com/search/search.php }}}
+ # If the test succeeds, it is recommended to delete the file install.php from the "admin" directory. This is because this script is not password-protected.
 
 
 = Configuration =
@@ -34,3 +38,8 @@ The Sphider search engine can be customized either through the administrator int
   * To change the configuration directly, edit the file `settings/conf.php`.
 
 Note that the administrator interface can be disabled, for changing the configuration. in the file `admin/auth.php`, you can set the definition of `CONFIGSET` to 1 to disable the administrator interface. This increases the security of the search engine (but reduces the convenience).
+
+To change the look of the search page to fit your site, modify or add a template in the templates directory. It is often enough to modify the search.css file and header and footer templates (header.html and footer.html). Heavier modifications can be made through editing the rest of template files.
+
+The list of file types that are not checked for indexing are given in
+admin/ext.txt. The list of common words that are not indexed are given in include/common.txt.
