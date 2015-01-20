@@ -16,7 +16,6 @@ $settings_dir = "../settings";
 $template_dir = "../templates";
 include "$settings_dir/conf.php";
 set_time_limit (0);
-
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -27,7 +26,8 @@ set_time_limit (0);
 </head>
 <body>
 <?php
-$f= isset($_GET["f"]) ? $_GET["f"] : 2;
+if (!isset($f))
+    $f= isset($_GET["f"]) ? $_GET["f"] : 2;
 $site_funcs = Array (22=> "default",21=> "default",4=> "default", 19=> "default", 1=> "default", 2 => "default", "add_site" => "default", 20=> "default", "edit_site" => "default", 5=>"default");
 $stat_funcs = Array ("statistics" => "default",  "delete_log"=> "default");
 $settings_funcs = Array ("settings" => "default");
@@ -232,7 +232,7 @@ function addcatform($parent) {
 }
 
 
-	function addcat ($category, $parent) {
+	function addcat($category, $parent) {
 		global $db;
 		if (strlen($category) == 0)
 			return;
@@ -309,7 +309,7 @@ function addcatform($parent) {
 		}
 
 
-		function editsite ($site_id, $url, $title, $short_desc, $depth, $required, $disallowed, $domaincb,  $cat) {
+		function editsite($site_id, $url, $title, $short_desc, $depth, $required, $disallowed, $domaincb,  $cat) {
 			global $db;
 			// get the current "root path"
 			$result = $db->query("select url from ".TABLE_PREFIX."sites where site_id=$site_id");
@@ -379,7 +379,7 @@ function addcatform($parent) {
 		}
 
 
-	function editcat ($cat_id, $category) {
+	function editcat($cat_id, $category) {
 		global $db;
 		$qry = "UPDATE ".TABLE_PREFIX."categories SET category=".$db->quote($category)." WHERE category_id='$cat_id'";
 		$db->exec($qry);
@@ -652,9 +652,7 @@ function addcatform($parent) {
 		return $stats;
 	}
 
-
-
-	function addsite ($url, $title, $short_desc, $cat) {
+	function addsite($url, $title, $short_desc, $cat) {
 		global $db;
 		$short_desc = $db->quote($short_desc);
 		$title = $db->quote($title);
@@ -692,8 +690,7 @@ function addcatform($parent) {
 		return $message;
 	}
 
-
-	function indexscreen ($url, $reindex) {
+	function indexscreen($url, $reindex) {
 		global $db;
 		$check = "";
 		$levelchecked = "checked";
@@ -764,7 +761,7 @@ function addcatform($parent) {
 		<?php
 	}
 
-	function siteScreen($site_id, $message)  {
+	function siteScreen($site_id, $message) {
 		global $db;
 		$result = $db->query("SELECT site_id, url, title, short_desc, indexdate from ".TABLE_PREFIX."sites where site_id=$site_id");
 		echo sql_errorstring(__FILE__,__LINE__);
@@ -842,7 +839,6 @@ function addcatform($parent) {
 		<br/>
 	<?php
 	}
-
 
 	function siteStats($site_id) {
 		global $db;
@@ -992,8 +988,7 @@ function addcatform($parent) {
 
 	}
 
-
-	function cleanForm () {
+	function cleanForm() {
 		global $db;
 		$result = $db->query("select count(*) from ".TABLE_PREFIX."query_log");
 		echo sql_errorstring(__FILE__,__LINE__);
@@ -1005,7 +1000,6 @@ function addcatform($parent) {
 		if ($row=$result->fetch()) {
 			$temp=$row[0];
 		}
-
 
 		?>
 		<div id="submenu">
@@ -1023,7 +1017,7 @@ function addcatform($parent) {
 		<?php
 	}
 
-	function statisticsForm ($type) {
+	function statisticsForm($type) {
 		global $log_dir;
 		global $db;
 		?>
@@ -1185,9 +1179,12 @@ function addcatform($parent) {
 
 	}
 
-    $site_id = isset($_GET["site_id"]) ? $_GET["site_id"] : "";
-    $url = isset($_GET["url"]) ? $_GET["url"] : "";
-    $reindex = isset($_GET["reindex"]) ? $_GET["reindex"] : "";
+        if (!isset($site_id))
+            $site_id = isset($_GET["site_id"]) ? $_GET["site_id"] : "";
+        if (!isset($url))
+            $url = isset($_GET["url"]) ? $_GET["url"] : "";
+        if (!isset($reindex))
+            $reindex = isset($_GET["reindex"]) ? $_GET["reindex"] : "";
 
 	switch ($f) {
 		case 1:
