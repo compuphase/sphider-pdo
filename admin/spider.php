@@ -145,7 +145,7 @@ error_reporting(E_ALL);
 
 
 	function index_url($url, $level, $site_id, $md5sum, $domain, $indexdate, $sessid, $can_leave_domain, $reindex) {
-		global $entities, $min_delay;
+		global $min_delay;
 		global $command_line;
 		global $min_words_per_page;
 		global $supdomain, $index_vpaths;

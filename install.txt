@@ -76,7 +76,7 @@ Documentation
     create the tables necessary for Sphider to operate.
 
     So, when your web server is at "www.mydomain.com" and you uploaded Sphider
-    in directory "search" at that domain, you need to type the folllowing
+    in directory "search" at that domain, you need to type the following
     address in your browser:
 
         http://www.mydomain.com/search/admin/install.php

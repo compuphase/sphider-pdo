@@ -22,8 +22,8 @@ $sph_messages =  Array (
 	"phraseSearch" => "Indentieke zin",
 	"show" => "Toon ",
 	"resultsPerPage" => "resultaten per pagina",
-	"DidYouMean" => "Wellicht bedoelde u"
-
+	"DidYouMean" => "Wellicht bedoelde u",
+	"SearchPrompt" => "Zoekterm"
 );
 ?>
 

@@ -171,8 +171,6 @@ $suggest_phrases		= 0;
 // Limit number of suggestions
 $suggest_rows		= 10;
 
-// A search term to ignore (because it is the default text)
-$searchprompt       = "";
 
 /***********************
 Weights

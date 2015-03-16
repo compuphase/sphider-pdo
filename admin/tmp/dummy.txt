@@ -1,0 +1,3 @@
+This is a dummy file.
+Its purpose is to make sure that the directory is created.
+You can delete this file.

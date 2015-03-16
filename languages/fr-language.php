@@ -22,7 +22,7 @@ $sph_messages =  Array (
 	"phraseSearch" => "Recherche d'expression",
 	"show" => "Montrer ",
 	"resultsPerPage" => "r&eacute;sultats par page",
-	"DidYouMean" => "Vouliez-vous dire"
-
+	"DidYouMean" => "Vouliez-vous dire",
+	"SearchPrompt" => "Mots clefs"
 );
 ?>

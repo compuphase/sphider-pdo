@@ -23,7 +23,7 @@ $sph_messages =  Array (
 	"phraseSearch" => "Phrase Search",
 	"show" => "Zeigen ",
 	"resultsPerPage" => "results per page",
-	"DidYouMean" => "Vielleicht meinten Sie"
-
+	"DidYouMean" => "Vielleicht meinten Sie",
+	"SearchPrompt" => "Stichworte"
 );
 ?>

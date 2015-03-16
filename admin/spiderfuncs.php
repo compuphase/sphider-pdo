@@ -643,6 +643,8 @@ function clean_file($file, $url, $type) {
         $file = $file." ".$headdata['keywords'];
     }
 
+    //translate the page from UTF-8 to Latin-1
+    $file = utf8_decode($file);
     //replace codes with ascii chars
     $file = preg_replace('~&#x([0-9a-f]+);~ei', 'chr(hexdec("\\1"))', $file);
     $file = preg_replace('~&#([0-9]+);~e', 'chr("\\1")', $file);
