@@ -390,43 +390,34 @@ function url_purify($url, $parent_url, $can_leave_domain) {
         if (preg_match("/\.$excl$/i", $url))
             return '';
 
-    if (substr($url, -1) == '\\') {
+    if (substr($url, -1) == '\\')
         return '';
-    }
-
-
 
     if (isset($urlparts['query'])) {
-        if ($apache_indexes[$urlparts['query']]) {
+        if ($apache_indexes[$urlparts['query']])
             return '';
-        }
     }
 
-    if (preg_match("/[\/]?mailto:|[\/]?javascript:|[\/]?news:/i", $url)) {
+    if (preg_match("/[\/]?mailto:|[\/]?javascript:|[\/]?news:/i", $url))
         return '';
-    }
+
     if (isset($urlparts['scheme'])) {
         $scheme = $urlparts['scheme'];
     } else {
         $scheme ="";
     }
 
-
-
     //only http and https links are followed
-    if (!($scheme == 'http' || $scheme == '' || $scheme == 'https')) {
+    if (!($scheme == 'http' || $scheme == '' || $scheme == 'https'))
         return '';
-    }
 
     //parent url might be used to build an url from relative path
     $parent_url = remove_file_from_url($parent_url);
     $parent_url_parts = parse_url($parent_url);
 
-
     if (substr($url, 0, 1) == '/') {
         $url = $parent_url_parts['scheme']."://".$parent_url_parts['host'].$url;
-    } else
-    if (!isset($urlparts['scheme'])) {
+    } else if (!isset($urlparts['scheme'])) {
         $url = $parent_url.$url;
     }
 
@@ -436,9 +427,8 @@ function url_purify($url, $parent_url, $can_leave_domain) {
 
     $regs = Array ();
 
-    while (preg_match("/[^\/]*\/[.]{2}\//", $urlpath, $regs)) {
+    while (preg_match("/[^\/]*\/[.]{2}\//", $urlpath, $regs))
         $urlpath = str_replace($regs[0], "", $urlpath);
-    }
 
     //remove relative path instructions like ../ etc
     $urlpath = preg_replace("/\/+/", "/", $urlpath);
@@ -456,21 +446,20 @@ function url_purify($url, $parent_url, $can_leave_domain) {
     $url = $url_parts['scheme']."://".$url_parts['host'].$portq.$urlpath.$query;
 
     //if we index sub-domains
-    if ($can_leave_domain == 1) {
+    if ($can_leave_domain == 1)
         return $url;
-    }
 
     $mainurl = remove_file_from_url($mainurl);
 
-    if ($strip_sessids == 1) {
+    if ($strip_sessids == 1)
         $url = remove_sessid($url);
-    }
+
     //only urls in staying in the starting domain/directory are followed
     $url = convert_url($url);
-    if (strstr($url, $mainurl) == false) {
+    if (strstr($url, $mainurl) == false)
         return '';
-    } else
-    return $url;
+    else
+        return $url;
 }
 
 function save_keywords($wordarray, $link_id, $domain) {
@@ -495,9 +484,8 @@ function save_keywords($wordarray, $link_id, $domain) {
                     $query = "select keyword_ID from ".TABLE_PREFIX."keywords where keyword='$word'";
                     $result = $db->query($query);
                     $error = sql_errorstring(__FILE__,__LINE__);
-                    if ($error) {
-                      echo $error;
-                    }
+                    if ($error)
+                        echo $error;
                     echo sql_errorstring(__FILE__,__LINE__);
                     $row = $result->fetch();
                     $keyword_id = $row[0];
@@ -526,9 +514,8 @@ function save_keywords($wordarray, $link_id, $domain) {
                 $query = "insert into ".TABLE_PREFIX."link_keyword$char (link_id, keyword_id, weight, domain) values $insert_sql";
                 $db->exec($query);
                 $error = sql_errorstring(__FILE__, __LINE__);
-                if ($error) {
-                  echo $error;
-                }
+                if ($error)
+                    echo $error;
             }
         }
     }
@@ -643,7 +630,7 @@ function clean_file($file, $url, $type) {
         $file = $file." ".$headdata['keywords'];
     }
 
-    //translate the page from UTF-8 to Latin-1
+    //translate the page from UTF-8 to Latin-1 (redundant if all pages use UTF-8 encoding)
     $file = utf8_decode($file);
     //replace codes with ascii chars
     $file = preg_replace('~&#x([0-9a-f]+);~ei', 'chr(hexdec("\\1"))', $file);
