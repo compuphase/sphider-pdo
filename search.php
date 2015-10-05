@@ -34,6 +34,11 @@ else if (isset($_GET['lang']))
     $language = $_GET['lang'];
 require_once("$language_dir/$language-language.php");
 
+if (isset($_POST['start']))
+    $start = sanitize($_POST['start']);
+else if (isset($_GET['start']))
+    $start = sanitize($_GET['start']);
+
 if (isset($_POST['domain']))
     $domain = sanitize($_POST['domain']);
 if (isset($_POST['type']))
@@ -44,8 +49,6 @@ if (isset($_POST['category']))
     $category = sanitize($_POST['category']);
 if (isset($_POST['results']))
     $results = sanitize($_POST['results']);
-if (isset($_POST['start']))
-    $start = sanitize($_POST['start']);
 if (isset($_POST['adv']))
     $adv = sanitize($_POST['adv']);
 
