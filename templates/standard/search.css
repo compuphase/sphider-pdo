@@ -30,7 +30,7 @@ td {font-family:arial,sans-serif; font-size: 13px; }
 #result_report {
 	text-align:center ;
 	padding:3px;
-	background-color:#e5ecf9; 
+	background-color:#e5ecf9;
 	font-weight: bold;
 	margin-bottom:14px;
 }
@@ -38,13 +38,13 @@ td {font-family:arial,sans-serif; font-size: 13px; }
 .catBanner {
 	padding:3px;
 	margin-top:15px;
-	background-color:#e5ecf9; 
+	background-color:#e5ecf9;
 	font-weight: bold
 }
 .webPageBanner {
 	padding:3px;
 	margin-top:20px;
-	background-color:#e5ecf9; 
+	background-color:#e5ecf9;
 	font-weight: bold
 }
 
@@ -75,17 +75,16 @@ h1 {
 }
 
 #common_report {
-		text-align:center;
+  text-align:center;
 }
 
 #cat_table {
-		width:600px;
-		margin-top:20px;
-		padding-top:10px;
-		padding-bottom:20px;
-		border-top:1px solid #AAAAAA;
-		border-bottom:1px solid #AAAAAA;
-
+  width:600px;
+  margin-top:20px;
+  padding-top:10px;
+  padding-bottom:20px;
+  border-top:1px solid #AAAAAA;
+  border-bottom:1px solid #AAAAAA;
 }
 
 #cat_main {
@@ -93,22 +92,21 @@ h1 {
 }
 
 .divline{
-	margin-top:20px;
-	margin-bottom:-5px;
-	border-bottom:1px solid #DDDDDD;
+  margin-top:20px;
+  margin-bottom:-5px;
+  border-bottom:1px solid #DDDDDD;
 }
 
 #sub_cat {
-	font-size:12px;
+  font-size:12px;
 }
 
 .idented {
-	margin-left:30px;
+  margin-left:30px;
 }
 
 #did_you_mean {
-	font-size: 14px; 
-	text-align:center ;
-	margin:10px;
-
+  font-size: 14px;
+  text-align: left;
+  margin: 10px;
 }

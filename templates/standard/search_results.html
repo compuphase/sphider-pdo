@@ -5,19 +5,6 @@ if (!isset($adv_qry))
     $adv_qry="";
 ?>
 
-<?php if (isset($search_results['did_you_mean']) && count($search_results['did_you_mean']) > 0){ ?>
-	<div id="did_you_mean">
-	<?php echo $sph_messages['DidYouMean'];?>:
-      <?php for ($index = 0; $index < count($search_results['did_you_mean']); $index++) {
-        if ($index > 0)
-          print ", ";
-        print "<a href=search.php?query=".quote_replace(addmarks($search_results['did_you_mean'][$index]))."&search=1&lang=".$language.">".$search_results['did_you_mean_b'][$index]."</a>";
-      }
-      print " ?";
-      ?>
-    </div>
-<?php }?>
-
 <?php if ($search_results['ignore_words']){
     $ignored = "";?>
 	<div id="common_report">
@@ -62,10 +49,36 @@ if (!isset($adv_qry))
 <?php  }?>
 
 
-<?php if (isset($qry_results)) {
-?>
+<?php if (isset($search_results['did_you_mean']) && count($search_results['did_you_mean']) > 0){ ?>
+	<div id="did_you_mean">
+	<?php echo "&nbsp; ".$sph_messages['DidYouMean'];?>:
+      <?php
+        for ($handled = 0; $handled < count($search_results['did_you_mean_c']); $handled++) {
+          /* find highest count */
+          $highidx = 0;
+          $highval = 0;
+          for ($index = 0; $index < count($search_results['did_you_mean_c']); $index++) {
+            if ($search_results['did_you_mean_c'][$index] > $highval) {
+              $highval = $search_results['did_you_mean_c'][$index];
+              $highidx = $index;
+            }
+          }
+          /* clear highest value, so it won't be found again */
+          $search_results['did_you_mean_c'][$highidx] = 0;
+          if ($handled > 0)
+            print ", ";
+          print "<a href=search.php?query=".quote_replace(addmarks($search_results['did_you_mean'][$highidx]))."&search=1&lang=".$language.">".$search_results['did_you_mean_b'][$highidx]."</a>";
+        }
+        print " ?";
+      ?>
+    </div>
+<?php }?>
+
 
 <div id="results">
+
+<?php if (isset($qry_results)) {
+?>
 
 <!-- results listing -->
 

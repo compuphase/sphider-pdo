@@ -93,20 +93,19 @@ if ($count_level0)
 
 require_once("$template_dir/$template/search_form.html");
 
+date_default_timezone_set("Etc/UCT");
+
 
 function getmicrotime() {
     list($usec, $sec) = explode(" ",microtime());
     return ((float)$usec + (float)$sec);
 }
 
-
-
 function poweredby() {
     global $sph_messages;
     //If you want to remove this, please donate to the project at http://www.sphider.eu/donate.php
     print $sph_messages['Powered by'] . '<a href="http://www.sphider.eu/"><img src="sphider-logo.png" border="0" style="vertical-align: middle" alt="Sphider"></a>';
 }
-
 
 function saveToLog ($query, $elapsed, $results) {
     global $db;
@@ -116,6 +115,7 @@ function saveToLog ($query, $elapsed, $results) {
     $stat = $db->prepare("insert into ".TABLE_PREFIX."query_log (query, time, elapsed, results) values (:query, :tstamp, :elapsed, :results)");
     $stat->execute(array(':query' => $query, ':tstamp' => date("Y-m-d H:i:s"), ':elapsed' => $elapsed, ':results' => $results));
 }
+
 
 if (!isset($search) || strlen($query) == 0)
     $search = 0;

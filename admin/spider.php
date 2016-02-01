@@ -25,8 +25,6 @@ error_reporting(E_ALL);
   $all_keywords = array();
 
   $delay_time = 0;
-
-
   $command_line = 0;
 
   if (isset($_SERVER['argv']) && $_SERVER['argc'] >= 2) {
@@ -285,6 +283,7 @@ error_reporting(E_ALL);
           }
 
           $wordarray = calc_weights ($wordarray, $title, $host, $path, $data['keywords']);
+          date_default_timezone_set("Etc/UCT");
           $tstamp = "'".date("Y-m-d")."'";
 
           //if there are words to index, add the link to the database, get its id, and add the word + their relation
@@ -371,23 +370,18 @@ error_reporting(E_ALL);
     $a =  getenv("REMOTE_ADDR");
     $sessid = md5($t.$a);
 
-
     $urlparts = parse_url($url);
-
     $domain = $urlparts['host'];
-    if (isset($urlparts['port'])) {
-      $port = (int)$urlparts['port'];
-    }else {
-      $port = 80;
-    }
-
+    $port = isset($urlparts['port']) ? intval($urlparts['port']) : 80;
 
     $result = $db->query("select site_id from ".TABLE_PREFIX."sites where url='$url'");
     echo sql_errorstring(__FILE__,__LINE__);
     $row = $result->fetch();
     $site_id = $row[0];
     $result->closeCursor();
-        $tstamp = "'".date("Y-m-d")."'";
+
+    date_default_timezone_set("Etc/UCT");
+    $tstamp = "'".date("Y-m-d")."'";
 
     if ($site_id != "" && $reindex == 1) {
       $db->exec("insert into ".TABLE_PREFIX."temp (link, level, id) values ('$url', 0, '$sessid')");
@@ -414,8 +408,9 @@ error_reporting(E_ALL);
       $site_id = $row[0];
       $result->closeCursor();
     } else {
-      $db->exec("update ".TABLE_PREFIX."sites set indexdate=$tstamp, spider_depth=$maxlevel, required='$url_inc'," .
-          "disallowed='$url_not_inc', can_leave_domain=$can_leave_domain where site_id=$site_id");
+      $db->exec("update ".TABLE_PREFIX."sites set indexdate=$tstamp, " .
+                "spider_depth=".intval($maxlevel).", required='$url_inc'," .
+                "disallowed='$url_not_inc', can_leave_domain=".intval($can_leave_domain)." where site_id=$site_id");
       echo sql_errorstring(__FILE__,__LINE__);
     }
 

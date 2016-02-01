@@ -4,6 +4,10 @@ CHANGELOG
 By Ando Saabas          ando(a t)cs.ioc.ee
 ============================================
 
+Sphider-PDO 1.3.9, release date 1 February 2016
+    Update for PHP 5.4 (Thiadmer Riemersma)
+    For "Did you mean" suggestions, first check whether the suggested queries return any results (Thiadmer Riemersma)
+
 Sphider-PDO 1.3.8, release date 20 January 2015
     MySQL no longer accepts brackets around table names; these have been removed (Thiadmer Riemersma)
     MySQL no longer supports NOW() for a date field, so dates are now filled in from PHP variables (Thiadmer Riemersma)

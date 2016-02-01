@@ -9,9 +9,9 @@ General settings
 ***********************/
 
 // Sphider version
-$version_nr			= '1.3.8';
+$version_nr			= '1.3.9';
 
-//Language of the search page
+// Language of the search page (can be overridden)
 $language			= 'en';
 
 // Template name/directory in templates dir
