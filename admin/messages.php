@@ -146,8 +146,8 @@ function printHeader($omit, $url, $cl) {
     if (count($omit) > 0 ) {
         $urlparts = parse_url($url);
         foreach ($omit as $dir) {
-            if (strlen($dir) > 0 && $dir[0] == '*')
-                $omits[] = "Pattern ".$dir;
+            if (strlen($dir) > 0 && $dir[0] != '/')
+                $omits[] = $dir;
             else
                 $omits[] = $urlparts['scheme']."://".$urlparts['host'].$dir;
         }

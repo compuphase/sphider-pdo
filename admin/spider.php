@@ -485,16 +485,15 @@ error_reporting(E_ALL);
 
           /* check the URL against rules in the robots.txt */
           $check_tail = false;
-          if (strlen($omiturl) > 1 && $omiturl[0] == '*') {
-            /* for checking URLs against an infix, use *keyword
-               for checking file extensions, use *.extension$ (the $ is important) */
+          if (strlen($omiturl) > 1 && $omiturl[0] != '/') {
+            /* for checking URLs against an infix, just set the keyword
+               for checking file extensions, use .ext$ (i.e. search for the
+               infix ".ext" but match it only at the end of the string) */
             $check_omit = substr($omiturl, 1);
             $check_len = strlen($check_omit);
             if ($check_len > 1 && $check_omit[$check_len - 1] == '$') {
               $check_omit = substr($check_omit, 0, $check_len - 1);
               $check_tail = true;
-            } else if ($check_len > 1 && $check_omit[$check_len - 1] == '*') {
-              $check_omit = substr($check_omit, 0, $check_len - 1); /* remove a trailing '*' from the pattern (it is implied) */
             }
           } else {
             $omiturl_parts = parse_url($omiturl);
