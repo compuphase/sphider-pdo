@@ -633,8 +633,12 @@ function clean_file($file, $url, $type) {
     //translate the page from UTF-8 to Latin-1 (redundant if all pages use UTF-8 encoding)
     $file = utf8_decode($file);
     //replace codes with ascii chars
-    $file = preg_replace('~&#x([0-9a-f]+);~ei', 'chr(hexdec("\\1"))', $file);
-    $file = preg_replace('~&#([0-9]+);~e', 'chr("\\1")', $file);
+    $file = preg_replace_callback('~&#x([0-9a-fA-F]+);~',
+                                  function ($m) { return chr(hexdec($m[1])); },
+                                  $file);
+    $file = preg_replace_callback('~&#([0-9]+);~',
+                                  function ($m) { return chr($m[1]); },
+                                  $file);
     $file = strtolower($file);
     reset($entities);
     while ($char = each($entities)) {
@@ -752,7 +756,7 @@ function check_include($link, $inc, $not_inc) {
                     break;
                 }
             } else {
-                if (!(strpos($link, $str) === false)) {
+                if (strpos($link, $str) !== false) {
                     $include = false;
                     break;
                 }

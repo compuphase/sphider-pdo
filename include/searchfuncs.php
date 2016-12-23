@@ -521,7 +521,7 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
     // catch " if only one time entered
     $query = preg_replace("/&quot;/", "\"", $query);
     if (substr_count($query,'"')==1)
-     $query=str_replace('"','',$query);
+      $query=str_replace('"','',$query);
     $words = makeboollist($query);
     if (isset($words['ignore']))
       $ignorewords = $words['ignore'];

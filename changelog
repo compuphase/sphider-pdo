@@ -4,6 +4,12 @@ CHANGELOG
 By Ando Saabas          ando(a t)cs.ioc.ee
 ============================================
 
+Sphider-PDO 1.3.10, release date 23 December 2016
+    Update for PHP 7.0 (Thiadmer Riemersma)
+    Change in the install script to support large HTML pages, database-dependent (Thiadmer Riemersma)
+    Clean-up of the "Settings" page in the Admin console, extra setting for whether to spider default redirects (Thiadmer Riemersma)
+    Fix in robots.txt rules to disallow spidering files with a keyword in the URL or with a particular file extension (Thiadmer Riemersma)
+
 Sphider-PDO 1.3.9, release date 1 February 2016
     Update for PHP 5.4 (Thiadmer Riemersma)
     For "Did you mean" suggestions, first check whether the suggested queries return any results (Thiadmer Riemersma)

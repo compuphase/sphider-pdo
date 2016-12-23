@@ -15,6 +15,8 @@ include "$settings_dir/database.php";
 
 if (!defined('AUTOINCREMENT'))
     define('AUTOINCREMENT', 'AUTO_INCREMENT');
+if (!defined('FULLTEXT'))
+    define('FULLTEXT', 'TEXT');
 
 echo "<li>sites";
 $error = 0;
@@ -38,7 +40,7 @@ $db->exec("create table ".TABLE_PREFIX."links (
     title VARCHAR(200),
     description VARCHAR(255),
     language VARCHAR(2),
-    fulltxt TEXT,
+    fulltxt ".FULLTEXT.",
     indexdate date,
     size FLOAT(2),
     md5sum VARCHAR(32) UNIQUE,

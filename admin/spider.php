@@ -237,7 +237,6 @@ error_reporting(E_ALL);
           printStandardReport('metaNoindex',$command_line);
         }
 
-
         $wordarray = unique_array(explode(" ", $data['content']));
 
         if ($data['nofollow'] != 1) {
@@ -245,7 +244,7 @@ error_reporting(E_ALL);
           $links = distinct_array($links);
           $all_links = count($links);
           $numoflinks = 0;
-          //if there are any, add to the temp table, but only if there isnt such url already
+          // if there are any, add to the temp table, but only if there isn't such url already
           if (is_array($links)) {
             reset ($links);
 
@@ -335,7 +334,6 @@ error_reporting(E_ALL);
     } else {
       $deletable = 1;
       printUrlStatus($url_status['state'], $command_line);
-
     }
     if ($reindex ==1 && $deletable == 1) {
       check_for_removal($url);
@@ -476,7 +474,6 @@ error_reporting(E_ALL);
 
       reset ($links);
 
-
       while ($count < count($links)) {
         $num++;
         $thislink = $links[$count];
@@ -486,14 +483,30 @@ error_reporting(E_ALL);
         foreach ($omit as $omiturl) {
           $omiturl = trim($omiturl);
 
-          $omiturl_parts = parse_url($omiturl);
-          if (!isset($omiturl_parts['scheme']) || $omiturl_parts['scheme'] == '') {
-            $check_omit = $urlparts['host'] . $omiturl;
+          /* check the URL against rules in the robots.txt */
+          $check_tail = false;
+          if (strlen($omiturl) > 1 && $omiturl[0] == '*') {
+            /* for checking URLs against an infix, use *keyword
+               for checking file extensions, use *.extension$ (the $ is important) */
+            $check_omit = substr($omiturl, 1);
+            $check_len = strlen($check_omit);
+            if ($check_len > 1 && $check_omit[$check_len - 1] == '$') {
+              $check_omit = substr($check_omit, 0, $check_len - 1);
+              $check_tail = true;
+            } else if ($check_len > 1 && $check_omit[$check_len - 1] == '*') {
+              $check_omit = substr($check_omit, 0, $check_len - 1); /* remove a trailing '*' from the pattern (it is implied) */
+            }
           } else {
-            $check_omit = $omiturl;
+            $omiturl_parts = parse_url($omiturl);
+            if (!isset($omiturl_parts['scheme']) || $omiturl_parts['scheme'] == '')
+              $check_omit = $urlparts['host'] . $omiturl;
+            else
+              $check_omit = $omiturl;
           }
 
-          if (strpos($thislink, $check_omit)) {
+          if (($pos = strpos($thislink, $check_omit)) !== false
+              && (!$check_tail || $pos == strlen($thislink) - strlen($check_omit)))
+          {
             printRobotsReport($num, $thislink, $command_line);
             check_for_removal($thislink);
             $forbidden = 1;

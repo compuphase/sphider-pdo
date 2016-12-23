@@ -9,22 +9,22 @@ General settings
 ***********************/
 
 // Sphider version
-$version_nr			= '1.3.9';
+$version_nr = '1.3.10';
 
 // Language of the search page (can be overridden)
-$language			= 'en';
+$language = 'en';
 
 // Template name/directory in templates dir
-$template	= 'standard';
+$template = 'standard';
 
 //Administrators email address (logs can be sent there)
-$admin_email		= 'admin@localhost';
+$admin_email = 'admin@localhost';
 
 // Print spidering results to standard out
-$print_results		= 1;
+$print_results = 1;
 
 // Temporary directory, this should be readable and writable
-$tmp_dir	= 'tmp';
+$tmp_dir = 'tmp';
 
 
 /***********************
@@ -48,42 +48,43 @@ $email_log			= 0;
 Spider settings
 ***********************/
 
-// Min words per page required for indexing
+// Minimum words that a must have to be spidered
 $min_words_per_page = 10;
 
-// Words shorter than this will not be indexed
+// Words shorter than this will be ignored (never considered a keyword)
 $min_word_length	= 3;
 
-// Keyword weight depending on the number of times it appears in a page is capped at this value
+// Keyword weight depending on the number of times it appears in a page is capped
+// at this value
 $word_upper_bound	= 100;
 
-// Index numbers as well
+// Whether to consider numbers to be keywords
 $index_numbers		= 1;
 
-// If this value is set to 1, a link to a directory is indexed too. If this value
-// is set to 0, only files are indexed. If your site has links to directories as
+// If this value is set to 1, a link to a directory is spidered too. If this value
+// is set to 0, only files are spidered. If your site has links to directories as
 // well as files, you may want to set this value to 0, to avoid MD5-hash collisions
-// when "www.mydomain.com/" and "www.mydomain.com/index.html" are both indexed.
+// when "www.mydomain.com/" and "www.mydomain.com/index.html" are both spidered.
 $index_vpaths		= 1;
 
-// if this value is set to 1, word in domain name and url path are also indexed,
-// so that for example the index of www.php.net returns a positive answer to query 'php' even
-// if the word is not included in the page itself.
+// if this value is set to 1, words in domain name and url path are also taken as keywords,
+// so that for example the index of www.php.net returns a positive answer to query
+// 'php' even if the word is not included in the page itself.
 $index_host		 = 0;
 
-// Wether to index keywords in a meta tag
+// Wether to include keywords in a meta tag
 $index_meta_keywords = 1;
 
-// Index pdf files
+// Spider pdf files
 $index_pdf	= 0;
 
-// Index doc files
+// Spider doc files
 $index_doc	= 0;
 
-// Index xls files
+// Spider xls files
 $index_xls	= 0;
 
-// Index ppt files
+// Spider ppt files
 $index_ppt	= 0;
 
 //executable path to pdf converter
@@ -104,7 +105,8 @@ $user_agent			 = 'Sphider';
 // Minimal delay between page downloads
 $min_delay			= 0;
 
-// Use word stemming (e.g. find sites containing runs and running when searching for run)
+// Use word stemming (e.g. find sites containing runs and running when searching
+// for run)
 $stem_words			= 0;
 
 // Strip session ids (PHPSESSID, JSESSIONID, ASPSESSIONID, sid)
