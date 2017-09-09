@@ -526,7 +526,7 @@ function get_head_data($file) {
 
     /* get the language first (because it is not in the "head" part) */
     $language = "";
-    preg_match("/<html +lang *=[\"']?([^<>'\"]+)[\"']?>/i",$file, $res);
+    preg_match("/<html +lang *=[\"']?([^<>'\"]+)[\"']? *>/i",$file, $res);
     if (isset($res) && count($res) > 1) {
         $language = $res[1];
     }
@@ -600,7 +600,7 @@ function clean_file($file, $url, $type) {
     $file = preg_replace("/<link rel[^<>]*>/i", " ", $file);
     $file = preg_replace("@<!--sphider_noindex-->.*?<!--\/sphider_noindex-->@si", " ",$file);
     $file = preg_replace("@<!--.*?-->@si", " ",$file);
-    $file = preg_replace("@<script[^>]*?>.*?</script>@si", " ",$file);
+    $file = preg_replace("@<script[^>]*? *>.*?</script>@si", " ",$file);
     $headdata = get_head_data($file);
     $regs = Array ();
     if (preg_match("@<title *>(.*?)<\/title*>@si", $file, $regs)) {
@@ -613,7 +613,7 @@ function clean_file($file, $url, $type) {
     $file = preg_replace("@<style[^>]*>.*?<\/style>@si", " ", $file);
 
     //create spaces between tags, so that removing tags does not concatenate strings
-    $file = preg_replace("/<[\w ]+\/?>/", "\\0 ", $file);
+    $file = preg_replace("/<[\w ]+\/? *>/", "\\0 ", $file);
     $file = preg_replace("/<\/[\w ]+>/", "\\0 ", $file);
     $file = strip_tags($file);
     $file = preg_replace("/&nbsp;/", " ", $file);
@@ -771,7 +771,7 @@ function check_include($link, $inc, $not_inc) {
                 if (substr($str, 0, 1) == '*') {
                     if (preg_match(substr($str, 1), $link)) {
                         $include = true;
-                        break 2;
+                        break;
                     }
                 } else {
                     if (strpos($link, $str) !== false) {

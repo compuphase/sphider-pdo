@@ -67,28 +67,33 @@ function checkAll(theForm, cName, allNo_stat) {
   </tr>
  <?php
 
-        global $db;
-		$stats  = $db->query("SHOW TABLE STATUS FROM ".DATABASE_NAME." LIKE '".TABLE_PREFIX."%'");
-		if ($tats) {
-    		$bgcolor='grey';
-    		$i=0;
-    		while ($rows=$stats->fetch($stats)) {
-    			print "<tr><td class=".$bgcolor."><input type='checkbox' id='tables$i' class='check' name='tables[$i]' value='".$rows["Name"]."' ></td>";
-    			print "<td class=".$bgcolor.">".$rows["Name"]."</td>";
-    			print '<td align="center" class='.$bgcolor.'>'.$rows['Rows'].'</td>';
-    			print '<td align="center" class='.$bgcolor.'>'.$rows['Create_time'].'</td>';
-    			print '<td align="center" class='.$bgcolor.'>'.number_format($rows['Data_length']/1024,1).'</td>';
-    			print '<td align="center" class='.$bgcolor.'>'.number_format($rows['Index_length']/1024,1).'</td></tr>'."\n";
-        		$i++;
-        		if ($bgcolor=='grey') {
-                    $bgcolor='white';
-        		} else {
-                    $bgcolor='grey';
-        		}
-        	}
-        } else {
-            echo("&nbsp;<font color='red'>ERROR: Database tables cannot be listed.</font>");
-        }
+    define("TABLE_NAME", 0);
+    define("TABLE_ROWS", 4);
+    define("TABLE_DATASIZE", 6);
+    define("TABLE_INDEXSIZE", 8);
+    define("TABLE_TIMESTAMP", 11);
+
+    global $db;
+    $stats  = $db->query("SHOW TABLE STATUS");
+    $bgcolor='grey';
+    $i=0;
+    while ($rows=$stats->fetch(PDO::FETCH_NUM)) {
+	print "<tr><td class=".$bgcolor."><input type='checkbox' id='tables$i' class='check' name='tables[$i]' value='".$rows[TABLE_NAME]."' ></td>";
+	print "<td class=".$bgcolor.">".$rows[TABLE_NAME]."</td>";
+	print '<td align="center" class='.$bgcolor.'>'.$rows[TABLE_ROWS].'</td>';
+	print '<td align="center" class='.$bgcolor.'>'.$rows[TABLE_TIMESTAMP].'</td>';
+	print '<td align="center" class='.$bgcolor.'>'.number_format($rows[TABLE_DATASIZE]/1024,1).'</td>';
+	print '<td align="center" class='.$bgcolor.'>'.number_format($rows[TABLE_INDEXSIZE]/1024,1).'</td></tr>'."\n";
+	$i++;
+	if ($bgcolor=='grey') {
+		$bgcolor='white';
+	} else {
+		$bgcolor='grey';
+	}
+    }
+    if ($i == 0)
+        echo("&nbsp;<font color='red'>ERROR: Database tables cannot be listed.</font>");
+
 
 echo "
 <tr><td colspan='6'>
@@ -123,7 +128,7 @@ echo "
 
 
 if (isset($file) && $del==0) {
-	  if (eregi("gz",$file)) {
+	  if (preg_match("/gz/i",$file)) {
 		 @unlink($backup_path."backup.sql");
 		 $fp = @fopen($backup_path."backup.sql","w");
 		 fwrite ($fp,"");
@@ -180,7 +185,7 @@ if (isset($file) && $del==1) {
 
 
 	while ($file = readdir ($dir)) {
-		if ($file != "." && $file != ".." &&  (eregi("\.sql",$file) || eregi("\.gz",$file))){
+		if ($file != "." && $file != ".." &&  (preg_match("/\.sql/i",$file) || preg_match("/\.gz/i",$file))){
 			if($is_first==1){
 				echo "<tr>
 				<td width=\"30%\" align=\"center\" class=\"greyHeading\"><b>File</b></td>
