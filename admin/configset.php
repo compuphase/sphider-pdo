@@ -118,7 +118,7 @@ if (isset($Submit)) {
         fwrite($fhandle,"$"."email_log = ".$_email_log. ";");
 
         fwrite($fhandle,"\n\n\n/*********************** \nSpider settings \n***********************/\n\n");
-        fwrite($fhandle, "// Minimum words that a must have to be spidered\n");
+        fwrite($fhandle, "// Minimum words that a page must have to be spidered\n");
         fwrite($fhandle,"$"."min_words_per_page = ".$_min_words_per_page. ";\n\n");
         fwrite($fhandle, "// Words shorter than this will be ignored (never considered a keyword)\n");
         fwrite($fhandle,"$"."min_word_length = ".$_min_word_length. ";\n\n");

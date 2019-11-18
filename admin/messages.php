@@ -25,35 +25,35 @@ $messages = Array (
     0 => " <font color=red>Page removed from index.</font><br>\n",
     1 => " Page removed from index.\n"
  ),
-  "continueSuspended" => Array (
+ "continueSuspended" => Array (
     0 => "<br>Continuing suspended indexing.<br>\n",
     1 => "Continuing suspended indexing.\n"
  ),
-  "indexed" => Array (
+ "indexed" => Array (
     0 => "<br><b> <font color=\"green\">Indexed</font></b><br>\n",
     1 => " \nIndexed\n"
  ),
-"duplicate" => Array (
+ "duplicate" => Array (
     0 => " <font color=\"red\"><b>Page is a duplicate.</b></font><br>\n",
     1 => " Page is a duplicate.\n"
  ),
-"md5notChanged" => Array (
+ "md5notChanged" => Array (
     0 => " <font color=\"red\"><b>MD5 sum checked. Page content not changed</b></font><br>\n",
     1 => " MD5 sum checked. Page content not changed.\n"
  ),
-"metaNoindex" => Array (
+ "metaNoindex" => Array (
     0 => " <font color=\"red\">No-Index flag set in meta tags.</font><br>\n",
     1 => " No-Index flag set in meta tags.\n"
  ),
-  "re-indexed" => Array (
+ "re-indexed" => Array (
     0 => " <font color=\"green\">Re-indexed</font><br>\n",
     1 => " Re-indexed\n"
  ),
-"minWords" => Array (
+ "minWords" => Array (
     0 => " <font color=\"red\">Page contains less than $min_words_per_page significant words</font><br>\n",
     1 => " Page contains less than $min_words_per_page significant words.\n"
  ),
-"skipped" => Array (
+ "skipped" => Array (
     0 => " <font color=\"red\">This link is skipped</font><br>\n",
     1 => " File is skipped.\n"
  )

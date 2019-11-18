@@ -392,7 +392,7 @@ function addcatform($parent) {
 
 
 
-	function showsites($message) {
+	function showsites($message = "") {
 		global $db;
 		$result = $db->query("SELECT site_id, url, title, indexdate from ".TABLE_PREFIX."sites ORDER By indexdate, title");
 		echo sql_errorstring(__FILE__,__LINE__);
@@ -761,7 +761,7 @@ function addcatform($parent) {
 		<?php
 	}
 
-	function siteScreen($site_id, $message) {
+	function siteScreen($site_id, $message = "") {
 		global $db;
 		$result = $db->query("SELECT site_id, url, title, short_desc, indexdate from ".TABLE_PREFIX."sites where site_id=$site_id");
 		echo sql_errorstring(__FILE__,__LINE__);
@@ -1205,7 +1205,7 @@ function addcatform($parent) {
 			showsites();
 		break;
 		case edit_site:
-            if (CONFIGSET)
+			if (CONFIGSET)
 			    editsiteform($site_id);
 		break;
 		case 4:

@@ -58,10 +58,9 @@ if (!isset($query)
 
 
 if (file_exists("$template_dir/$template/header_$language.html"))
-  include_once("$template_dir/$template/header_$language.html");
+    include_once("$template_dir/$template/header_$language.html");
 else
-  require_once("$template_dir/$template/header.html");
-
+    require_once("$template_dir/$template/header.html");
 
 if (!isset($type) || ($type != "or" && $type != "and" && $type != "phrase"))
     $type = "and";
@@ -95,7 +94,6 @@ require_once("$template_dir/$template/search_form.html");
 
 date_default_timezone_set("Etc/UCT");
 
-
 function getmicrotime() {
     list($usec, $sec) = explode(" ",microtime());
     return ((float)$usec + (float)$sec);
@@ -107,7 +105,7 @@ function poweredby() {
     print $sph_messages['Powered by'] . '<a href="http://www.sphider.eu/"><img src="sphider-logo.png" border="0" style="vertical-align: middle" alt="Sphider"></a>';
 }
 
-function saveToLog ($query, $elapsed, $results) {
+function saveToLog($query, $elapsed, $results) {
     global $db;
 
     if ($results == "")
@@ -122,40 +120,40 @@ if (!isset($search) || strlen($query) == 0)
 if (!isset($start))
     $start = 0;
 switch ($search) {
-    case 1:
-        if (!isset($results))
-            $results = "";
-        if ($type != "phrase") {
-            $query = str_replace("\"", " ", $query);
-            $query = str_replace("&quot;", " ", $query);
-            $query = str_replace("&#39;", " ", $query);
-        }
-        $query = str_replace("&amp;", " ", $query);
-        $query = str_replace("&lt;", " ", $query);
-        $query = str_replace("&gt;", " ", $query);
-        $query = str_replace("#", " ", $query);
-        $query = str_replace("&", " ", $query);
-        $query = str_replace(";", " ", $query);
-        $query = str_replace("'", " ", $query);
-        $query = str_replace("*", " ", $query);
-        $query = str_replace("%", " ", $query);
-        $query = str_replace("\\", " ", $query);
-        if (strpos($query, '\0') != FALSE)
-            $query = "";
-        $search_results = get_search_results($query, $start, $category, $type, $results, $domain);
-        require("$template_dir/$template/search_results.html");
-    break;
-    default:
-        if ($show_categories) {
-            if (isset($_REQUEST['catid']) && $_REQUEST['catid'] && is_numeric($catid)) {
-                $cat_info = get_category_info($catid);
-            } else {
-                $cat_info = get_categories_view();
-            }
-            require("$template_dir/$template/categories.html");
-        }
-    break;
+case 1:
+    if (!isset($results))
+        $results = "";
+    if ($type != "phrase") {
+        $query = str_replace("\"", " ", $query);
+        $query = str_replace("&quot;", " ", $query);
+        $query = str_replace("&#39;", " ", $query);
     }
+    $query = str_replace("&amp;", " ", $query);
+    $query = str_replace("&lt;", " ", $query);
+    $query = str_replace("&gt;", " ", $query);
+    $query = str_replace("#", " ", $query);
+    $query = str_replace("&", " ", $query);
+    $query = str_replace(";", " ", $query);
+    $query = str_replace("'", " ", $query);
+    $query = str_replace("*", " ", $query);
+    $query = str_replace("%", " ", $query);
+    $query = str_replace("\\", " ", $query);
+    if (strpos($query, '\0') != FALSE)
+        $query = "";
+    $search_results = get_search_results($query, $start, $category, $type, $results, $domain);
+    require("$template_dir/$template/search_results.html");
+    break;
+default:
+    if ($show_categories) {
+        if (isset($_REQUEST['catid']) && $_REQUEST['catid'] && is_numeric($catid)) {
+            $cat_info = get_category_info($catid);
+        } else {
+            $cat_info = get_categories_view();
+        }
+        require("$template_dir/$template/categories.html");
+    }
+    break;
+}
 
 if (file_exists("$template_dir/$template/footer_$language.html"))
     include_once("$template_dir/$template/footer_$language.html");

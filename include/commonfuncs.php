@@ -2,702 +2,714 @@
 /*******************************************
 * Sphider Version 1.3.*
 * This program is licensed under the GNU GPL.
-* By Ando Saabas		  ando(a t)cs.ioc.ee
+* By Ando Saabas          ando(a t)cs.ioc.ee
 ********************************************/
 
-	$includes = array('./include', 'include', '../include');
-	if( !in_array($include_dir, $includes) )  {
-	   die("Illegal include.");
-	}
+    $includes = array('./include', 'include', '../include');
+    if( !in_array($include_dir, $includes) )  {
+       die("Illegal include.");
+    }
 
 
-	function sanitize($str) {
+    function sanitize($str) {
         $str = strip_tags($str);
         $str = str_replace("&amp;", "&", $str);
         $str = htmlspecialchars($str, ENT_QUOTES, "ISO-8859-1");
-		return $str;
-	}
+        return $str;
+    }
 
-	function sql_errorstring($filename, $linenr) {
-	  global $db;
-	  $code = $db->errorCode();
-	  if ($code != '00000') {
-		  $info = $db->errorInfo();
-		  return "[$filename:$linenr:" . $code . "] " . $info[2];   /* return the SQL state code plus the driver-specfic message */
-	  }
-	  return null;
-	}
+    function sql_errorstring($filename, $linenr) {
+      global $db;
+      $code = $db->errorCode();
+      if ($code != '00000') {
+          $info = $db->errorInfo();
+          return "[$filename:$linenr:" . $code . "] " . $info[2];   /* return the SQL state code plus the driver-specfic message */
+      }
+      return null;
+    }
 
-	/**
-	* Returns the result of a query as an array
-	*
-	* @param $query SQL expression
-	* @return array|null
-	 */
-	function sql_fetch_all($query, $parameters) {
-		global $db;
-		$stat = $db->prepare($query);
-		if ($stat->execute($parameters)) {
-			while ($row=$stat->fetch())
-				$data[]=$row;
-		} else {
-			print $query.'<br>'.sql_errorstring(__FILE__,__LINE__);
-		}
-		return $data;
-	}
+    /**
+    * Returns the result of a query as an array
+    *
+    * @param $query SQL expression
+    * @return array|null
+     */
+    function sql_fetch_all($query, $parameters) {
+        global $db;
+        $stat = $db->prepare($query);
+        if ($stat->execute($parameters)) {
+            while ($row=$stat->fetch())
+                $data[]=$row;
+        } else {
+            print $query.'<br>'.sql_errorstring(__FILE__,__LINE__);
+        }
+        return $data;
+    }
 
-	/*
-	Removes duplicate elements from an array
-	*/
-	function distinct_array($arr) {
-		rsort($arr);
-		reset($arr);
-		$newarr = array();
-		$i = 0;
-		$element = current($arr);
+    /*
+    Removes duplicate elements from an array
+    */
+    function distinct_array($arr) {
+        rsort($arr);
+        reset($arr);
+        $newarr = array();
+        $i = 0;
+        $element = current($arr);
 
-		for ($n = 0; $n < sizeof($arr); $n++) {
-			if (next($arr) != $element) {
-				$newarr[$i] = $element;
-				$element = current($arr);
-				$i++;
-			}
-		}
+        for ($n = 0; $n < sizeof($arr); $n++) {
+            if (next($arr) != $element) {
+                $newarr[$i] = $element;
+                $element = current($arr);
+                $i++;
+            }
+        }
 
-		return $newarr;
-	}
+        return $newarr;
+    }
 
-	function get_cats($parent) {
-		global $db;
-		$query = "SELECT * FROM ".TABLE_PREFIX."categories WHERE parent_num=$parent";
-		$result = $db->query($query);
-		echo sql_errorstring(__FILE__,__LINE__);
-		$arr[] = $parent;
-		while ($row = $result->fetch()) {
-			$id = $row[category_id];
-			$arr = add_arrays($arr, get_cats($id));
-		}
+    function get_cats($parent) {
+        global $db;
+        $query = "SELECT * FROM ".TABLE_PREFIX."categories WHERE parent_num=$parent";
+        $result = $db->query($query);
+        echo sql_errorstring(__FILE__,__LINE__);
+        $arr[] = $parent;
+        while ($row = $result->fetch()) {
+            $id = $row[category_id];
+            $arr = add_arrays($arr, get_cats($id));
+        }
 
-		return $arr;
-	}
+        return $arr;
+    }
 
-	function add_arrays($arr1, $arr2) {
-		foreach ($arr2 as $elem) {
-			$arr1[] = $elem;
-		}
-		return $arr1;
-	}
+    function add_arrays($arr1, $arr2) {
+        foreach ($arr2 as $elem) {
+            $arr1[] = $elem;
+        }
+        return $arr1;
+    }
 
-	$entities = array
-		(
-		"&amp;" => "&",
-		"&apos;" => "'",
-		"&euro;" => "€",
-		"&micro;" => "µ",
-		"&THORN;"  => "Þ",
-		"&szlig;"  => "ß",
-		"&agrave;" => "à",
-		"&aacute;" => "á",
-		"&acirc;"  => "â",
-		"&atilde;" => "ã",
-		"&auml;"   => "ä",
-		"&aring;"  => "å",
-		"&aelig;"  => "æ",
-		"&ccedil;" => "ç",
-		"&egrave;" => "è",
-		"&eacute;" => "é",
-		"&ecirc;"  => "ê",
-		"&euml;"   => "ë",
-		"&igrave;" => "ì",
-		"&iacute;" => "í",
-		"&icirc;"  => "î",
-		"&iuml;"   => "ï",
-		"&eth;"    => "ð",
-		"&ntilde;" => "ñ",
-		"&ograve;" => "ò",
-		"&oacute;" => "ó",
-		"&ocirc;"  => "ô",
-		"&otilde;" => "õ",
-		"&ouml;"   => "ö",
-		"&oslash;" => "ø",
-		"&ugrave;" => "ù",
-		"&uacute;" => "ú",
-		"&ucirc;"  => "û",
-		"&uuml;"   => "ü",
-		"&yacute;" => "ý",
-		"&thorn;"  => "þ",
-		"&yuml;"   => "ÿ",
-		"&THORN;"  => "Þ",
-		"&szlig;"  => "ß",
-		"&Agrave;" => "à",
-		"&Aacute;" => "á",
-		"&Acirc;"  => "â",
-		"&Atilde;" => "ã",
-		"&Auml;"   => "ä",
-		"&Aring;"  => "å",
-		"&Aelig;"  => "æ",
-		"&Ccedil;" => "ç",
-		"&Egrave;" => "è",
-		"&Eacute;" => "é",
-		"&Ecirc;"  => "ê",
-		"&Euml;"   => "ë",
-		"&Igrave;" => "ì",
-		"&Iacute;" => "í",
-		"&Icirc;"  => "î",
-		"&Iuml;"   => "ï",
-		"&ETH;"    => "ð",
-		"&Ntilde;" => "ñ",
-		"&Ograve;" => "ò",
-		"&Oacute;" => "ó",
-		"&Ocirc;"  => "ô",
-		"&Otilde;" => "õ",
-		"&Ouml;"   => "ö",
-		"&Oslash;" => "ø",
-		"&Ugrave;" => "ù",
-		"&Uacute;" => "ú",
-		"&Ucirc;"  => "û",
-		"&Uuml;"   => "ü",
-		"&Yacute;" => "ý",
-		"&Yhorn;"  => "þ",
-		"&Yuml;"   => "ÿ"
-		);
+    $entities = array
+        (
+        "&amp;" => "&",
+        "&apos;" => "'",
+        "&euro;" => "€",
+        "&micro;" => "µ",
+        "&THORN;"  => "Þ",
+        "&szlig;"  => "ß",
+        "&agrave;" => "à",
+        "&aacute;" => "á",
+        "&acirc;"  => "â",
+        "&atilde;" => "ã",
+        "&auml;"   => "ä",
+        "&aring;"  => "å",
+        "&aelig;"  => "æ",
+        "&ccedil;" => "ç",
+        "&egrave;" => "è",
+        "&eacute;" => "é",
+        "&ecirc;"  => "ê",
+        "&euml;"   => "ë",
+        "&igrave;" => "ì",
+        "&iacute;" => "í",
+        "&icirc;"  => "î",
+        "&iuml;"   => "ï",
+        "&eth;"    => "ð",
+        "&ntilde;" => "ñ",
+        "&ograve;" => "ò",
+        "&oacute;" => "ó",
+        "&ocirc;"  => "ô",
+        "&otilde;" => "õ",
+        "&ouml;"   => "ö",
+        "&oslash;" => "ø",
+        "&ugrave;" => "ù",
+        "&uacute;" => "ú",
+        "&ucirc;"  => "û",
+        "&uuml;"   => "ü",
+        "&yacute;" => "ý",
+        "&thorn;"  => "þ",
+        "&yuml;"   => "ÿ",
+        "&THORN;"  => "Þ",
+        "&szlig;"  => "ß",
+        "&Agrave;" => "à",
+        "&Aacute;" => "á",
+        "&Acirc;"  => "â",
+        "&Atilde;" => "ã",
+        "&Auml;"   => "ä",
+        "&Aring;"  => "å",
+        "&Aelig;"  => "æ",
+        "&Ccedil;" => "ç",
+        "&Egrave;" => "è",
+        "&Eacute;" => "é",
+        "&Ecirc;"  => "ê",
+        "&Euml;"   => "ë",
+        "&Igrave;" => "ì",
+        "&Iacute;" => "í",
+        "&Icirc;"  => "î",
+        "&Iuml;"   => "ï",
+        "&ETH;"    => "ð",
+        "&Ntilde;" => "ñ",
+        "&Ograve;" => "ò",
+        "&Oacute;" => "ó",
+        "&Ocirc;"  => "ô",
+        "&Otilde;" => "õ",
+        "&Ouml;"   => "ö",
+        "&Oslash;" => "ø",
+        "&Ugrave;" => "ù",
+        "&Uacute;" => "ú",
+        "&Ucirc;"  => "û",
+        "&Uuml;"   => "ü",
+        "&Yacute;" => "ý",
+        "&Yhorn;"  => "þ",
+        "&Yuml;"   => "ÿ"
+        );
 
-	//Apache multi indexes parameters
-	$apache_indexes = array (
-		"N=A" => 1,
-		"N=D" => 1,
-		"M=A" => 1,
-		"M=D" => 1,
-		"S=A" => 1,
-		"S=D" => 1,
-		"D=A" => 1,
-		"D=D" => 1,
-		"C=N;O=A" => 1,
-		"C=M;O=A" => 1,
-		"C=S;O=A" => 1,
-		"C=D;O=A" => 1,
-		"C=N;O=D" => 1,
-		"C=M;O=D" => 1,
-		"C=S;O=D" => 1,
-		"C=D;O=D" => 1);
+    //Apache multi indexes parameters
+    $apache_indexes = array (
+        "N=A" => 1,
+        "N=D" => 1,
+        "M=A" => 1,
+        "M=D" => 1,
+        "S=A" => 1,
+        "S=D" => 1,
+        "D=A" => 1,
+        "D=D" => 1,
+        "C=N;O=A" => 1,
+        "C=M;O=A" => 1,
+        "C=S;O=A" => 1,
+        "C=D;O=A" => 1,
+        "C=N;O=D" => 1,
+        "C=M;O=D" => 1,
+        "C=S;O=D" => 1,
+        "C=D;O=D" => 1);
 
 
-	function latin1_to_html($string) {
-		global $entities;
-		reset($entities);
-		while ($char = each($entities))
-			$string = preg_replace("/".$char[1]."/", $char[0], $string);
-		return $string;
-	}
+    function latin1_to_html($string) {
+        global $entities;
+        reset($entities);
+        while ($char = each($entities))
+            $string = preg_replace("/".$char[1]."/", $char[0], $string);
+        return $string;
+    }
 
-	function html_to_latin1($string) {
-		global $entities;
-		reset($entities);
-		while ($char = each($entities))
-			$string = preg_replace("/".$char[0]."/", $char[1], $string);
-		return $string;
-	}
+    function html_to_latin1($string) {
+        global $entities;
+        reset($entities);
+        while ($char = each($entities))
+            $string = preg_replace("/".$char[0]."/", $char[1], $string);
+        return $string;
+    }
 
-	function remove_accents($string) {
-		return (strtr($string, "ÀÁÂÃÄÅÆàáâãäåæÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñÞßÿý",
-					  "aaaaaaaaaaaaaaoooooooooooooeeeeeeeeecceiiiiiiiiuuuuuuuunntsyy"));
-	}
+    function remove_accents($string) {
+        return (strtr($string, "ÀÁÂÃÄÅÆàáâãäåæÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñÞßÿý",
+                      "aaaaaaaaaaaaaaoooooooooooooeeeeeeeeecceiiiiiiiiuuuuuuuunntsyy"));
+    }
 
-	/* common word list (words to ignore in the search query) */
-	$common = array();
-	$lines = @file($include_dir.'/common.txt');
-	if (is_array($lines)) {
-		while (list($id, $word) = each($lines))
-			$common[trim($word)] = 1;
-	}
+    /* common word list (words to ignore in the search query) */
+    $common = array();
+    $lines = @file($include_dir.'/common.txt');
+    if (is_array($lines)) {
+        while (list($id, $word) = each($lines))
+            $common[trim($word)] = 1;
+    }
 
-	/* file extension list (of files to skip) */
-	$ext = array();
-	$lines = @file('ext.txt');
-	if (is_array($lines)) {
-		while (list($id, $word) = each($lines))
-			$ext[] = trim($word);
-	}
+    /* file extension list (of files to skip) */
+    $ext = array();
+    $lines = @file('ext.txt');
+    if (is_array($lines)) {
+        while (list($id, $word) = each($lines))
+            $ext[] = trim($word);
+    }
 
-	/* "matchless word" list (words that no alternatives are searched for, except
-	   if there are zero search results) */
-	$matchless = array();
-	$lines = @file($include_dir.'/nonpareil.txt');
-	if (is_array($lines)) {
-		while (list($id, $word) = each($lines))
-			$matchless[trim($word)] = 1;
-	}
-	/* the "equivalent" word list (for words whose equivalent is a word pair, or
-	   some different term) */
-	$equivalent = array();
-	$lines = @file($include_dir.'/pareil.txt');
-	if (is_array($lines)) {
-		while (list($id, $line) = each($lines)) {
-			$eq = explode('=', $line, 2);
-			$equivalent[trim($eq[0])] = trim($eq[1]);
-		}
-	}
+    /* "matchless word" list (words that no alternatives are searched for, except
+       if there are zero search results) */
+    $matchless = array();
+    $lines = @file($include_dir.'/nonpareil.txt');
+    if (is_array($lines)) {
+        while (list($id, $word) = each($lines))
+            $matchless[trim($word)] = 1;
+    }
+    /* the "equivalent" word list (for words whose equivalent is a word pair, or
+       some different term); these equivalents are used for "did you mean";
+       the "surrogate" word list is similar, but these are implicitly replaced
+       in the user's search string */
+    $equivalent = array();
+    $surrogate = array();
+    $lines = @file($include_dir.'/pareil.txt');
+    if (is_array($lines)) {
+        while (list($id, $line) = each($lines)) {
+            $eq = explode('=', $line, 2);
+            if (count($eq) == 2) {
+                $word = trim($eq[0]);
+                $repl = trim($eq[1]);
+                if (strlen($repl) > 0) {
+                    if ($repl[0] == "*")
+                        $surrogate[$word] = substr($repl, 1);
+                    else
+                        $equivalent[$word] = $repl;
+                }
+            }
+        }
+    }
 
-	function is_num($var) {
-	   for ($i=0;$i<strlen($var);$i++) {
-		   $ascii_code=ord($var[$i]);
-		   if ($ascii_code>=49 && $ascii_code<=57){
-			   continue;
-		   } else {
-			   return false;
-		   }
-	   }
-		   return true;
-	}
+    function is_num($var) {
+       for ($i=0;$i<strlen($var);$i++) {
+           $ascii_code=ord($var[$i]);
+           if ($ascii_code>=49 && $ascii_code<=57){
+               continue;
+           } else {
+               return false;
+           }
+       }
+           return true;
+    }
 
 function countSubstrs($haystack, $needle) {
-	$count = 0;
-	while(strpos($haystack,$needle) !== false) {
-	   $haystack = substr($haystack, (strpos($haystack,$needle) + 1));
-	   $count++;
-	}
-	return $count;
+    $count = 0;
+    while(strpos($haystack,$needle) !== false) {
+       $haystack = substr($haystack, (strpos($haystack,$needle) + 1));
+       $count++;
+    }
+    return $count;
 }
 
 function quote_replace($str) {
-	$str = str_replace("\"", "&quot;", $str);
-	return str_replace("'", "&apos;", $str);
+    $str = str_replace("\"", "&quot;", $str);
+    return str_replace("'", "&apos;", $str);
 }
 
 function fst_lt_snd($version1, $version2) {
 
-	$list1 = explode(".", $version1);
-	$list2 = explode(".", $version2);
+    $list1 = explode(".", $version1);
+    $list2 = explode(".", $version2);
 
-	$length = count($list1);
-	$i = 0;
-	while ($i < $length) {
-		if ($list1[$i] < $list2[$i])
-			return true;
-		if ($list1[$i] > $list2[$i])
-			return false;
-		$i++;
-	}
+    $length = count($list1);
+    $i = 0;
+    while ($i < $length) {
+        if ($list1[$i] < $list2[$i])
+            return true;
+        if ($list1[$i] > $list2[$i])
+            return false;
+        $i++;
+    }
 
-	if ($length < count($list2)) {
-		return true;
-	}
-	return false;
+    if ($length < count($list2)) {
+        return true;
+    }
+    return false;
 
 }
 
 function get_dir_contents($dir) {
-	$contents = Array();
-	if ($handle = opendir($dir)) {
-		while (false !== ($file = readdir($handle))) {
-			if ($file != "." && $file != "..") {
-				$contents[] = $file;
-			}
-		}
-		closedir($handle);
-	}
-	return $contents;
+    $contents = Array();
+    if ($handle = opendir($dir)) {
+        while (false !== ($file = readdir($handle))) {
+            if ($file != "." && $file != "..") {
+                $contents[] = $file;
+            }
+        }
+        closedir($handle);
+    }
+    return $contents;
 }
 
 function replace_ampersand($str) {
-	return str_replace("&", "%26", $str);
+    return str_replace("&", "%26", $str);
 }
 
 
 
-	/**
-	* Stemming algorithm
-	* Copyright (c) 2005 Richard Heyes (http://www.phpguru.org/)
-	* All rights reserved.
-	* This script is free software.
-	* Modified to work with php versions prior 5 by Ando Saabas
-	*/
-
-	/**
-	* Regex for matching a consonant
-	*/
-	$regex_consonant = '(?:[bcdfghjklmnpqrstvwxz]|(?<=[aeiou])y|^y)';
-
-
-	/**
-	* Regex for matching a vowel
-	*/
-	$regex_vowel = '(?:[aeiou]|(?<![aeiou])y)';
-
-	/**
-	* Stems a word. Simple huh?
-	*
-	* @param  string $word Word to stem
-	* @return string	   Stemmed word
-	*/
-	function stem($word)
-	{
-		if (strlen($word) <= 2) {
-			return $word;
-		}
-
-		$word = step1ab($word);
-		$word = step1c($word);
-		$word = step2($word);
-		$word = step3($word);
-		$word = step4($word);
-		$word = step5($word);
-
-		return $word;
-	}
-
-
-	/**
-	* Step 1
-	*/
-	function step1ab($word)
-	{
-		global $regex_vowel, $regex_consonant;
-		// Part a
-		if (substr($word, -1) == 's') {
-
-			   replace($word, 'sses', 'ss')
-			OR replace($word, 'ies', 'i')
-			OR replace($word, 'ss', 'ss')
-			OR replace($word, 's', '');
-		}
-
-		// Part b
-		if (substr($word, -2, 1) != 'e' OR !replace($word, 'eed', 'ee', 0)) { // First rule
-			$v = $regex_vowel;
-			// ing and ed
-			if (   preg_match("#$v+#", substr($word, 0, -3)) && replace($word, 'ing', '')
-				OR preg_match("#$v+#", substr($word, 0, -2)) && replace($word, 'ed', '')) { // Note use of && and OR, for precedence reasons
-
-				// If one of above two test successful
-				if (	!replace($word, 'at', 'ate')
-					AND !replace($word, 'bl', 'ble')
-					AND !replace($word, 'iz', 'ize')) {
-
-					// Double consonant ending
-					if (	doubleConsonant($word)
-						AND substr($word, -2) != 'll'
-						AND substr($word, -2) != 'ss'
-						AND substr($word, -2) != 'zz') {
-
-						$word = substr($word, 0, -1);
-
-					} else if (m($word) == 1 AND cvc($word)) {
-						$word .= 'e';
-					}
-				}
-			}
-		}
-
-		return $word;
-	}
-
-
-	/**
-	* Step 1c
-	*
-	* @param string $word Word to stem
-	*/
-	function step1c($word)
-	{
-		global $regex_vowel, $regex_consonant;
-		$v = $regex_vowel;
-
-		if (substr($word, -1) == 'y' && preg_match("#$v+#", substr($word, 0, -1))) {
-			replace($word, 'y', 'i');
-		}
-
-		return $word;
-	}
-
-
-	/**
-	* Step 2
-	*
-	* @param string $word Word to stem
-	*/
-	function step2($word)
-	{
-		switch (substr($word, -2, 1)) {
-			case 'a':
-				   replace($word, 'ational', 'ate', 0)
-				OR replace($word, 'tional', 'tion', 0);
-				break;
-
-			case 'c':
-				   replace($word, 'enci', 'ence', 0)
-				OR replace($word, 'anci', 'ance', 0);
-				break;
-
-			case 'e':
-				replace($word, 'izer', 'ize', 0);
-				break;
-
-			case 'g':
-				replace($word, 'logi', 'log', 0);
-				break;
-
-			case 'l':
-				   replace($word, 'entli', 'ent', 0)
-				OR replace($word, 'ousli', 'ous', 0)
-				OR replace($word, 'alli', 'al', 0)
-				OR replace($word, 'bli', 'ble', 0)
-				OR replace($word, 'eli', 'e', 0);
-				break;
-
-			case 'o':
-				   replace($word, 'ization', 'ize', 0)
-				OR replace($word, 'ation', 'ate', 0)
-				OR replace($word, 'ator', 'ate', 0);
-				break;
-
-			case 's':
-				   replace($word, 'iveness', 'ive', 0)
-				OR replace($word, 'fulness', 'ful', 0)
-				OR replace($word, 'ousness', 'ous', 0)
-				OR replace($word, 'alism', 'al', 0);
-				break;
-
-			case 't':
-				   replace($word, 'biliti', 'ble', 0)
-				OR replace($word, 'aliti', 'al', 0)
-				OR replace($word, 'iviti', 'ive', 0);
-				break;
-		}
-
-		return $word;
-	}
-
-
-	/**
-	* Step 3
-	*
-	* @param string $word String to stem
-	*/
-	function step3($word)
-	{
-		switch (substr($word, -2, 1)) {
-			case 'a':
-				replace($word, 'ical', 'ic', 0);
-				break;
-
-			case 's':
-				replace($word, 'ness', '', 0);
-				break;
-
-			case 't':
-				   replace($word, 'icate', 'ic', 0)
-				OR replace($word, 'iciti', 'ic', 0);
-				break;
-
-			case 'u':
-				replace($word, 'ful', '', 0);
-				break;
-
-			case 'v':
-				replace($word, 'ative', '', 0);
-				break;
-
-			case 'z':
-				replace($word, 'alize', 'al', 0);
-				break;
-		}
-
-		return $word;
-	}
-
-
-	/**
-	* Step 4
-	*
-	* @param string $word Word to stem
-	*/
-	function step4($word)
-	{
-		switch (substr($word, -2, 1)) {
-			case 'a':
-				replace($word, 'al', '', 1);
-				break;
-
-			case 'c':
-				   replace($word, 'ance', '', 1)
-				OR replace($word, 'ence', '', 1);
-				break;
-
-			case 'e':
-				replace($word, 'er', '', 1);
-				break;
-
-			case 'i':
-				replace($word, 'ic', '', 1);
-				break;
-
-			case 'l':
-				   replace($word, 'able', '', 1)
-				OR replace($word, 'ible', '', 1);
-				break;
-
-			case 'n':
-				   replace($word, 'ant', '', 1)
-				OR replace($word, 'ement', '', 1)
-				OR replace($word, 'ment', '', 1)
-				OR replace($word, 'ent', '', 1);
-				break;
-
-			case 'o':
-				if (substr($word, -4) == 'tion' OR substr($word, -4) == 'sion') {
-				   replace($word, 'ion', '', 1);
-				} else {
-					replace($word, 'ou', '', 1);
-				}
-				break;
-
-			case 's':
-				replace($word, 'ism', '', 1);
-				break;
-
-			case 't':
-				   replace($word, 'ate', '', 1)
-				OR replace($word, 'iti', '', 1);
-				break;
-
-			case 'u':
-				replace($word, 'ous', '', 1);
-				break;
-
-			case 'v':
-				replace($word, 'ive', '', 1);
-				break;
-
-			case 'z':
-				replace($word, 'ize', '', 1);
-				break;
-		}
-
-		return $word;
-	}
-
-
-	/**
-	* Step 5
-	*
-	* @param string $word Word to stem
-	*/
-	function step5($word)
-	{
-		// Part a
-		if (substr($word, -1) == 'e') {
-			if (m(substr($word, 0, -1)) > 1) {
-				replace($word, 'e', '');
-
-			} else if (m(substr($word, 0, -1)) == 1) {
-
-				if (!cvc(substr($word, 0, -1))) {
-					replace($word, 'e', '');
-				}
-			}
-		}
-
-		// Part b
-		if (m($word) > 1 AND doubleConsonant($word) AND substr($word, -1) == 'l') {
-			$word = substr($word, 0, -1);
-		}
-
-		return $word;
-	}
-
-
-	/**
-	* Replaces the first string with the second, at the end of the string. If third
-	* arg is given, then the preceding string must match that m count at least.
-	*
-	* @param  string $str   String to check
-	* @param  string $check Ending to check for
-	* @param  string $repl  Replacement string
-	* @param  int    $m 	Optional minimum number of m() to meet
-	* @return bool  		Whether the $check string was at the end
-	*   					of the $str string. True does not necessarily mean
-	*   					that it was replaced.
-	*/
-	function replace(&$str, $check, $repl, $m = null)
-	{
-		$len = 0 - strlen($check);
-
-		if (substr($str, $len) == $check) {
-			$substr = substr($str, 0, $len);
-			if (is_null($m) OR m($substr) > $m) {
-				$str = $substr . $repl;
-			}
-
-			return true;
-		}
-
-		return false;
-	}
-
-
-	/**
-	* What, you mean it's not obvious from the name?
-	*
-	* m() measures the number of consonant sequences in $str. if c is
-	* a consonant sequence and v a vowel sequence, and <..> indicates arbitrary
-	* presence,
-	*
-	* <c><v>	   gives 0
-	* <c>vc<v>     gives 1
-	* <c>vcvc<v>   gives 2
-	* <c>vcvcvc<v> gives 3
-	*
-	* @param  string $str The string to return the m count for
-	* @return int   	  The m count
-	*/
-	function m($str)
-	{
-		global $regex_vowel, $regex_consonant;
-		$c = $regex_consonant;
-		$v = $regex_vowel;
-
-		$str = preg_replace("#^$c+#", '', $str);
-		$str = preg_replace("#$v+$#", '', $str);
-
-		preg_match_all("#($v+$c+)#", $str, $matches);
-
-		return count($matches[1]);
-	}
-
-
-	/**
-	* Returns true/false as to whether the given string contains two
-	* of the same consonant next to each other at the end of the string.
-	*
-	* @param  string $str String to check
-	* @return bool  	  Result
-	*/
-	function doubleConsonant($str)
-	{
-		global $regex_consonant;
-		$c = $regex_consonant;
-
-		return preg_match("#$c{2}$#", $str, $matches) AND $matches[0]{0} == $matches[0]{1};
-	}
-
-
-	/**
-	* Checks for ending CVC sequence where second C is not W, X or Y
-	*
-	* @param  string $str String to check
-	* @return bool  	  Result
-	*/
-	function cvc($str)
-	{
-		$c = $regex_consonant;
-		$v = $regex_vowel;
-
-		return     preg_match("#($c$v$c)$#", $str, $matches)
-			   AND strlen($matches[1]) == 3
-			   AND $matches[1]{2} != 'w'
-			   AND $matches[1]{2} != 'x'
-			   AND $matches[1]{2} != 'y';
-	}
+    /**
+    * Stemming algorithm
+    * Copyright (c) 2005 Richard Heyes (http://www.phpguru.org/)
+    * All rights reserved.
+    * This script is free software.
+    * Modified to work with php versions prior 5 by Ando Saabas
+    */
+
+    /**
+    * Regex for matching a consonant
+    */
+    $regex_consonant = '(?:[bcdfghjklmnpqrstvwxz]|(?<=[aeiou])y|^y)';
+
+
+    /**
+    * Regex for matching a vowel
+    */
+    $regex_vowel = '(?:[aeiou]|(?<![aeiou])y)';
+
+    /**
+    * Stems a word. Simple huh?
+    *
+    * @param  string $word Word to stem
+    * @return string       Stemmed word
+    */
+    function stem($word)
+    {
+        if (strlen($word) <= 2) {
+            return $word;
+        }
+
+        $word = step1ab($word);
+        $word = step1c($word);
+        $word = step2($word);
+        $word = step3($word);
+        $word = step4($word);
+        $word = step5($word);
+
+        return $word;
+    }
+
+
+    /**
+    * Step 1
+    */
+    function step1ab($word)
+    {
+        global $regex_vowel, $regex_consonant;
+        // Part a
+        if (substr($word, -1) == 's') {
+
+               replace($word, 'sses', 'ss')
+            OR replace($word, 'ies', 'i')
+            OR replace($word, 'ss', 'ss')
+            OR replace($word, 's', '');
+        }
+
+        // Part b
+        if (substr($word, -2, 1) != 'e' OR !replace($word, 'eed', 'ee', 0)) { // First rule
+            $v = $regex_vowel;
+            // ing and ed
+            if (   preg_match("#$v+#", substr($word, 0, -3)) && replace($word, 'ing', '')
+                OR preg_match("#$v+#", substr($word, 0, -2)) && replace($word, 'ed', '')) { // Note use of && and OR, for precedence reasons
+
+                // If one of above two test successful
+                if (    !replace($word, 'at', 'ate')
+                    AND !replace($word, 'bl', 'ble')
+                    AND !replace($word, 'iz', 'ize')) {
+
+                    // Double consonant ending
+                    if (    doubleConsonant($word)
+                        AND substr($word, -2) != 'll'
+                        AND substr($word, -2) != 'ss'
+                        AND substr($word, -2) != 'zz') {
+
+                        $word = substr($word, 0, -1);
+
+                    } else if (m($word) == 1 AND cvc($word)) {
+                        $word .= 'e';
+                    }
+                }
+            }
+        }
+
+        return $word;
+    }
+
+
+    /**
+    * Step 1c
+    *
+    * @param string $word Word to stem
+    */
+    function step1c($word)
+    {
+        global $regex_vowel, $regex_consonant;
+        $v = $regex_vowel;
+
+        if (substr($word, -1) == 'y' && preg_match("#$v+#", substr($word, 0, -1))) {
+            replace($word, 'y', 'i');
+        }
+
+        return $word;
+    }
+
+
+    /**
+    * Step 2
+    *
+    * @param string $word Word to stem
+    */
+    function step2($word)
+    {
+        switch (substr($word, -2, 1)) {
+            case 'a':
+                   replace($word, 'ational', 'ate', 0)
+                OR replace($word, 'tional', 'tion', 0);
+                break;
+
+            case 'c':
+                   replace($word, 'enci', 'ence', 0)
+                OR replace($word, 'anci', 'ance', 0);
+                break;
+
+            case 'e':
+                replace($word, 'izer', 'ize', 0);
+                break;
+
+            case 'g':
+                replace($word, 'logi', 'log', 0);
+                break;
+
+            case 'l':
+                   replace($word, 'entli', 'ent', 0)
+                OR replace($word, 'ousli', 'ous', 0)
+                OR replace($word, 'alli', 'al', 0)
+                OR replace($word, 'bli', 'ble', 0)
+                OR replace($word, 'eli', 'e', 0);
+                break;
+
+            case 'o':
+                   replace($word, 'ization', 'ize', 0)
+                OR replace($word, 'ation', 'ate', 0)
+                OR replace($word, 'ator', 'ate', 0);
+                break;
+
+            case 's':
+                   replace($word, 'iveness', 'ive', 0)
+                OR replace($word, 'fulness', 'ful', 0)
+                OR replace($word, 'ousness', 'ous', 0)
+                OR replace($word, 'alism', 'al', 0);
+                break;
+
+            case 't':
+                   replace($word, 'biliti', 'ble', 0)
+                OR replace($word, 'aliti', 'al', 0)
+                OR replace($word, 'iviti', 'ive', 0);
+                break;
+        }
+
+        return $word;
+    }
+
+
+    /**
+    * Step 3
+    *
+    * @param string $word String to stem
+    */
+    function step3($word)
+    {
+        switch (substr($word, -2, 1)) {
+            case 'a':
+                replace($word, 'ical', 'ic', 0);
+                break;
+
+            case 's':
+                replace($word, 'ness', '', 0);
+                break;
+
+            case 't':
+                   replace($word, 'icate', 'ic', 0)
+                OR replace($word, 'iciti', 'ic', 0);
+                break;
+
+            case 'u':
+                replace($word, 'ful', '', 0);
+                break;
+
+            case 'v':
+                replace($word, 'ative', '', 0);
+                break;
+
+            case 'z':
+                replace($word, 'alize', 'al', 0);
+                break;
+        }
+
+        return $word;
+    }
+
+
+    /**
+    * Step 4
+    *
+    * @param string $word Word to stem
+    */
+    function step4($word)
+    {
+        switch (substr($word, -2, 1)) {
+            case 'a':
+                replace($word, 'al', '', 1);
+                break;
+
+            case 'c':
+                   replace($word, 'ance', '', 1)
+                OR replace($word, 'ence', '', 1);
+                break;
+
+            case 'e':
+                replace($word, 'er', '', 1);
+                break;
+
+            case 'i':
+                replace($word, 'ic', '', 1);
+                break;
+
+            case 'l':
+                   replace($word, 'able', '', 1)
+                OR replace($word, 'ible', '', 1);
+                break;
+
+            case 'n':
+                   replace($word, 'ant', '', 1)
+                OR replace($word, 'ement', '', 1)
+                OR replace($word, 'ment', '', 1)
+                OR replace($word, 'ent', '', 1);
+                break;
+
+            case 'o':
+                if (substr($word, -4) == 'tion' OR substr($word, -4) == 'sion') {
+                   replace($word, 'ion', '', 1);
+                } else {
+                    replace($word, 'ou', '', 1);
+                }
+                break;
+
+            case 's':
+                replace($word, 'ism', '', 1);
+                break;
+
+            case 't':
+                   replace($word, 'ate', '', 1)
+                OR replace($word, 'iti', '', 1);
+                break;
+
+            case 'u':
+                replace($word, 'ous', '', 1);
+                break;
+
+            case 'v':
+                replace($word, 'ive', '', 1);
+                break;
+
+            case 'z':
+                replace($word, 'ize', '', 1);
+                break;
+        }
+
+        return $word;
+    }
+
+
+    /**
+    * Step 5
+    *
+    * @param string $word Word to stem
+    */
+    function step5($word)
+    {
+        // Part a
+        if (substr($word, -1) == 'e') {
+            if (m(substr($word, 0, -1)) > 1) {
+                replace($word, 'e', '');
+
+            } else if (m(substr($word, 0, -1)) == 1) {
+
+                if (!cvc(substr($word, 0, -1))) {
+                    replace($word, 'e', '');
+                }
+            }
+        }
+
+        // Part b
+        if (m($word) > 1 AND doubleConsonant($word) AND substr($word, -1) == 'l') {
+            $word = substr($word, 0, -1);
+        }
+
+        return $word;
+    }
+
+
+    /**
+    * Replaces the first string with the second, at the end of the string. If third
+    * arg is given, then the preceding string must match that m count at least.
+    *
+    * @param  string $str   String to check
+    * @param  string $check Ending to check for
+    * @param  string $repl  Replacement string
+    * @param  int    $m     Optional minimum number of m() to meet
+    * @return bool          Whether the $check string was at the end
+    *                       of the $str string. True does not necessarily mean
+    *                       that it was replaced.
+    */
+    function replace(&$str, $check, $repl, $m = null)
+    {
+        $len = 0 - strlen($check);
+
+        if (substr($str, $len) == $check) {
+            $substr = substr($str, 0, $len);
+            if (is_null($m) OR m($substr) > $m) {
+                $str = $substr . $repl;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    /**
+    * What, you mean it's not obvious from the name?
+    *
+    * m() measures the number of consonant sequences in $str. if c is
+    * a consonant sequence and v a vowel sequence, and <..> indicates arbitrary
+    * presence,
+    *
+    * <c><v>       gives 0
+    * <c>vc<v>     gives 1
+    * <c>vcvc<v>   gives 2
+    * <c>vcvcvc<v> gives 3
+    *
+    * @param  string $str The string to return the m count for
+    * @return int         The m count
+    */
+    function m($str)
+    {
+        global $regex_vowel, $regex_consonant;
+        $c = $regex_consonant;
+        $v = $regex_vowel;
+
+        $str = preg_replace("#^$c+#", '', $str);
+        $str = preg_replace("#$v+$#", '', $str);
+
+        preg_match_all("#($v+$c+)#", $str, $matches);
+
+        return count($matches[1]);
+    }
+
+
+    /**
+    * Returns true/false as to whether the given string contains two
+    * of the same consonant next to each other at the end of the string.
+    *
+    * @param  string $str String to check
+    * @return bool        Result
+    */
+    function doubleConsonant($str)
+    {
+        global $regex_consonant;
+        $c = $regex_consonant;
+
+        return preg_match("#$c{2}$#", $str, $matches) AND $matches[0]{0} == $matches[0]{1};
+    }
+
+
+    /**
+    * Checks for ending CVC sequence where second C is not W, X or Y
+    *
+    * @param  string $str String to check
+    * @return bool        Result
+    */
+    function cvc($str)
+    {
+        $c = $regex_consonant;
+        $v = $regex_vowel;
+
+        return     preg_match("#($c$v$c)$#", $str, $matches)
+               AND strlen($matches[1]) == 3
+               AND $matches[1]{2} != 'w'
+               AND $matches[1]{2} != 'x'
+               AND $matches[1]{2} != 'y';
+    }
 
 ?>

@@ -507,7 +507,7 @@ require_once "$include_dir/double_metaphone.php";
 
 function get_search_results($query, $start, $category, $searchtype, $results, $domain) {
     global $sph_messages, $results_per_page, $links_to_next, $show_query_scores, $desc_length;
-    global $did_you_mean_enabled;
+    global $surrogate,$did_you_mean_enabled;
 
     if ($results != "")
       $results_per_page = $results;
@@ -517,8 +517,20 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
       $query = "\"".$query."\"";
     }
 
+    /* replace surrogate terms, if any */
+    $words = explode(' ', strtolower($query));
+    $rebuild = false;
+    for ($i = 0; $i < count($words); $i++) {
+        if (isset($surrogate[$words[$i]])) {
+            $words[$i] = $surrogate[$words[$i]];
+            $rebuild = true;
+        }
+    }
+    if ($rebuild)
+        $query = implode(' ', $words);
+
     $starttime = getmicrotime();
-    // catch " if only one time entered
+    /* catch single " (so a " without a matching closing ") */
     $query = preg_replace("/&quot;/", "\"", $query);
     if (substr_count($query,'"')==1)
       $query=str_replace('"','',$query);

@@ -269,7 +269,7 @@ function get_links($file, $url, $can_leave_domain, $base) {
             $checked_urls[$val[1]] = 1;
         }
     }
-    preg_match_all("/(frame[^>]*src[[:blank:]]*)=[[:blank:]]*[\'\"]?(([[a-z]{3,5}:\/\/(([.a-zA-Z0-9-])+(:[0-9]+)*))*([+:%\/?=&;\\\(\),._ a-zA-Z0-9-]*))(#[.a-zA-Z0-9-]*)?[\'\" ]?/i", $file, $regs, PREG_SET_ORDER);
+    preg_match_all("/<(frame[^>]*src[[:blank:]]*)=[[:blank:]]*[\'\"]?(([[a-z]{3,5}:\/\/(([.a-zA-Z0-9-])+(:[0-9]+)*))*([+:%\/?=&;\\\(\),._ a-zA-Z0-9-]*))(#[.a-zA-Z0-9-]*)?[\'\" ]?/i", $file, $regs, PREG_SET_ORDER);
     foreach ($regs as $val) {
         if ($checked_urls[$val[1]]!=1 && !isset($val[4])) { //if nofollow is not set
             if (($a = url_purify($val[1], $url, $can_leave_domain)) != '') {
