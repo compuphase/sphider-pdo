@@ -423,7 +423,10 @@ function url_purify($url, $parent_url, $can_leave_domain) {
 
     $url_parts = parse_url($url);
 
-    $urlpath = $url_parts['path'];
+    if (isset($url_parts['port']))
+        $urlpath = $url_parts['path'];
+    else
+        $urlpath = "";
 
     $regs = Array ();
 

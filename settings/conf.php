@@ -48,7 +48,7 @@ $email_log			= 0;
 Spider settings
 ***********************/
 
-// Minimum words that a must have to be spidered
+// Min words per page required for indexing
 $min_words_per_page = 10;
 
 // Words shorter than this will be ignored (never considered a keyword)
