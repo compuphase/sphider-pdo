@@ -1,6 +1,9 @@
 <?php
 require_once "$include_dir/double_metaphone.php";
 
+define(PORT_HTTP, 80);
+define(PORT_HTTPS, 443);
+
 function getFileContents($url) {
     global $user_agent;
     $urlparts = parse_url($url);
@@ -8,19 +11,17 @@ function getFileContents($url) {
     $host = $urlparts['host'];
     if (isset($urlparts['query']) && $urlparts['query'] != "")
         $path .= "?".$urlparts['query'];
-    if (isset ($urlparts['port'])) {
+    if (isset ($urlparts['port']))
         $port = (int) $urlparts['port'];
-    } else if ($urlparts['scheme'] == "http") {
-        $port = 80;
-    } else if ($urlparts['scheme'] == "https") {
-        $port = 443;
-    }
+    else if ($urlparts['scheme'] == "http")
+        $port = PORT_HTTP;
+    else if ($urlparts['scheme'] == "https")
+        $port = PORT_HTTPS;
 
-    if ($port == 80) {
+    if ($port == PORT_HTTP)
         $portq = "";
-    } else {
+    else
         $portq = ":$port";
-    }
 
     $all = "*/*";
 
@@ -76,17 +77,14 @@ function url_status($url) {
     if (isset($urlparts['query']))
     $path .= "?".$urlparts['query'];
 
-    if (isset ($urlparts['port'])) {
+    if (isset ($urlparts['port']))
         $port = (int) $urlparts['port'];
-    } else
-    if ($urlparts['scheme'] == "http") {
-        $port = 80;
-    } else
-    if ($urlparts['scheme'] == "https") {
-        $port = 443;
-    }
+    else if ($urlparts['scheme'] == "http")
+        $port = PORT_HTTP;
+    else if ($urlparts['scheme'] == "https")
+        $port = PORT_HTTPS;
 
-    if ($port == 80) {
+    if ($port == PORT_HTTP || $port == PORT_HTTPS) {
         $portq = "";
     } else {
         $portq = ":$port";
@@ -130,7 +128,7 @@ function url_status($url) {
 
         if (preg_match("/Location: *([^\n\r ]+)/", $answer, $regs) && $httpcode == 3 && $full_httpcode != 302) {
                     $status['path'] = $regs[1];
-                    $status['state'] = "Relocation: http $full_httpcode";
+                    $status['state'] = "Relocation: http $full_httpcode -> ".$status['path'];
                     fclose($fp);
                     return $status;
                 }
@@ -235,7 +233,7 @@ function remove_file_from_url($url) {
         $path = preg_replace("/$check"."/i", "", $path);
     }
 
-    if (!isset($url_parts['port']) || $url_parts['port'] == 80 || $url_parts['port'] == "") {
+    if (!isset($url_parts['port']) || $url_parts['port'] == PORT_HTTP || $url_parts['port'] == "") {
         $portq = "";
     } else {
         $portq = ":".$url_parts['port'];
@@ -376,16 +374,13 @@ Checks if url is legal, relative to the main url.
 function url_purify($url, $parent_url, $can_leave_domain) {
     global $ext, $mainurl, $apache_indexes, $strip_sessids;
 
-
-
     $urlparts = parse_url($url);
 
     $main_url_parts = parse_url($mainurl);
-    if (isset($urlparts['host']) && $urlparts['host'] != "" && $urlparts['host'] != $main_url_parts['host']  && $can_leave_domain != 1) {
+    if (isset($urlparts['host']) && $urlparts['host'] != "" && $urlparts['host'] != $main_url_parts['host']  && $can_leave_domain != 1)
         return '';
-    }
 
-    reset($ext);
+    reset($ext);    /* skip URLs to CSS files and similar */
     while (list($id, $excl) = each($ext))
         if (preg_match("/\.$excl$/i", $url))
             return '';
@@ -401,51 +396,44 @@ function url_purify($url, $parent_url, $can_leave_domain) {
     if (preg_match("/[\/]?mailto:|[\/]?javascript:|[\/]?news:/i", $url))
         return '';
 
-    if (isset($urlparts['scheme'])) {
+    if (isset($urlparts['scheme']))
         $scheme = $urlparts['scheme'];
-    } else {
+    else
         $scheme ="";
-    }
 
     //only http and https links are followed
-    if (!($scheme == 'http' || $scheme == '' || $scheme == 'https'))
+    if (!($scheme == 'http' || $scheme == 'https' || $scheme == ''))
         return '';
 
     //parent url might be used to build an url from relative path
     $parent_url = remove_file_from_url($parent_url);
     $parent_url_parts = parse_url($parent_url);
 
-    if (substr($url, 0, 1) == '/') {
+    if (substr($url, 0, 1) == '/')
         $url = $parent_url_parts['scheme']."://".$parent_url_parts['host'].$url;
-    } else if (!isset($urlparts['scheme'])) {
+    else if (!isset($urlparts['scheme']))
         $url = $parent_url.$url;
-    }
 
     $url_parts = parse_url($url);
 
-    if (isset($url_parts['port']))
-        $urlpath = $url_parts['path'];
-    else
-        $urlpath = "";
-
+    //remove relative path instructions like ../ etc
+    $urlpath = $url_parts['path'];
     $regs = Array ();
-
     while (preg_match("/[^\/]*\/[.]{2}\//", $urlpath, $regs))
         $urlpath = str_replace($regs[0], "", $urlpath);
-
-    //remove relative path instructions like ../ etc
     $urlpath = preg_replace("/\/+/", "/", $urlpath);
     $urlpath = preg_replace("/[^\/]*\/[.]{2}/", "",  $urlpath);
     $urlpath = str_replace("./", "", $urlpath);
+
     $query = "";
-    if (isset($url_parts['query'])) {
+    if (isset($url_parts['query']))
         $query = "?".$url_parts['query'];
-    }
-    if (!isset($main_url_parts['port']) || $main_url_parts['port'] == 80 || $main_url_parts['port'] == "") {
-        $portq = "";
-    } else {
+    if (isset($url_parts['port']) && $url_parts['port'] != "" && $url_parts['port'] != PORT_HTTP && $url_parts['port'] != PORT_HTTPS)
+        $portq = ":".$url_parts['port'];
+    else if (isset($main_url_parts['port']) && $main_url_parts['port'] != "" && $main_url_parts['port'] != PORT_HTTP && $main_url_parts['port'] != PORT_HTTPS)
         $portq = ":".$main_url_parts['port'];
-    }
+    else
+        $portq = "";
     $url = $url_parts['scheme']."://".$url_parts['host'].$portq.$urlpath.$query;
 
     //if we index sub-domains
@@ -461,8 +449,7 @@ function url_purify($url, $parent_url, $can_leave_domain) {
     $url = convert_url($url);
     if (strstr($url, $mainurl) == false)
         return '';
-    else
-        return $url;
+    return $url;
 }
 
 function save_keywords($wordarray, $link_id, $domain) {

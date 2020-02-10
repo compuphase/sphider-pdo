@@ -370,7 +370,12 @@ error_reporting(E_ALL);
 
     $urlparts = parse_url($url);
     $domain = $urlparts['host'];
-    $port = isset($urlparts['port']) ? intval($urlparts['port']) : 80;
+    if (isset($urlparts['port']))
+      $port =  intval($urlparts['port']);
+    else if (isset($urlparts['scheme']) && $urlparts['scheme'] == "https")
+      $port = PORT_HTTPS;
+    else
+      $port = PORT_HTTP;
 
     $result = $db->query("select site_id from ".TABLE_PREFIX."sites where url='$url'");
     echo sql_errorstring(__FILE__,__LINE__);
