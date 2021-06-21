@@ -13,10 +13,22 @@ error_reporting (E_ALL | E_STRICT);
 $settings_dir = "../settings";
 include "$settings_dir/database.php";
 
+if (!defined('TABLE_PREFIX'))
+    define('TABLE_PREFIX', '');
 if (!defined('AUTOINCREMENT'))
-    define('AUTOINCREMENT', 'AUTO_INCREMENT');
+    define('AUTOINCREMENT', 'AUTO_INCREMENT');  /* default for MySQL */
 if (!defined('FULLTEXT'))
-    define('FULLTEXT', 'TEXT');
+    define('FULLTEXT', 'TEXT');                 /* default for MySQL */
+
+if (defined('TABLE_FORMAT'))
+    define('ENGINE_DEFINITION', ' ENGINE='.TABLE_FORMAT);
+else
+    define('ENGINE_DEFINITION', '');
+
+if (defined('CHARSET'))
+    define('CHARSET_DEFINITION', ' DEFAULT CHARSET='.CHARSET);
+else
+    define('CHARSET_DEFINITION', '');
 
 echo "<li>sites";
 $error = 0;
@@ -29,7 +41,8 @@ $db->exec("create table ".TABLE_PREFIX."sites (
     spider_depth INTEGER DEFAULT 2,
     required TEXT,
     disallowed TEXT,
-    can_leave_domain bool)");
+    can_leave_domain bool
+    )".ENGINE_DEFINITION.CHARSET_DEFINITION.";");
 echo " ok\n";
 
 echo "<li>links";
@@ -45,7 +58,8 @@ $db->exec("create table ".TABLE_PREFIX."links (
     size FLOAT(2),
     md5sum VARCHAR(32) UNIQUE,
     visible INTEGER DEFAULT 0,
-    level INTEGER)");
+    level INTEGER
+    )".ENGINE_DEFINITION.CHARSET_DEFINITION.";");
 echo " ok\n";
 
 echo "<li>keywords";
@@ -54,7 +68,7 @@ $db->exec("create table ".TABLE_PREFIX."keywords (
     keyword VARCHAR(30) NOT NULL UNIQUE,
     metaphone1 VARCHAR(4),
     metaphone2 VARCHAR(4)
-    )");
+    )".ENGINE_DEFINITION.CHARSET_DEFINITION.";");
 echo " ok\n";
 
 for ($i=0;$i<=15; $i++) {
@@ -65,7 +79,7 @@ for ($i=0;$i<=15; $i++) {
         keyword_id INTEGER NOT NULL,
         weight INTEGER(3),
         domain INTEGER(4)
-        )");
+        )".ENGINE_DEFINITION.CHARSET_DEFINITION.";");
     echo " ok\n";
 }
 
@@ -74,14 +88,14 @@ $db->exec("create table ".TABLE_PREFIX."categories (
     category_id INTEGER PRIMARY KEY NOT NULL ".AUTOINCREMENT.",
     category TEXT,
     parent_num INTEGER
-    )");
+    )".ENGINE_DEFINITION.CHARSET_DEFINITION.";");
 echo " ok\n";
 
 echo "<li>site_category";
 $db->exec("create table ".TABLE_PREFIX."site_category (
     site_id INTEGER,
     category_id INTEGER
-    )");
+    )".ENGINE_DEFINITION.CHARSET_DEFINITION.";");
 echo " ok\n";
 
 echo "<li>temp";
@@ -89,7 +103,7 @@ $db->exec("create table ".TABLE_PREFIX."temp (
     link VARCHAR(255),
     level INTEGER,
     id VARCHAR (32)
-    )");
+    )".ENGINE_DEFINITION.CHARSET_DEFINITION.";");
 echo " ok\n";
 
 echo "<li>pending";
@@ -99,7 +113,7 @@ $db->exec("create table ".TABLE_PREFIX."pending (
     level INTEGER,
     count INTEGER,
     num INTEGER
-)");
+    )".ENGINE_DEFINITION.CHARSET_DEFINITION.";");
 echo " ok\n";
 
 echo "<li>query_log";
@@ -108,13 +122,14 @@ $db->exec("create table ".TABLE_PREFIX."query_log (
     time TIMESTAMP,
     elapsed FLOAT(2),
     results INTEGER
-    )");
+    )".ENGINE_DEFINITION.CHARSET_DEFINITION.";");
 echo " ok\n";
 
 echo "<li>domains";
 $db->exec("create table ".TABLE_PREFIX."domains (
     domain_id INTEGER  PRIMARY KEY NOT NULL ".AUTOINCREMENT.",
-    domain VARCHAR(255))");
+    domain VARCHAR(255)
+    )".ENGINE_DEFINITION.CHARSET_DEFINITION.";");
 echo " ok\n";
 ?>
 </ul>

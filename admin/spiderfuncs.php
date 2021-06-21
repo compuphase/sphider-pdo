@@ -18,7 +18,7 @@ function getFileContents($url) {
     else if ($urlparts['scheme'] == "https")
         $port = PORT_HTTPS;
 
-    if ($port == PORT_HTTP)
+    if ($port == PORT_HTTP || $port == PORT_HTTPS)
         $portq = "";
     else
         $portq = ":$port";
@@ -84,11 +84,10 @@ function url_status($url) {
     else if ($urlparts['scheme'] == "https")
         $port = PORT_HTTPS;
 
-    if ($port == PORT_HTTP || $port == PORT_HTTPS) {
+    if ($port == PORT_HTTP || $port == PORT_HTTPS)
         $portq = "";
-    } else {
+    else
         $portq = ":$port";
-    }
 
     $all = "*/*"; //just to prevent "comment effect" in get accept
     $request = "HEAD $path HTTP/1.1\r\nHost: $host$portq\r\nAccept: $all\r\nUser-Agent: $user_agent\r\n\r\n";
@@ -137,6 +136,7 @@ function url_status($url) {
                     $status['date'] = $regs[1];
                 }
 
+        $content = "";
         if (preg_match("/Content-Type:/i", $answer)) {
                     $content = $answer;
                     $answer = '';
@@ -161,7 +161,7 @@ function url_status($url) {
                     $status['content'] = 'ppt';
                     $status['state'] = 'ok';
                 } else {
-                    $status['state'] = "Not text or html";
+                    $status['state'] = "Not text, html or a supported document type";
                 }
 
             } else if ($socket_status['timed_out'] == 1) {
@@ -416,8 +416,11 @@ function url_purify($url, $parent_url, $can_leave_domain) {
 
     $url_parts = parse_url($url);
 
-    //remove relative path instructions like ../ etc
-    $urlpath = $url_parts['path'];
+    //remove relative path instructions like ../ etc.
+    if (isset($url_parts['path']))
+        $urlpath = $url_parts['path'];
+    else
+        $urlpath = "";
     $regs = Array ();
     while (preg_match("/[^\/]*\/[.]{2}\//", $urlpath, $regs))
         $urlpath = str_replace($regs[0], "", $urlpath);
