@@ -590,7 +590,7 @@ function addcatform($parent) {
 		$keywordlist = array();
 		while ($row=$result->fetch())
 			$keywordlist[$row['keyword_id']] = $row['keyword'];
-		while (list($keyId, $keyword) = each($keywordlist)) {
+		foreach ($keywordlist as $keyId => $keyword) {
 			$wordmd5 = substr(md5($keyword), 0, 1);
 			$query = "SELECT keyword_id FROM ".TABLE_PREFIX."link_keyword$wordmd5 WHERE keyword_id=$keyId";
 			$result2 = $db->query($query);
@@ -1074,8 +1074,9 @@ function addcatform($parent) {
 				}
 				arsort($topwords);
 				$count = 0;
-				while ((list($word, $weight) = each($topwords)) && $count <= 15*30) {
-					$count++;
+				foreach ($topwords as $word => $weight) {
+					if (++$count > 15*30)
+						break;
 					if ($class =="white")
 						$class = "grey";
 					else

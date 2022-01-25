@@ -20,7 +20,7 @@ function get_category_info($catid) {
     $categories['main_list'] = $result->fetchAll();
 
 	if (is_array($categories['main_list'])) {
-		foreach($categories['main_list'] as $_val) {
+		foreach ($categories['main_list'] as $_val) {
 			$categories['categories'][$_val['category_id']] = $_val;
 			$categories['subcats'][$_val['parent_num']][] = $_val;
 		}

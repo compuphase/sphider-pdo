@@ -9,7 +9,7 @@ General settings
 ***********************/
 
 // Sphider version
-$version_nr = '1.3.10';
+$version_nr = '1.3.11';
 
 // Language of the search page (can be overridden)
 $language = 'en';

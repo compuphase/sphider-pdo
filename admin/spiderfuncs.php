@@ -1,15 +1,15 @@
 <?php
 require_once "$include_dir/double_metaphone.php";
 
-define(PORT_HTTP, 80);
-define(PORT_HTTPS, 443);
+define("PORT_HTTP", 80);
+define("PORT_HTTPS", 443);
 
 function getFileContents($url) {
     global $user_agent;
     $urlparts = parse_url($url);
     $path = $urlparts['path'];
     $host = $urlparts['host'];
-    if (isset($urlparts['query']) && $urlparts['query'] != "")
+    if (isset($urlparts['query']) && strlen($urlparts['query']) > 0)
         $path .= "?".$urlparts['query'];
     if (isset ($urlparts['port']))
         $port = (int) $urlparts['port'];
@@ -72,12 +72,19 @@ check if file is available and in readable form
 function url_status($url) {
     global $user_agent, $index_pdf, $index_doc, $index_xls, $index_ppt;
     $urlparts = parse_url($url);
-    $path = $urlparts['path'];
-    $host = $urlparts['host'];
-    if (isset($urlparts['query']))
-    $path .= "?".$urlparts['query'];
+    if (isset($urlparts['path']))
+        $path = $urlparts['path'];
+    if (isset($urlparts['host']))
+        $host = $urlparts['host'];
+    if (!isset($path) || !isset($host)) {
+        $status['state'] = "INVALID-URL";
+        return $status;
+    }
 
-    if (isset ($urlparts['port']))
+    if (isset($urlparts['query']) && strlen($urlparts['query']) > 0)
+        $path .= "?".$urlparts['query'];
+
+    if (isset($urlparts['port']))
         $port = (int) $urlparts['port'];
     else if ($urlparts['scheme'] == "http")
         $port = PORT_HTTP;
@@ -190,16 +197,16 @@ function check_robot_txt($url) {
     $omit = array();
 
     if ($url_status['state'] == "ok") {
-        $robot = file($url);
-        if (!$robot) {
+        $file = file_get_contents_curl($url);
+        if (!$file || strlen($file) == 0) {
             $contents = getFileContents($url);
             $file = $contents['file'];
-            $robot = explode("\n", $file);
         }
+        $robot = explode("\n", $file);
 
         $regs = Array ();
         $this_agent= "";
-        while (list ($id, $line) = each($robot)) {
+        foreach ($robot as $id => $line) {
             if (preg_match("/^user-agent: *([^#]+) */i", $line, $regs)) {
                     $this_agent = trim($regs[1]);
                     if ($this_agent == '*' || $this_agent == $user_agent)
@@ -378,92 +385,93 @@ function url_purify($url, $parent_url, $can_leave_domain) {
 
     $main_url_parts = parse_url($mainurl);
     if (isset($urlparts['host']) && $urlparts['host'] != "" && $urlparts['host'] != $main_url_parts['host']  && $can_leave_domain != 1)
-        return '';
+      return '';
 
     reset($ext);    /* skip URLs to CSS files and similar */
-    while (list($id, $excl) = each($ext))
-        if (preg_match("/\.$excl$/i", $url))
-            return '';
-
-    if (substr($url, -1) == '\\')
+    foreach ($ext as $id => $excl)
+      if (preg_match("/\.$excl$/i", $url))
         return '';
 
-    if (isset($urlparts['query'])) {
-        if ($apache_indexes[$urlparts['query']])
-            return '';
+    if (substr($url, -1) == '\\')
+      return '';
+
+    if (isset($urlparts['query']) && strlen($urlparts['query']) > 0) {
+      $url_idx = $urlparts['query'];
+      if (isset($apache_indexes[$url_idx]) && $apache_indexes[$url_idx])
+        return '';
     }
 
     if (preg_match("/[\/]?mailto:|[\/]?javascript:|[\/]?news:/i", $url))
-        return '';
+      return '';
 
     if (isset($urlparts['scheme']))
-        $scheme = $urlparts['scheme'];
+      $scheme = $urlparts['scheme'];
     else
-        $scheme ="";
+      $scheme ="";
 
-    //only http and https links are followed
+    //only http:// and https:// links are followed
     if (!($scheme == 'http' || $scheme == 'https' || $scheme == ''))
-        return '';
+      return '';
 
     //parent url might be used to build an url from relative path
     $parent_url = remove_file_from_url($parent_url);
     $parent_url_parts = parse_url($parent_url);
 
     if (substr($url, 0, 1) == '/')
-        $url = $parent_url_parts['scheme']."://".$parent_url_parts['host'].$url;
+      $url = $parent_url_parts['scheme']."://".$parent_url_parts['host'].$url;
     else if (!isset($urlparts['scheme']))
-        $url = $parent_url.$url;
+      $url = $parent_url.$url;
 
     $url_parts = parse_url($url);
 
     //remove relative path instructions like ../ etc.
     if (isset($url_parts['path']))
-        $urlpath = $url_parts['path'];
+      $urlpath = $url_parts['path'];
     else
-        $urlpath = "";
+      $urlpath = "";
     $regs = Array ();
     while (preg_match("/[^\/]*\/[.]{2}\//", $urlpath, $regs))
-        $urlpath = str_replace($regs[0], "", $urlpath);
+      $urlpath = str_replace($regs[0], "", $urlpath);
     $urlpath = preg_replace("/\/+/", "/", $urlpath);
     $urlpath = preg_replace("/[^\/]*\/[.]{2}/", "",  $urlpath);
     $urlpath = str_replace("./", "", $urlpath);
 
     $query = "";
-    if (isset($url_parts['query']))
-        $query = "?".$url_parts['query'];
+    if (isset($url_parts['query']) && strlen($url_parts['query']) > 0)
+      $query = "?".$url_parts['query'];
     if (isset($url_parts['port']) && $url_parts['port'] != "" && $url_parts['port'] != PORT_HTTP && $url_parts['port'] != PORT_HTTPS)
-        $portq = ":".$url_parts['port'];
+      $portq = ":".$url_parts['port'];
     else if (isset($main_url_parts['port']) && $main_url_parts['port'] != "" && $main_url_parts['port'] != PORT_HTTP && $main_url_parts['port'] != PORT_HTTPS)
-        $portq = ":".$main_url_parts['port'];
+      $portq = ":".$main_url_parts['port'];
     else
-        $portq = "";
+      $portq = "";
     $url = $url_parts['scheme']."://".$url_parts['host'].$portq.$urlpath.$query;
 
     //if we index sub-domains
     if ($can_leave_domain == 1)
-        return $url;
+      return $url;
 
     $mainurl = remove_file_from_url($mainurl);
 
     if ($strip_sessids == 1)
-        $url = remove_sessid($url);
+      $url = remove_sessid($url);
 
-    //only urls in staying in the starting domain/directory are followed
+    //only URLs staying in the starting domain/directory are followed
     $url = convert_url($url);
     if (strstr($url, $mainurl) == false)
-        return '';
+      return '';
+
     return $url;
 }
 
 function save_keywords($wordarray, $link_id, $domain) {
     global $all_keywords;
     global $db;
-    reset($wordarray);
     $inserts = array();
-    while ($thisword = each($wordarray)) {
-        $word = $thisword[1][1];
+    foreach ($wordarray as $thisword) {
+        $word = $thisword[1];
         $wordmd5 = substr(md5($word), 0, 1);
-        $weight = $thisword[1][2];
+        $weight = $thisword[2];
         if (strlen($word)<= 30) {
             if (isset($all_keywords[$word])) {
                 $keyword_id = $all_keywords[$word];
@@ -634,9 +642,8 @@ function clean_file($file, $url, $type) {
                                   $file);
     $file = strtolower($file);
     reset($entities);
-    while ($char = each($entities)) {
-        $file = preg_replace("/".$char[0]."/i", $char[1], $file);
-    }
+    foreach ($entities as $html => $latin)
+        $file = preg_replace("/".$html."/i", $latin, $file);
     $file = preg_replace("/&[a-z]{1,6};/", " ", $file); /* remove remaining HTML entities (note that the text is already converted to Latin-1) */
     $file = preg_replace("/[\*\^\+\?\\\[\]\^\$\|\{\)\(\}~!\"\'\/@#£$%&=`´;><:,]+/", " ", $file);
     //periods are special: they are normally replace by spaces, but a period
@@ -669,13 +676,13 @@ function calc_weights($wordarray, $title, $host, $path, $keywords) {
     $keywordsarray = unique_array(explode(" ", preg_replace("/[^[:alnum:]-]+/i", " ", strtolower($keywords))));
     $path_depth = countSubstrs($path, "/");
 
-    while (list ($wid, $word) = each($wordarray)) {
+    foreach ($wordarray as $wid => $word) {
         $word_in_path = 0;
         $word_in_domain = 0;
         $word_in_title = 0;
         $meta_keyword = 0;
         if ($index_host == 1) {
-            while (list ($id, $path) = each($patharray)) {
+            foreach ($patharray as $id => $path) {
                 if ($path[1] == $word[1]) {
                     $word_in_path = 1;
                     break;
@@ -683,7 +690,7 @@ function calc_weights($wordarray, $title, $host, $path, $keywords) {
             }
             reset($patharray);
 
-            while (list ($id, $host) = each($hostarray)) {
+            foreach ($hostarray as $id => $host) {
                 if ($host[1] == $word[1]) {
                     $word_in_domain = 1;
                     break;
@@ -693,7 +700,7 @@ function calc_weights($wordarray, $title, $host, $path, $keywords) {
         }
 
         if ($index_meta_keywords == 1) {
-            while (list ($id, $keyword) = each($keywordsarray)) {
+            foreach ($keywordsarray as $id => $keyword) {
                 if ($keyword[1] == $word[1]) {
                     $meta_keyword = 1;
                     break;
@@ -701,7 +708,7 @@ function calc_weights($wordarray, $title, $host, $path, $keywords) {
             }
             reset($keywordsarray);
         }
-        while (list ($id, $tit) = each($titlearray)) {
+        foreach ($titlearray as $id => $tit) {
             if ($tit[1] == $word[1]) {
                 $word_in_title = 1;
                 break;

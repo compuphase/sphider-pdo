@@ -1,8 +1,15 @@
 ============================================
 Sphider - a lightweight search engine in PHP
 CHANGELOG
-By Ando Saabas          ando(a t)cs.ioc.ee
+By Ando Saabas          ando(a t)set.ee
 ============================================
+
+Sphider-PDO 1.3.11, release date 25 January 2022
+	Merged fix for Code injection vulnerability from Sphider 1.3.6 (Ando Saabas)
+	Update for PHP 8 (Thiadmer Riemersma)
+	File fetching via CURL, because some web hosting set-ups disable file_get_contents().
+	Fix PHP warnings (reported by superlgn).
+	Fix for PDF spidering (James Randall).
 
 Sphider-PDO 1.3.10, release date 23 December 2016
     Update for PHP 7.0 (Thiadmer Riemersma)

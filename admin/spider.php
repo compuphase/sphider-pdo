@@ -181,7 +181,7 @@ error_reporting(E_ALL);
       }
       $delay_time = time();
       if (!fst_lt_snd(phpversion(), "4.3.0")) {
-        $file = file_get_contents($url);
+        $file = file_get_contents_curl($url);
         if ($file === FALSE) {
           $file_read_error = 1;
         }
@@ -246,13 +246,11 @@ error_reporting(E_ALL);
           $numoflinks = 0;
           // if there are any, add to the temp table, but only if there isn't such url already
           if (is_array($links)) {
-            reset ($links);
-
-            while ($thislink = each($links)) {
-              if (!isset($tmp_urls[$thislink[1]]) || $tmp_urls[$thislink[1]] != 1) {
-                $tmp_urls[$thislink[1]] = 1;
+            foreach ($links as $thislink) {
+              if (!isset($tmp_urls[$thislink]) || $tmp_urls[$thislink] != 1) {
+                $tmp_urls[$thislink] = 1;
                 $numoflinks++;
-                $db->exec("INSERT INTO ".TABLE_PREFIX."temp (link, level, id) VALUES (".$db->quote($thislink[1]).", ".$db->quote($level).", ".$db->quote($sessid).")");
+                $db->exec("INSERT INTO ".TABLE_PREFIX."temp (link, level, id) VALUES (".$db->quote($thislink).", ".$db->quote($level).", ".$db->quote($sessid).")");
                 echo sql_errorstring(__FILE__,__LINE__);
               }
             }
@@ -290,9 +288,11 @@ error_reporting(E_ALL);
             $site_id = $db->quote($site_id);
             $url = $db->quote($url);
             $title = $db->quote($title);
+            $title = mb_convert_encoding($title, 'UTF-8'); // added this line to not skip over PDF with non utf-8 characters
             $desc = $db->quote($desc);
             $language = $db->quote($language);
             $fulltxt = $db->quote($fulltxt);
+            $fulltxt = mb_convert_encoding($fulltxt, 'UTF-8'); // again, in order to not skip over PDF with non utf-8 characters
             $pageSize = $db->quote($pageSize);
             $Qmd5sum = $db->quote($newmd5sum);
             if ($md5sum == '') {
@@ -477,13 +477,10 @@ error_reporting(E_ALL);
         $links[] = $row['link'];
       }
 
-      reset ($links);
-
       while ($count < count($links)) {
         $num++;
         $thislink = $links[$count];
         $urlparts = parse_url($thislink);
-        reset ($omit);
         $forbidden = 0;
         foreach ($omit as $omiturl) {
           $omiturl = trim($omiturl);

@@ -419,7 +419,7 @@ require_once "$include_dir/double_metaphone.php";
         arsort ($result_array_full);
 
         if ($merge_site_results == 1 && $domain_qry == "") {
-            while (list($key, $value) = each($result_array_full)) {
+            foreach ($result_array_full as $key => $value) {
                 if (!isset($domains_to_show[$domains[$key]])) {
                     $result_array_temp[$key] = $value;
                     $domains_to_show[$domains[$key]] = 1;
@@ -432,10 +432,13 @@ require_once "$include_dir/double_metaphone.php";
         }
 
 
-        while (list($key, $value) = each ($result_array_temp)) {
+        foreach ($result_array_temp as $key => $value) {
             $result_array[$key] = $value;
             if (isset ($domains_to_show[$domains[$key]]) && $domains_to_show[$domains[$key]] != 1) {
-                list ($k, $v) = each($domains_to_show[$domains[$key]]);
+                /* following 3 lines emulate "list($k, $v) = each($domains_to_show[$domains[$key]])" */
+                $k = key($domains_to_show[$domains[$key]]);
+                $v = current($domains_to_show[$domains[$key]]);
+                next($domains_to_show[$domains[$key]]);
                 $result_array[$k] = $v;
             }
         }
@@ -560,7 +563,7 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
 
     if (isset($result['did_you_mean']) && is_array($result['did_you_mean'])) {
       $did_you_mean_enabled = 0;    /* temporarily disable searching for alternatives since there are "did you mean" results, we may assume that it was enabled */
-      while (list($key, $alt) = each($result['did_you_mean'])) {
+      foreach ($result['did_you_mean'] as $key => $alt) {
         $entities = html_to_latin1(utf8_decode($entitiesQuery));
         if ($key != $alt) {
           $alt = html_to_latin1(utf8_decode($alt));
@@ -631,7 +634,7 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
             $txtlen = strlen($fulltxt);
             if ($txtlen > $desc_length) {
                 $places = array();
-                foreach($words['hilight'] as $word) {
+                foreach ($words['hilight'] as $word) {
                     $word = latin1_to_html($word);
                     $tmp = strtolower($fulltxt);
                     $found_in = strpos($tmp, $word);
@@ -648,7 +651,7 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
                 $x = 0;
                 $begin = 0;
                 $end = 0;
-                while(list($id, $place) = each($places)) {
+                foreach ($places as $id => $place) {
                     while (isset($places[$id + $x]) && $places[$id + $x] - $place < $desc_length
                            && $x+$id < count($places)
                            && $place < strlen($fulltxt) - $desc_length) {
@@ -686,7 +689,7 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
             if (strlen($title) > 80) {
                 $title = substr($title, 0,76)."...";
             }
-            foreach($words['hilight'] as $change) {
+            foreach ($words['hilight'] as $change) {
                 $change = latin1_to_html($change);
                 $count = 0;
                 while (preg_match("/[ .,;\(\)\'\"](".$change.")[ .,;\(\)\'\"]/i", " ".$title." ", $regs) && ++$count < 20) {

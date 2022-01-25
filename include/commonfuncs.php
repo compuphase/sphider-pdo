@@ -5,262 +5,262 @@
 * By Ando Saabas          ando(a t)cs.ioc.ee
 ********************************************/
 
-    $includes = array('./include', 'include', '../include');
-    if( !in_array($include_dir, $includes) )  {
-       die("Illegal include.");
+$includes = array('./include', 'include', '../include');
+if( !in_array($include_dir, $includes) )  {
+   die("Illegal include.");
+}
+
+
+function sanitize($str) {
+    $str = strip_tags($str);
+    $str = str_replace("&amp;", "&", $str);
+    $str = htmlspecialchars($str, ENT_QUOTES, "ISO-8859-1");
+    return $str;
+}
+
+function sql_errorstring($filename, $linenr) {
+  global $db;
+  $code = $db->errorCode();
+  if ($code != '00000') {
+      $info = $db->errorInfo();
+      return "[$filename:$linenr:" . $code . "] " . $info[2];   /* return the SQL state code plus the driver-specfic message */
+  }
+  return null;
+}
+
+/**
+* Returns the result of a query as an array
+*
+* @param $query SQL expression
+* @return array|null
+ */
+function sql_fetch_all($query, $parameters) {
+    global $db;
+    $stat = $db->prepare($query);
+    if ($stat->execute($parameters)) {
+        while ($row=$stat->fetch())
+            $data[]=$row;
+    } else {
+        print $query.'<br>'.sql_errorstring(__FILE__,__LINE__);
     }
+    return $data;
+}
 
+/*
+Removes duplicate elements from an array
+*/
+function distinct_array($arr) {
+    rsort($arr);
+    reset($arr);
+    $newarr = array();
+    $i = 0;
+    $element = current($arr);
 
-    function sanitize($str) {
-        $str = strip_tags($str);
-        $str = str_replace("&amp;", "&", $str);
-        $str = htmlspecialchars($str, ENT_QUOTES, "ISO-8859-1");
-        return $str;
-    }
-
-    function sql_errorstring($filename, $linenr) {
-      global $db;
-      $code = $db->errorCode();
-      if ($code != '00000') {
-          $info = $db->errorInfo();
-          return "[$filename:$linenr:" . $code . "] " . $info[2];   /* return the SQL state code plus the driver-specfic message */
-      }
-      return null;
-    }
-
-    /**
-    * Returns the result of a query as an array
-    *
-    * @param $query SQL expression
-    * @return array|null
-     */
-    function sql_fetch_all($query, $parameters) {
-        global $db;
-        $stat = $db->prepare($query);
-        if ($stat->execute($parameters)) {
-            while ($row=$stat->fetch())
-                $data[]=$row;
-        } else {
-            print $query.'<br>'.sql_errorstring(__FILE__,__LINE__);
+    for ($n = 0; $n < sizeof($arr); $n++) {
+        if (next($arr) != $element) {
+            $newarr[$i] = $element;
+            $element = current($arr);
+            $i++;
         }
-        return $data;
     }
 
-    /*
-    Removes duplicate elements from an array
-    */
-    function distinct_array($arr) {
-        rsort($arr);
-        reset($arr);
-        $newarr = array();
-        $i = 0;
-        $element = current($arr);
+    return $newarr;
+}
 
-        for ($n = 0; $n < sizeof($arr); $n++) {
-            if (next($arr) != $element) {
-                $newarr[$i] = $element;
-                $element = current($arr);
-                $i++;
+function get_cats($parent) {
+    global $db;
+    $query = "SELECT * FROM ".TABLE_PREFIX."categories WHERE parent_num=$parent";
+    $result = $db->query($query);
+    echo sql_errorstring(__FILE__,__LINE__);
+    $arr[] = $parent;
+    while ($row = $result->fetch()) {
+        $id = $row[category_id];
+        $arr = add_arrays($arr, get_cats($id));
+    }
+
+    return $arr;
+}
+
+function add_arrays($arr1, $arr2) {
+    foreach ($arr2 as $elem) {
+        $arr1[] = $elem;
+    }
+    return $arr1;
+}
+
+$entities = array
+    (
+    "&amp;" => "&",
+    "&apos;" => "'",
+    "&euro;" => "€",
+    "&micro;" => "µ",
+    "&THORN;"  => "Þ",
+    "&szlig;"  => "ß",
+    "&agrave;" => "à",
+    "&aacute;" => "á",
+    "&acirc;"  => "â",
+    "&atilde;" => "ã",
+    "&auml;"   => "ä",
+    "&aring;"  => "å",
+    "&aelig;"  => "æ",
+    "&ccedil;" => "ç",
+    "&egrave;" => "è",
+    "&eacute;" => "é",
+    "&ecirc;"  => "ê",
+    "&euml;"   => "ë",
+    "&igrave;" => "ì",
+    "&iacute;" => "í",
+    "&icirc;"  => "î",
+    "&iuml;"   => "ï",
+    "&eth;"    => "ð",
+    "&ntilde;" => "ñ",
+    "&ograve;" => "ò",
+    "&oacute;" => "ó",
+    "&ocirc;"  => "ô",
+    "&otilde;" => "õ",
+    "&ouml;"   => "ö",
+    "&oslash;" => "ø",
+    "&ugrave;" => "ù",
+    "&uacute;" => "ú",
+    "&ucirc;"  => "û",
+    "&uuml;"   => "ü",
+    "&yacute;" => "ý",
+    "&thorn;"  => "þ",
+    "&yuml;"   => "ÿ",
+    "&THORN;"  => "Þ",
+    "&szlig;"  => "ß",
+    "&Agrave;" => "à",
+    "&Aacute;" => "á",
+    "&Acirc;"  => "â",
+    "&Atilde;" => "ã",
+    "&Auml;"   => "ä",
+    "&Aring;"  => "å",
+    "&Aelig;"  => "æ",
+    "&Ccedil;" => "ç",
+    "&Egrave;" => "è",
+    "&Eacute;" => "é",
+    "&Ecirc;"  => "ê",
+    "&Euml;"   => "ë",
+    "&Igrave;" => "ì",
+    "&Iacute;" => "í",
+    "&Icirc;"  => "î",
+    "&Iuml;"   => "ï",
+    "&ETH;"    => "ð",
+    "&Ntilde;" => "ñ",
+    "&Ograve;" => "ò",
+    "&Oacute;" => "ó",
+    "&Ocirc;"  => "ô",
+    "&Otilde;" => "õ",
+    "&Ouml;"   => "ö",
+    "&Oslash;" => "ø",
+    "&Ugrave;" => "ù",
+    "&Uacute;" => "ú",
+    "&Ucirc;"  => "û",
+    "&Uuml;"   => "ü",
+    "&Yacute;" => "ý",
+    "&Yhorn;"  => "þ",
+    "&Yuml;"   => "ÿ"
+    );
+
+//Apache multi indexes parameters
+$apache_indexes = array (
+    "N=A" => 1,
+    "N=D" => 1,
+    "M=A" => 1,
+    "M=D" => 1,
+    "S=A" => 1,
+    "S=D" => 1,
+    "D=A" => 1,
+    "D=D" => 1,
+    "C=N;O=A" => 1,
+    "C=M;O=A" => 1,
+    "C=S;O=A" => 1,
+    "C=D;O=A" => 1,
+    "C=N;O=D" => 1,
+    "C=M;O=D" => 1,
+    "C=S;O=D" => 1,
+    "C=D;O=D" => 1);
+
+
+function latin1_to_html($string) {
+    global $entities;
+    reset($entities);
+    foreach ($entities as $html => $latin)
+        $string = preg_replace("/".$latin."/", $html, $string);
+    return $string;
+}
+
+function html_to_latin1($string) {
+    global $entities;
+    reset($entities);
+    foreach ($entities as $html => $latin)
+        $string = preg_replace("/".$html."/", $latin, $string);
+    return $string;
+}
+
+function remove_accents($string) {
+    return (strtr($string, "ÀÁÂÃÄÅÆàáâãäåæÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñÞßÿý",
+                  "aaaaaaaaaaaaaaoooooooooooooeeeeeeeeecceiiiiiiiiuuuuuuuunntsyy"));
+}
+
+/* common word list (words to ignore in the search query) */
+$common = array();
+$lines = @file($include_dir.'/common.txt');
+if (is_array($lines)) {
+    foreach ($lines as $id => $word)
+        $common[trim($word)] = 1;
+}
+
+/* file extension list (of files to skip) */
+$ext = array();
+$lines = @file('ext.txt');
+if (is_array($lines)) {
+    foreach ($lines as $id => $word)
+        $ext[] = trim($word);
+}
+
+/* "matchless word" list (words that no alternatives are searched for, except
+   if there are zero search results) */
+$matchless = array();
+$lines = @file($include_dir.'/nonpareil.txt');
+if (is_array($lines)) {
+    foreach ($lines as $id => $word)
+        $matchless[trim($word)] = 1;
+}
+/* the "equivalent" word list (for words whose equivalent is a word pair, or
+   some different term); these equivalents are used for "did you mean";
+   the "surrogate" word list is similar, but these are implicitly replaced
+   in the user's search string */
+$equivalent = array();
+$surrogate = array();
+$lines = @file($include_dir.'/pareil.txt');
+if (is_array($lines)) {
+    foreach ($lines as $id => $line) {
+        $eq = explode('=', $line, 2);
+        if (count($eq) == 2) {
+            $word = trim($eq[0]);
+            $repl = trim($eq[1]);
+            if (strlen($repl) > 0) {
+                if ($repl[0] == "*")
+                    $surrogate[$word] = substr($repl, 1);
+                else
+                    $equivalent[$word] = $repl;
             }
         }
-
-        return $newarr;
     }
+}
 
-    function get_cats($parent) {
-        global $db;
-        $query = "SELECT * FROM ".TABLE_PREFIX."categories WHERE parent_num=$parent";
-        $result = $db->query($query);
-        echo sql_errorstring(__FILE__,__LINE__);
-        $arr[] = $parent;
-        while ($row = $result->fetch()) {
-            $id = $row[category_id];
-            $arr = add_arrays($arr, get_cats($id));
-        }
-
-        return $arr;
-    }
-
-    function add_arrays($arr1, $arr2) {
-        foreach ($arr2 as $elem) {
-            $arr1[] = $elem;
-        }
-        return $arr1;
-    }
-
-    $entities = array
-        (
-        "&amp;" => "&",
-        "&apos;" => "'",
-        "&euro;" => "€",
-        "&micro;" => "µ",
-        "&THORN;"  => "Þ",
-        "&szlig;"  => "ß",
-        "&agrave;" => "à",
-        "&aacute;" => "á",
-        "&acirc;"  => "â",
-        "&atilde;" => "ã",
-        "&auml;"   => "ä",
-        "&aring;"  => "å",
-        "&aelig;"  => "æ",
-        "&ccedil;" => "ç",
-        "&egrave;" => "è",
-        "&eacute;" => "é",
-        "&ecirc;"  => "ê",
-        "&euml;"   => "ë",
-        "&igrave;" => "ì",
-        "&iacute;" => "í",
-        "&icirc;"  => "î",
-        "&iuml;"   => "ï",
-        "&eth;"    => "ð",
-        "&ntilde;" => "ñ",
-        "&ograve;" => "ò",
-        "&oacute;" => "ó",
-        "&ocirc;"  => "ô",
-        "&otilde;" => "õ",
-        "&ouml;"   => "ö",
-        "&oslash;" => "ø",
-        "&ugrave;" => "ù",
-        "&uacute;" => "ú",
-        "&ucirc;"  => "û",
-        "&uuml;"   => "ü",
-        "&yacute;" => "ý",
-        "&thorn;"  => "þ",
-        "&yuml;"   => "ÿ",
-        "&THORN;"  => "Þ",
-        "&szlig;"  => "ß",
-        "&Agrave;" => "à",
-        "&Aacute;" => "á",
-        "&Acirc;"  => "â",
-        "&Atilde;" => "ã",
-        "&Auml;"   => "ä",
-        "&Aring;"  => "å",
-        "&Aelig;"  => "æ",
-        "&Ccedil;" => "ç",
-        "&Egrave;" => "è",
-        "&Eacute;" => "é",
-        "&Ecirc;"  => "ê",
-        "&Euml;"   => "ë",
-        "&Igrave;" => "ì",
-        "&Iacute;" => "í",
-        "&Icirc;"  => "î",
-        "&Iuml;"   => "ï",
-        "&ETH;"    => "ð",
-        "&Ntilde;" => "ñ",
-        "&Ograve;" => "ò",
-        "&Oacute;" => "ó",
-        "&Ocirc;"  => "ô",
-        "&Otilde;" => "õ",
-        "&Ouml;"   => "ö",
-        "&Oslash;" => "ø",
-        "&Ugrave;" => "ù",
-        "&Uacute;" => "ú",
-        "&Ucirc;"  => "û",
-        "&Uuml;"   => "ü",
-        "&Yacute;" => "ý",
-        "&Yhorn;"  => "þ",
-        "&Yuml;"   => "ÿ"
-        );
-
-    //Apache multi indexes parameters
-    $apache_indexes = array (
-        "N=A" => 1,
-        "N=D" => 1,
-        "M=A" => 1,
-        "M=D" => 1,
-        "S=A" => 1,
-        "S=D" => 1,
-        "D=A" => 1,
-        "D=D" => 1,
-        "C=N;O=A" => 1,
-        "C=M;O=A" => 1,
-        "C=S;O=A" => 1,
-        "C=D;O=A" => 1,
-        "C=N;O=D" => 1,
-        "C=M;O=D" => 1,
-        "C=S;O=D" => 1,
-        "C=D;O=D" => 1);
-
-
-    function latin1_to_html($string) {
-        global $entities;
-        reset($entities);
-        while ($char = each($entities))
-            $string = preg_replace("/".$char[1]."/", $char[0], $string);
-        return $string;
-    }
-
-    function html_to_latin1($string) {
-        global $entities;
-        reset($entities);
-        while ($char = each($entities))
-            $string = preg_replace("/".$char[0]."/", $char[1], $string);
-        return $string;
-    }
-
-    function remove_accents($string) {
-        return (strtr($string, "ÀÁÂÃÄÅÆàáâãäåæÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñÞßÿý",
-                      "aaaaaaaaaaaaaaoooooooooooooeeeeeeeeecceiiiiiiiiuuuuuuuunntsyy"));
-    }
-
-    /* common word list (words to ignore in the search query) */
-    $common = array();
-    $lines = @file($include_dir.'/common.txt');
-    if (is_array($lines)) {
-        while (list($id, $word) = each($lines))
-            $common[trim($word)] = 1;
-    }
-
-    /* file extension list (of files to skip) */
-    $ext = array();
-    $lines = @file('ext.txt');
-    if (is_array($lines)) {
-        while (list($id, $word) = each($lines))
-            $ext[] = trim($word);
-    }
-
-    /* "matchless word" list (words that no alternatives are searched for, except
-       if there are zero search results) */
-    $matchless = array();
-    $lines = @file($include_dir.'/nonpareil.txt');
-    if (is_array($lines)) {
-        while (list($id, $word) = each($lines))
-            $matchless[trim($word)] = 1;
-    }
-    /* the "equivalent" word list (for words whose equivalent is a word pair, or
-       some different term); these equivalents are used for "did you mean";
-       the "surrogate" word list is similar, but these are implicitly replaced
-       in the user's search string */
-    $equivalent = array();
-    $surrogate = array();
-    $lines = @file($include_dir.'/pareil.txt');
-    if (is_array($lines)) {
-        while (list($id, $line) = each($lines)) {
-            $eq = explode('=', $line, 2);
-            if (count($eq) == 2) {
-                $word = trim($eq[0]);
-                $repl = trim($eq[1]);
-                if (strlen($repl) > 0) {
-                    if ($repl[0] == "*")
-                        $surrogate[$word] = substr($repl, 1);
-                    else
-                        $equivalent[$word] = $repl;
-                }
-            }
-        }
-    }
-
-    function is_num($var) {
-       for ($i=0;$i<strlen($var);$i++) {
-           $ascii_code=ord($var[$i]);
-           if ($ascii_code>=49 && $ascii_code<=57){
-               continue;
-           } else {
-               return false;
-           }
+function is_num($var) {
+   for ($i=0;$i<strlen($var);$i++) {
+       $ascii_code=ord($var[$i]);
+       if ($ascii_code>=49 && $ascii_code<=57){
+           continue;
+       } else {
+           return false;
        }
-           return true;
-    }
+   }
+       return true;
+}
 
 function countSubstrs($haystack, $needle) {
     $count = 0;
@@ -298,6 +298,11 @@ function fst_lt_snd($version1, $version2) {
 
 }
 
+function replace_ampersand($str) {
+    return str_replace("&", "%26", $str);
+}
+
+
 function get_dir_contents($dir) {
     $contents = Array();
     if ($handle = opendir($dir)) {
@@ -311,10 +316,21 @@ function get_dir_contents($dir) {
     return $contents;
 }
 
-function replace_ampersand($str) {
-    return str_replace("&", "%26", $str);
-}
+function file_get_contents_curl($url)
+{
+  $ch = curl_init();
 
+  curl_setopt($ch, CURLOPT_AUTOREFERER, TRUE);
+  curl_setopt($ch, CURLOPT_HEADER, 0);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+
+  $data = curl_exec($ch);
+  curl_close($ch);
+
+  return $data;
+}
 
 
     /**
@@ -702,6 +718,7 @@ function replace_ampersand($str) {
     */
     function cvc($str)
     {
+        global $regex_consonant, $regex_vowel;
         $c = $regex_consonant;
         $v = $regex_vowel;
 
