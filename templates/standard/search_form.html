@@ -44,7 +44,7 @@
 
 
 
-<?php if ($catid<>0){?>
+<?php if (isset($catid) && is_numeric($catid)){?>
 	<center><b><?php print $sph_messages['Search']?></b>: <input type="radio" name="category" value="<?php print $catid?>"><?php print $sph_messages['Only in category']?> "<?php print $tpl_['category'][0]['category']?>'" <input type="radio" name="category" value="-1" checked><?php print $sph_messages['All sites']?></center>
 <?php  }?>
 	<input type="hidden" name="search" value="1">

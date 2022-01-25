@@ -8,14 +8,14 @@
 error_reporting (E_ALL | E_STRICT);
 
 $include_dir = "../include";
-include "auth.php";
-include "$include_dir/commonfuncs.php";
-include "spiderfuncs.php";
+require_once("auth.php");
+require_once("$include_dir/commonfuncs.php");
+require_once("spiderfuncs.php");
 extract($_POST);
 $settings_dir = "../settings";
 $template_dir = "../templates";
-include "$settings_dir/conf.php";
-set_time_limit (0);
+require_once("$settings_dir/conf.php");
+set_time_limit(0);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -444,7 +444,7 @@ function addcatform($parent) {
 				$class = "grey";
 			else
 				$class = "white";
-			print "<tr class=\"$class\"><td align=\"left\">".stripslashes($row[title])."</td><td align=\"left\"><a href=\"$row[url]\">$row[url]</a></td><td>$indexstatus</td>";
+			print "<tr class=\"$class\"><td align=\"left\">".stripslashes($row['title'])."</td><td align=\"left\"><a href=\"$row[url]\">$row[url]</a></td><td>$indexstatus</td>";
 			print "<td><a href=admin.php?f=20&site_id=$row[site_id] id=\"small_button\">Options</a></td></tr>\n";
 			$numrows++;
 			$row=$result->fetch();
@@ -766,7 +766,7 @@ function addcatform($parent) {
 		$result = $db->query("SELECT site_id, url, title, short_desc, indexdate from ".TABLE_PREFIX."sites where site_id=$site_id");
 		echo sql_errorstring(__FILE__,__LINE__);
 		$row=$result->fetch();
-		$url = replace_ampersand($row[url]);
+		$url = replace_ampersand($row['url']);
 		if ($row['indexdate']=='') {
 			$indexstatus="<font color=\"red\">Not indexed</font>";
 			$indexoption="<a href=\"admin.php?f=index&url=$url\">Index</a>";
@@ -1188,142 +1188,142 @@ function addcatform($parent) {
             $reindex = isset($_GET["reindex"]) ? $_GET["reindex"] : "";
 
 	switch ($f) {
-		case 1:
-			$message = addsite($url, $title, $short_desc, $cat);
-			$compurl=parse_url($url);
-			if ($compurl['path']=='')
-				$url=$url."/";
+	case 1:
+		$message = addsite($url, $title, $short_desc, $cat);
+		$compurl=parse_url($url);
+		if ($compurl['path']=='')
+			$url=$url."/";
 
-			$result = $db->query("select site_id from ".TABLE_PREFIX."sites where url='$url'");
-			echo sql_errorstring(__FILE__,__LINE__);
-			$row = $result->fetch();
-			if ($site_id != "")
-				siteScreen($site_id, $message);
-			else
-				showsites($message);
-		break;
-		case 2:
-			showsites();
-		break;
-		case edit_site:
-			if (CONFIGSET)
-			    editsiteform($site_id);
-		break;
-		case 4:
-			if (!isset($domaincb))
-				$domaincb = 0;
-			if (!isset($cat))
-				$cat = "";
-			if ($soption =='full') {
-				$depth = -1;
-			}
-			$message = editsite ($site_id, $url, $title, $short_desc, $depth, $in, $out,  $domaincb, $cat);
+		$result = $db->query("select site_id from ".TABLE_PREFIX."sites where url='$url'");
+		echo sql_errorstring(__FILE__,__LINE__);
+		$row = $result->fetch();
+		if ($site_id != "")
+			siteScreen($site_id, $message);
+		else
 			showsites($message);
 		break;
-		case 5:
-			deletesite ($site_id);
-			showsites();
+	case 2:
+		showsites();
 		break;
-		case add_cat:
-			if (!isset($parent))
-				$parent = "";
-			addcatform ($parent);
+	case 'edit_site':
+		if (CONFIGSET)
+			editsiteform($site_id);
 		break;
-		case 7:
-			if (!isset($parent)) {
-				$parent = "";
-			}
-			$message = addcat ($category, $parent);
-			list_cats (0, 0, "white", $message);
+	case 4:
+		if (!isset($domaincb))
+			$domaincb = 0;
+		if (!isset($cat))
+			$cat = "";
+		if ($soption =='full') {
+			$depth = -1;
+		}
+		$message = editsite ($site_id, $url, $title, $short_desc, $depth, $in, $out,  $domaincb, $cat);
+		showsites($message);
 		break;
-		case categories:
-			list_cats (0, 0, "white", "");
+	case 5:
+		deletesite ($site_id);
+		showsites();
 		break;
-		case edit_cat;
-			editcatform($cat_id);
+	case 'add_cat':
+		if (!isset($parent))
+			$parent = "";
+		addcatform ($parent);
 		break;
-		case 10;
-			$message = editcat ($cat_id, $category);
-			list_cats (0, 0, "white", $message);
+	case 7:
+		if (!isset($parent)) {
+			$parent = "";
+		}
+		$message = addcat ($category, $parent);
+		list_cats (0, 0, "white", $message);
 		break;
-		case 11;
-			deletecat($cat_id);
-			list_cats (0, 0, "white");
+	case 'categories':
+		list_cats (0, 0, "white", "");
 		break;
-		case index;
-			if (isset($_GET["adv"]))
-			    $_SESSION['index_advanced']=$_GET["adv"];
-			indexscreen($url, $reindex);
+	case 'edit_cat':
+		editcatform($cat_id);
 		break;
-		case add_site;
-			addsiteform();
+	case 10:
+		$message = editcat ($cat_id, $category);
+		list_cats (0, 0, "white", $message);
 		break;
-		case clean;
-			cleanForm();
+	case 11:
+		deletecat($cat_id);
+		list_cats (0, 0, "white");
+		break;
+	case 'index':
+		if (isset($_GET["adv"]))
+			$_SESSION['index_advanced']=$_GET["adv"];
+		indexscreen($url, $reindex);
+		break;
+	case 'add_site':
+		addsiteform();
+		break;
+	case 'clean':
+		cleanForm();
 		break;
 
-		case 15;
-			cleanKeywords();
+	case 15:
+		cleanKeywords();
 		break;
-		case 16;
-			cleanLinks();
-		break;
-
-		case 17;
-			cleanTemp();
+	case 16:
+		cleanLinks();
 		break;
 
-		case statistics;
-			$type = isset($_GET["type"]) ? $_GET["type"] : "";
-			statisticsForm($type);
+	case 17:
+		cleanTemp();
 		break;
 
-		case 19;
-			siteStats($site_id);
+	case 'statistics':
+		$type = isset($_GET["type"]) ? $_GET["type"] : "";
+		statisticsForm($type);
 		break;
-		case 20;
-			siteScreen($site_id);
-		break;
-		case 21;
-			if (!isset($start))
-				$start = 1;
-			if (!isset($filter))
-				$filter = "";
-			if (!isset($per_page))
-				$per_page = 10;
 
-			browsePages($site_id, $start, $filter, $per_page);
+	case 19:
+		siteStats($site_id);
 		break;
-		case 22;
-			deletePage($link_id);
-			if (!isset($start))
-				$start = 1;
-			if (!isset($filter))
-				$filter = "";
-			if (!isset($per_page))
-				$per_page = 10;
-			browsePages($site_id, $start, $filter, $per_page);
+	case 20:
+		siteScreen($site_id);
 		break;
-		case 23;
-			clearLog();
+	case 21:
+		if (!isset($start))
+			$start = 1;
+		if (!isset($filter))
+			$filter = "";
+		if (!isset($per_page))
+			$per_page = 10;
+
+		browsePages($site_id, $start, $filter, $per_page);
 		break;
-		case 24;
-			session_destroy();
-			header("Location: admin.php");
+	case 22:
+		deletePage($link_id);
+		if (!isset($start))
+			$start = 1;
+		if (!isset($filter))
+			$filter = "";
+		if (!isset($per_page))
+			$per_page = 10;
+		browsePages($site_id, $start, $filter, $per_page);
 		break;
-		case database;
-			include "db_main.php";
+	case 23:
+		clearLog();
 		break;
-		case settings;
-            if (CONFIGSET)
-				include('configset.php');
+	case 24:
+		session_destroy();
+		header("Location: admin.php");
 		break;
-		case 'delete_log';
-			unlink($log_dir."/".$file);
-			statisticsForm('spidering_log');
+	case 'database':
+		include_once("db_main.php");
 		break;
-		case '':
-			showsites();
+	case 'settings':
+		if (CONFIGSET)
+			include_once('configset.php');
+		break;
+	case 'delete_log':
+		unlink($log_dir."/".$file);
+		statisticsForm('spidering_log');
+		break;
+	case '':
+		showsites();
 		break;
 	}
 	$stats = getStatistics();

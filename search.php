@@ -11,12 +11,11 @@ $template_dir = "./templates";
 $settings_dir = "./settings";
 $language_dir = "./languages";
 
-include ("$include_dir/commonfuncs.php");
-
+require_once("$include_dir/commonfuncs.php");
 require_once("$settings_dir/database.php");
 require_once("$include_dir/searchfuncs.php");
 require_once("$include_dir/categoryfuncs.php");
-require_once "$settings_dir/conf.php";
+require_once("$settings_dir/conf.php");
 
 if (isset($_POST['query']))
     $query = sanitize($_POST['query']);
@@ -71,8 +70,9 @@ if (!isset($domain) || preg_match("/[^a-z0-9-.]+/", $domain))
 if (isset($results) && $results != "")
     $results_per_page = $results;
 
-if (isset($query) && get_magic_quotes_gpc()==1)
-    $query = stripslashes($query);
+//get_magic_quotes_gpc() has been useless ever since PHP 5.4.0
+//if (isset($query) && get_magic_quotes_gpc())
+//    $query = stripslashes($query);
 
 if (!isset($catid) || !is_numeric($catid))
     $catid = "";
@@ -80,7 +80,7 @@ if (!isset($catid) || !is_numeric($catid))
 if (!isset($category) || !is_numeric($category))
     $category = "";
 
-if ($catid && is_numeric($catid))
+if (isset($catid) && is_numeric($catid))
     $tpl_['category'] = sql_fetch_all('SELECT category FROM '.TABLE_PREFIX.'categories WHERE category_id=:catid', array(':catid' => (int)$_REQUEST['catid']));
 
 $count_level0 = sql_fetch_all('SELECT count(*) FROM '.TABLE_PREFIX.'categories WHERE parent_num=:parent', array(':parent' => 0));

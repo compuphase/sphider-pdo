@@ -10,7 +10,7 @@
 
 error_reporting(E_ALL);
 
-  set_time_limit (0);
+  set_time_limit(0);
   $include_dir = "../include";
   include "auth.php";
   require_once ("$include_dir/commonfuncs.php");
@@ -421,7 +421,7 @@ error_reporting(E_ALL);
     $result = $db->query("select site_id, temp_id, level, count, num from ".TABLE_PREFIX."pending where site_id='$site_id'");
     echo sql_errorstring(__FILE__,__LINE__);
     $row = $result->fetch();
-    $pending = $row[0];
+    $pending = ($row == false) ? '' : $row[0];
     $result->closeCursor();
     $level = 0;
     $domain_arr = get_domains();

@@ -1,5 +1,5 @@
 <?php
-include "auth.php";
+require_once("auth.php");
 $backup_path="./backup/";
 
 $stats  = mysql_query("SHOW TABLE STATUS FROM $database LIKE '".TABLE_PREFIX."%'");

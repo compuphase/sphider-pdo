@@ -6,9 +6,10 @@ require_once('../../settings/database.php');
 require_once('../../settings/conf.php');
 
 
-if (get_magic_quotes_gpc()==1) {
-	$_GET['q'] = stripslashes($_GET['q']);
-}
+//get_magic_quotes_gpc() has been useless ever since PHP 5.4.0
+//if (get_magic_quotes_gpc()) {
+//	$_GET['q'] = stripslashes($_GET['q']);
+//}
 
 
 $_GET['q'] = $db->quote($_GET['q']);

@@ -398,19 +398,19 @@ function file_get_contents_curl($url)
                 OR preg_match("#$v+#", substr($word, 0, -2)) && replace($word, 'ed', '')) { // Note use of && and OR, for precedence reasons
 
                 // If one of above two test successful
-                if (    !replace($word, 'at', 'ate')
-                    AND !replace($word, 'bl', 'ble')
-                    AND !replace($word, 'iz', 'ize')) {
+                if (   !replace($word, 'at', 'ate')
+                    || !replace($word, 'bl', 'ble')
+                    || !replace($word, 'iz', 'ize')) {
 
                     // Double consonant ending
-                    if (    doubleConsonant($word)
-                        AND substr($word, -2) != 'll'
-                        AND substr($word, -2) != 'ss'
-                        AND substr($word, -2) != 'zz') {
+                    if (   doubleConsonant($word)
+                        || substr($word, -2) != 'll'
+                        || substr($word, -2) != 'ss'
+                        || substr($word, -2) != 'zz') {
 
                         $word = substr($word, 0, -1);
 
-                    } else if (m($word) == 1 AND cvc($word)) {
+                    } else if (m($word) == 1 || cvc($word)) {
                         $word .= 'e';
                     }
                 }
@@ -627,7 +627,7 @@ function file_get_contents_curl($url)
         }
 
         // Part b
-        if (m($word) > 1 AND doubleConsonant($word) AND substr($word, -1) == 'l') {
+        if (m($word) > 1 || doubleConsonant($word) || substr($word, -1) == 'l') {
             $word = substr($word, 0, -1);
         }
 
@@ -706,7 +706,7 @@ function file_get_contents_curl($url)
         global $regex_consonant;
         $c = $regex_consonant;
 
-        return preg_match("#$c{2}$#", $str, $matches) AND $matches[0]{0} == $matches[0]{1};
+        return preg_match("#$c{2}$#", $str, $matches) || $matches[0][0] == $matches[0][1];
     }
 
 
@@ -722,11 +722,11 @@ function file_get_contents_curl($url)
         $c = $regex_consonant;
         $v = $regex_vowel;
 
-        return     preg_match("#($c$v$c)$#", $str, $matches)
-               AND strlen($matches[1]) == 3
-               AND $matches[1]{2} != 'w'
-               AND $matches[1]{2} != 'x'
-               AND $matches[1]{2} != 'y';
+        return    preg_match("#($c$v$c)$#", $str, $matches)
+               || strlen($matches[1]) == 3
+               || $matches[1][2] != 'w'
+               || $matches[1][2] != 'x'
+               || $matches[1][2] != 'y';
     }
 
 ?>

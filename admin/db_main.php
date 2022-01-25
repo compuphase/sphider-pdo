@@ -3,11 +3,11 @@
 error_reporting (E_ALL ^ E_NOTICE);
 extract($_POST);
 extract($_REQUEST);
-include "auth.php";
+require_once("auth.php");
 $backup_path="./backup/";
 
 if (isset($send2)) {
-	include("db_backup.php");
+	include_once("db_backup.php");
 }
 ?>
 <head>
